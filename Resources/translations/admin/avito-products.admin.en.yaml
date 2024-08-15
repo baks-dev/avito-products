@@ -1,0 +1,26 @@
+page:
+  index: 'Product settings for Avito'
+  new: 'Add products for Avito'
+  edit: 'Edit products for Avito'
+  delete: 'Delete products for Avito'
+
+breadcrumb:
+  index: 'Product settings for Avito'
+  new: 'Add products for Avito'
+  edit: 'Edit products for Avito'
+  delete: 'Delete products for Avito'
+
+success:
+  new: 'Product settings for Avito have been successfully added'
+  edit: 'Product settings for Avito have been successfully updated'
+  delete: 'Product settings for Avito were successfully deleted'
+  restore: 'Product settings for Avito have been successfully restored'
+
+danger:
+  new: '%s: Error adding product settings for Avito'
+  edit: '%s: Error when updating product settings for Avito'
+  delete: '%s: Error updating product settings for Avito'
+  restore: '%s: Error while restoring product settings for Avito'
+form:
+  delete:
+    h4: 'Are you sure you want to delete product settings for Avito?'

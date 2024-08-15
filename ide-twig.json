@@ -1,0 +1,8 @@
+{
+  "namespaces": [
+    {
+      "namespace": "avito-products",
+      "path": "Resources/view"
+    }
+  ]
+}
