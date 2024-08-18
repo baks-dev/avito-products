@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,33 +23,19 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products;
+namespace BaksDev\Avito\Products\Type\Doctrine\Event;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use BaksDev\Core\Type\UidType\UidType;
 
-class BaksDevAvitoProductsBundle extends AbstractBundle
+final class ProductLiveImageType extends UidType
 {
-    public const string NAMESPACE = __NAMESPACE__.'\\';
-
-    public const string PATH = __DIR__.DIRECTORY_SEPARATOR;
-
-    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    public function getClassType(): string
     {
-        $services = $container->services();
+        return ProductLiveImageUid::class;
+    }
 
-        $services
-            ->defaults()
-            ->autowire()
-            ->autoconfigure();
-
-        $services->load(self::NAMESPACE, self::PATH)
-            ->exclude([
-                self::PATH.'{Entity,Resources,Type}',
-                self::PATH.'**/*Message.php',
-                self::PATH.'**/*DTO.php',
-            ]);
-
+    public function getName(): string
+    {
+        return ProductLiveImageUid::TYPE;
     }
 }
