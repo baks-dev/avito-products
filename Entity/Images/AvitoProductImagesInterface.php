@@ -21,26 +21,17 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+namespace BaksDev\Avito\Products\Entity\Images;
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
-use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
-use Symfony\Config\DoctrineConfig;
+use BaksDev\Core\Type\UidType\Uid;
 
-return static function (DoctrineConfig $doctrine): void {
+interface AvitoProductImagesInterface
+{
+    public function getId(): ?Uid;
 
-    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
-    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
+    public function getName(): ?string;
 
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
+    public function getExt(): ?string;
 
-    $emDefault->mapping('avito-products')
-        ->type('attribute')
-        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Avito\Products\Entity')
-        ->alias('avito-products');
-};
+    public function getCdn(): bool;
+}

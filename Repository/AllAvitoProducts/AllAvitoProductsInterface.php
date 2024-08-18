@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,17 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+namespace BaksDev\Avito\Products\Repository\AllAvitoProducts;
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
-use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
-use Symfony\Config\DoctrineConfig;
+use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Type\Id\ProductUid;
 
-return static function (DoctrineConfig $doctrine): void {
+interface AllAvitoProductsInterface
+{
+    public function product(Product|ProductUid|string $product): self;
 
-    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
-    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
-
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
-
-    $emDefault->mapping('avito-products')
-        ->type('attribute')
-        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Avito\Products\Entity')
-        ->alias('avito-products');
-};
+    /**
+     * Возвращает массив с данными карточек продукта Авито
+     */
+    public function execute(): array|false;
+}

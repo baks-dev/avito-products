@@ -21,26 +21,14 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+declare(strict_types=1);
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
-use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
-use Symfony\Config\DoctrineConfig;
+namespace BaksDev\Avito\Products\Messenger;
 
-return static function (DoctrineConfig $doctrine): void {
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
-    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
-
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
-
-    $emDefault->mapping('avito-products')
-        ->type('attribute')
-        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Avito\Products\Entity')
-        ->alias('avito-products');
-};
+#[AsMessageHandler]
+final class AvitoProductHandlerNull
+{
+    public function __invoke(AvitoProductMessage $message): void {}
+}

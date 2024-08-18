@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,32 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+declare(strict_types=1);
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
-use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
-use Symfony\Config\DoctrineConfig;
+namespace BaksDev\Avito\Products\Schedule\RefreshFeed;
 
-return static function (DoctrineConfig $doctrine): void {
+use BaksDev\Core\Schedule\ScheduleInterface;
+use DateInterval;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
-    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
+/**
+ * Проверяем новые заказы Yandex Market каждые 5 минут
+ */
+#[AutoconfigureTag('baks.schedule')]
+final class RefreshFeedSchedule implements ScheduleInterface
+{
+    /** Возвращает класс сообщение */
+    public function getMessage(): object
+    {
+        return new RefreshFeedScheduleMessage();
+    }
 
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
-
-    $emDefault->mapping('avito-products')
-        ->type('attribute')
-        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Avito\Products\Entity')
-        ->alias('avito-products');
-};
+    /**
+     * Интервал повтора
+     * @see https://www.php.net/manual/en/dateinterval.createfromdatestring.php
+     */
+    public function getInterval(): DateInterval
+    {
+        return DateInterval::createFromDateString('30 minutes');
+    }
+}

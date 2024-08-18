@@ -1,0 +1,127 @@
+{% trans_default_domain 'avito-products.admin' %}
+
+<div class="modal-dialog modal-dialog-centered " style="max-width: 850px;">
+
+    {% if product %}
+
+        {% set arr_property = product.category_section_field|json_decode %}
+
+        {{ form_start(form) }}
+
+        <div class="modal-content p-3 border-bottom border-5 border-primary">
+
+            {# Заголовок модального окна #}
+            {{ include('@avito-products/admin/products/edit/pc/_header.html.twig') }}
+
+            {# Табы #}
+            <ul class="nav nav-pills gap-3 mb-3 mt-3" id="nav-avito-product">
+
+                <li class="nav-item" role="presentation">
+                    <button class="btn fw-bolder nav-link active"
+                            data-bs-toggle="tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+
+                            id="tab_images-tab"
+                            data-bs-target="#tab_images"
+                            aria-controls="nav-avito-product"
+                    >
+                        <small class="text-uppercase px-3">
+                            Изображения
+                        </small>
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="btn fw-bolder nav-link"
+                            data-bs-toggle="tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
+
+                            id="tab_description-tab"
+                            data-bs-target="#tab_description"
+                            aria-controls="nav-avito-product"
+                    >
+                        <small class="text-uppercase px-3">
+                            Шаблон описания
+                        </small>
+                    </button>
+                </li>
+
+            </ul>
+
+            <div class="tab-content">
+
+                {# Изображения #}
+                <div class="tab-pane fade show active" id="tab_images" role="tabpanel">
+                    {#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }} #}
+                    {{ include('@avito-products/admin/products/edit/pc/_images.html.twig') }}
+                </div>
+
+                {# Описание #}
+                <div class="tab-pane fade show" id="tab_description" role="tabpanel">
+                    {{ form_row(form.description, {
+                        attr: { class: 'ckeditor'}
+                    }) }}
+                </div>
+
+            </div>
+
+            {# Кнопки формы #}
+            <div class="modal-footer ">
+                <div class="flex-grow-1">
+                    &nbsp;
+                </div>
+                <div class="mt-3 gap-3 d-flex">
+                    {# Отмена #}
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                    </button>
+
+                    {# Сохранить #}
+                    {{ form_widget(form.avito_product, { label:
+                        '<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+                         <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>'}) }}
+                </div>
+            </div>
+
+        </div>
+
+        {# Прототип формы для изображения #}
+        <div id="prototype.gallery.image"
+             data-prototype="{{ include(_self|replace({ "content.html.twig": "_prototype.image.html.twig" }))|e('html_attr') }}">
+        </div>
+
+        {{ form_end(form) }}
+
+    {% else %}
+
+        <div class="modal-content p-3 border-bottom border-5 border-primary">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Ошибка товара
+                </h5>
+            </div>
+
+            <div class="modal-body p-3">
+                Данного товара не существует!
+            </div>
+
+            <div class="modal-footer ">
+                <div class="mt-3 gap-3 d-flex">
+                    {# Отмена #}
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
