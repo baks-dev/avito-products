@@ -23,12 +23,12 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Type\Doctrine\Event;
+namespace BaksDev\Avito\Products\Type\Doctrine;
 
 use BaksDev\Core\Type\UidType\Uid;
 use Symfony\Component\Uid\AbstractUid;
 
-final class ProductLiveImageUid extends Uid
+final class AvitoProductUid extends Uid
 {
     /** Тестовый идентификатор */
     public const string TEST = 'da442a45-15cd-492c-a1dc-53ff9537055f';

@@ -21,9 +21,6 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Entity\Event;
+namespace BaksDev\Avito\Products\Entity;
 
-interface ProductLiveImageInterface
-{
-    public function getEvent(): ?ProductLiveImageUid;
-}
+interface AvitoProductInterface{}

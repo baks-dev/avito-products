@@ -326,9 +326,9 @@ final class AllProductImages implements AllProductImagesInterface
         //            ->addSelect('product_variation_image.id as variation_photo')
         //            ->addSelect('product_modification_image.id as modification_photo');
 
-        //        dd($dbal
-        //            ->setMaxResults(50)
-        //            ->fetchAllAssociative());
+//                dd($dbal
+//                    ->setMaxResults(50)
+//                    ->fetchAllAssociative());
 
 
         return $this->paginator->fetchAllAssociative($dbal);

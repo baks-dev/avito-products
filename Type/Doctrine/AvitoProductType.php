@@ -23,19 +23,19 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Type\Doctrine\Event;
+namespace BaksDev\Avito\Products\Type\Doctrine;
 
 use BaksDev\Core\Type\UidType\UidType;
 
-final class ProductLiveImageType extends UidType
+final class AvitoProductType extends UidType
 {
     public function getClassType(): string
     {
-        return ProductLiveImageUid::class;
+        return AvitoProductUid::class;
     }
 
     public function getName(): string
     {
-        return ProductLiveImageUid::TYPE;
+        return AvitoProductUid::TYPE;
     }
 }

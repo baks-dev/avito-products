@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Controller\Admin\ProductImages;
+namespace BaksDev\Avito\Products\Controller\Admin\Images;
 
 use BaksDev\Avito\Products\Repository\ProductImages\AllProductImages;
 use BaksDev\Core\Controller\AbstractController;
@@ -40,9 +40,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_INDEX')]
-final class EditController extends AbstractController
+final class IndexController extends AbstractController
 {
-    #[Route('/admin/avito/product/images/{page<\d+>}', name: 'admin.product.images.edit', methods: ['GET', 'POST'])]
+    #[Route('/admin/avito/product/images/{page<\d+>}', name: 'admin.product.images.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
         AllProductParameterInterface $allProductParameter,
@@ -72,19 +72,16 @@ final class EditController extends AbstractController
         /** Если перезагрузить страницу */
         false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
-        // Получаем список
-        $ProductParameter = $allProductParameter
-            ->search($search)
-            ->filter($filter)
-            ->fetchAllProductParameterAssociative();
-
-//        dd($productImages->findAll());
+        //        dd($productImages->findAll());
 
         return $this->render(
             [
                 'filter' => $filterForm->createView(),
                 'search' => $searchForm->createView(),
-//                'query' => $ProductParameter,
+//                'query' => $allProductParameter
+//            ->search($search)
+//            ->filter($filter)
+//            ->fetchAllProductParameterAssociative(),
                 'query' => $productImages->findAll(),
             ]
         );

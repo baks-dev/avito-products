@@ -23,10 +23,11 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Entity\Event;
+namespace BaksDev\Avito\Products\Entity;
 
-use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Files\Resources\Upload\UploadEntityInterface;
+use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
+use BaksDev\Avito\Products\Type\Doctrine\AvitoProductUid;
+use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -35,79 +36,54 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/* ProductLiveImage */
-
 #[ORM\Entity]
-#[ORM\Table(name: 'product_live_image')]
-#[ORM\Index(columns: ['root'])]
-class AvitoProductImage extends EntityEvent // implements UploadEntityInterface
+#[ORM\Table(name: 'avito_products')]
+class AvitoProduct extends EntityState // extends EntityEvent // implements UploadEntityInterface
 {
-    /**
-     * Идентификатор События
-     */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     #[ORM\Id]
-    #[ORM\Column(type: ProductLiveImageUid::TYPE)]
-    private ProductLiveImageUid $id;
+    #[ORM\Column(type: AvitoProductUid::TYPE)]
+    private AvitoProductUid $id;
 
-    /**
-     * Идентификатор ProductLiveImage
-     */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    #[ORM\Column(type: ProductLiveImageUid::TYPE, nullable: false)]
-    private ?ProductLiveImageUid $main = null;
-
-    /** ID продукта */
+    /** ID продукта (не уникальное) */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     #[ORM\Column(type: ProductUid::TYPE)]
     private ProductUid $product;
 
-    /** Постоянный уникальный идентификатор ТП */
+    /** Константа ТП */
     #[ORM\Column(type: ProductOfferConst::TYPE, nullable: true)]
-    private ?ProductOfferConst $offer;
+    private ?ProductOfferConst $offer = null;
 
-    /** Постоянный уникальный идентификатор варианта */
+    /** Константа множественного варианта */
     #[ORM\Column(type: ProductVariationConst::TYPE, nullable: true)]
-    private ?ProductVariationConst $variation;
+    private ?ProductVariationConst $variation = null;
 
-    /** Постоянный уникальный идентификатор модификации */
+    /** Константа модификации множественного варианта */
     #[ORM\Column(type: ProductModificationConst::TYPE, nullable: true)]
-    private ?ProductModificationConst $modification;
+    private ?ProductModificationConst $modification = null;
 
-    /** One To One */
-    //#[ORM\OneToOne(mappedBy: 'event', targetEntity: ProductLiveImageLogo::class, cascade: ['all'])]
-    //private ?ProductLiveImageOne $one = null;
+    //    /** Модификатор */
+    //    #[ORM\OneToOne(mappedBy: 'event', targetEntity: AvitoProductImageModify::class, cascade: ['all'])]
+    //    private AvitoProductImageModify $modify;
 
-    /**
-     * Модификатор
-     */
-    #[ORM\OneToOne(mappedBy: 'event', targetEntity: ProductLiveImageModify::class, cascade: ['all'])]
-    private ProductLiveImageModify $modify;
-
-    /**
-     * Переводы
-     */
-    //#[ORM\OneToMany(mappedBy: 'event', targetEntity: ProductLiveImageTrans::class, cascade: ['all'])]
-    //private Collection $translate;
-
+    /** Коллекция "живых" изображений продукта */
+    #[ORM\OneToMany(targetEntity: AvitoProductImages::class, mappedBy: 'avito', cascade: ['all'])]
+    private ?AvitoProductImages $images = null;
 
     public function __construct()
     {
-        $this->id = new ProductLiveImageUid();
-        $this->modify = new ProductLiveImageModify($this);
-
+        $this->id = new AvitoProductUid();
+        //        $this->modify = new AvitoProductImageModify($this);
     }
 
     /**
      * Идентификатор события
      */
-
     public function __clone()
     {
-        $this->id = clone new ProductLiveImageUid();
+        $this->id = clone new AvitoProductUid();
     }
 
     public function __toString(): string
@@ -115,27 +91,14 @@ class AvitoProductImage extends EntityEvent // implements UploadEntityInterface
         return (string)$this->id;
     }
 
-    public function getId(): ProductLiveImageUid
+    public function getId(): AvitoProductUid
     {
         return $this->id;
     }
 
-    /**
-     * Идентификатор ProductLiveImage
-     */
-    public function setMain(ProductLiveImageUid|AvitoProductImage $main): void
-    {
-        $this->main = $main instanceof AvitoProductImage ? $main->getId() : $main;
-    }
-
-    public function getMain(): ?ProductLiveImageUid
-    {
-        return $this->main;
-    }
-
     public function getDto($dto): mixed
     {
-        if ($dto instanceof ProductLiveImageInterface)
+        if ($dto instanceof AvitoProductInterface)
         {
             return parent::getDto($dto);
         }
@@ -145,12 +108,11 @@ class AvitoProductImage extends EntityEvent // implements UploadEntityInterface
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof ProductLiveImageInterface)
+        if ($dto instanceof AvitoProductInterface)
         {
             return parent::setEntity($dto);
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
-
 }
