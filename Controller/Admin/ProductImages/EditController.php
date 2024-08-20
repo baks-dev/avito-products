@@ -40,9 +40,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_INDEX')]
-final class IndexController extends AbstractController
+final class EditController extends AbstractController
 {
-    #[Route('/admin/avito/product/images/{page<\d+>}', name: 'admin.product.images.index', methods: ['GET', 'POST'])]
+    #[Route('/admin/avito/product/images/{page<\d+>}', name: 'admin.product.images.edit', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
         AllProductParameterInterface $allProductParameter,

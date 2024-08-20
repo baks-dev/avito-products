@@ -40,7 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Table(name: 'product_live_image')]
 #[ORM\Index(columns: ['root'])]
-class ProductLiveImage extends EntityEvent implements UploadEntityInterface
+class AvitoProductImage extends EntityEvent // implements UploadEntityInterface
 {
     /**
      * Идентификатор События
@@ -123,9 +123,9 @@ class ProductLiveImage extends EntityEvent implements UploadEntityInterface
     /**
      * Идентификатор ProductLiveImage
      */
-    public function setMain(ProductLiveImageUid|ProductLiveImage $main): void
+    public function setMain(ProductLiveImageUid|AvitoProductImage $main): void
     {
-        $this->main = $main instanceof ProductLiveImage ? $main->getId() : $main;
+        $this->main = $main instanceof AvitoProductImage ? $main->getId() : $main;
     }
 
     public function getMain(): ?ProductLiveImageUid
