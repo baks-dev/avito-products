@@ -73,7 +73,7 @@ final class EditController extends AbstractController
         $form->handleRequest($request);
 
         $product = $productWithImages->findOneBy($product, $offer, $variation, $modification);
-        dd($product);
+//        dd($product);
 
         return $this->render(['form' => $form->createView(), 'product' => $product]);
     }
