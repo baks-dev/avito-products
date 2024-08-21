@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
-use BaksDev\Avito\Products\Type\Doctrine\AvitoProductUid;
+use BaksDev\Avito\Products\Type\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -37,7 +37,7 @@ use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'avito_products')]
+#[ORM\Table(name: 'avito_product')]
 class AvitoProduct extends EntityState // extends EntityEvent // implements UploadEntityInterface
 {
     #[Assert\NotBlank]
@@ -78,9 +78,7 @@ class AvitoProduct extends EntityState // extends EntityEvent // implements Uplo
         //        $this->modify = new AvitoProductImageModify($this);
     }
 
-    /**
-     * Идентификатор события
-     */
+    /** Идентификатор события */
     public function __clone()
     {
         $this->id = clone new AvitoProductUid();

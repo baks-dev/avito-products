@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Type\Doctrine;
+namespace BaksDev\Avito\Products\Type;
 
 use BaksDev\Core\Type\UidType\Uid;
 use Symfony\Component\Uid\AbstractUid;
@@ -33,7 +33,7 @@ final class AvitoProductUid extends Uid
     /** Тестовый идентификатор */
     public const string TEST = 'da442a45-15cd-492c-a1dc-53ff9537055f';
 
-    public const string TYPE = 'product_live_image_uid';
+    public const string TYPE = 'avito_product';
 
     private mixed $attr;
 
@@ -64,7 +64,6 @@ final class AvitoProductUid extends Uid
         return $this->attr;
     }
 
-
     public function getOption(): mixed
     {
         return $this->option;
@@ -79,5 +78,4 @@ final class AvitoProductUid extends Uid
     {
         return $this->characteristic;
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,29 @@
 namespace BaksDev\Avito\Products\Entity\Images;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use BaksDev\Files\Resources\Upload\UploadEntityInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'avito_products_images')]
+#[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
 class AvitoProductImages implements UploadEntityInterface
 {
-    /**
-     * Идентификатор события
-     */
+    /** ID */
     #[Assert\NotBlank]
     #[Assert\Uuid]
     #[ORM\Id]
+    #[ORM\Column(type: AvitoProductImageUid::TYPE)]
+    private AvitoProductImageUid $id;
+
+    /**
+     * Идентификатор продукта Авито
+     */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
     #[ORM\ManyToOne(targetEntity: AvitoProduct::class, inversedBy: 'images')]
     #[ORM\JoinColumn(name: 'avito', referencedColumnName: 'id')]
     private AvitoProduct $avito;
@@ -72,12 +79,13 @@ class AvitoProductImages implements UploadEntityInterface
 
     public function __construct(AvitoProduct $avito)
     {
+        $this->id = new AvitoProductImageUid();
         $this->avito = $avito;
     }
 
     public function __clone()
     {
-        $this->avito = clone $this->avito;
+        $this->id = clone $this->id;
     }
 
     public function __toString(): string

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
 use BaksDev\Avito\Products\Entity\AvitoProductInterface;
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -12,6 +13,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/** @see AvitoProduct */
 final class AvitoProductDTO implements AvitoProductInterface
 {
     /** ID продукта (не уникальный) */
@@ -31,6 +33,11 @@ final class AvitoProductDTO implements AvitoProductInterface
     #[Assert\Uuid]
     private ?ProductModificationConst $modification = null;
 
+    /**
+     * Коллекция "живых" изображений продукта
+     *
+     * @var ArrayCollection<int, AvitoProductImagesDTO> $images
+     */
     #[Assert\Valid]
     private ArrayCollection $images;
 
@@ -49,19 +56,14 @@ final class AvitoProductDTO implements AvitoProductInterface
         return $this->offer;
     }
 
-    public function getVariation(): ?ProductVariationConst
-    {
-        return $this->variation;
-    }
-
-    public function getModification(): ?ProductModificationConst
-    {
-        return $this->modification;
-    }
-
     public function setOffer(?ProductOfferConst $offer): void
     {
         $this->offer = $offer;
+    }
+
+    public function getVariation(): ?ProductVariationConst
+    {
+        return $this->variation;
     }
 
     public function setVariation(?ProductVariationConst $variation): void
@@ -69,9 +71,38 @@ final class AvitoProductDTO implements AvitoProductInterface
         $this->variation = $variation;
     }
 
+    public function getModification(): ?ProductModificationConst
+    {
+        return $this->modification;
+    }
+
     public function setModification(?ProductModificationConst $modification): void
     {
         $this->modification = $modification;
     }
 
+    /**
+     * @return ArrayCollection<int, AvitoProductImagesDTO>
+     */
+    public function getImages(): ArrayCollection
+    {
+        return $this->images;
+    }
+
+    public function addImage(AvitoProductImagesDTO $image): void
+    {
+        $filter = $this->images->filter(function (AvitoProductImagesDTO $element) use ($image) {
+            return !$image->file && $image->getName() === $element->getName();
+        });
+
+        if($filter->isEmpty())
+        {
+            $this->images->add($image);
+        }
+    }
+
+    public function removeImage(AvitoProductImagesDTO $image): void
+    {
+        $this->images->removeElement($image);
+    }
 }

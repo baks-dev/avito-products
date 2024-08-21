@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin\Images;
 
-use BaksDev\Avito\Products\Repository\ProductImages\AllProductImages;
+use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImageRepository;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
@@ -46,7 +46,7 @@ final class IndexController extends AbstractController
     public function index(
         Request $request,
         AllProductParameterInterface $allProductParameter,
-        AllProductImages $productImages,
+        AllProductsWithAvitoImageRepository $productImages,
         int $page = 0,
     ): Response {
 

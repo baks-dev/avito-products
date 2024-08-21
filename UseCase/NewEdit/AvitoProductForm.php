@@ -23,9 +23,8 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\UseCase\Images;
+namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
-use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -33,7 +32,6 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -111,7 +109,7 @@ final class AvitoProductForm extends AbstractType
         );
 
 
-        /* Сохранить ******************************************************/
+        /** Сохранить */
         $builder->add(
             'product_stock_parameter',
             SubmitType::class,

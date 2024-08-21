@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin\Images;
 
-use BaksDev\Avito\Products\UseCase\Images\AvitoProductForm;
+use BaksDev\Avito\Products\Repository\ProductWithAvitoImages\ProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
+use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductForm;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Type\UidType\ParamConverter;
-use BaksDev\Products\Product\Repository\ProductDetail\ProductDetailByConstInterface;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -44,13 +44,14 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_EDIT')]
 final class EditController extends AbstractController
 {
-    #[Route('/admin/avito/product/images/{product}/{offer}/{variation}/{modification}',
+    #[Route(
+        '/admin/avito/product/images/{product}/{offer}/{variation}/{modification}',
         name: 'admin.product.images.edit',
         methods: ['GET', 'POST']
     )]
     public function index(
         Request $request,
-        ProductDetailByConstInterface $productByConst,
+        ProductWithAvitoImagesInterface $productWithImages,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer = null,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
@@ -58,16 +59,21 @@ final class EditController extends AbstractController
     ): Response {
 
         $editDTO = new AvitoProductDTO();
+
         $editDTO->setProduct($product);
         $editDTO->setOffer($offer);
         $editDTO->setVariation($variation);
         $editDTO->setModification($modification);
 
-        $form = $this->createForm(AvitoProductForm::class, $editDTO);
+        $form = $this->createForm(
+            AvitoProductForm::class,
+            $editDTO,
+            ['action' => $this->generateUrl('avito-products:admin.product.images.index')]
+        );
         $form->handleRequest($request);
 
-        $product = $productByConst->fetchProductDetailByConstAssociative($product, $offer, $variation, $modification);
-//        dd($product);
+        $product = $productWithImages->findOneBy($product, $offer, $variation, $modification);
+        dd($product);
 
         return $this->render(['form' => $form->createView(), 'product' => $product]);
     }

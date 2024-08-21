@@ -21,21 +21,14 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
-namespace BaksDev\Avito\Products\Type\Doctrine;
+use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 
-use BaksDev\Core\Type\UidType\UidType;
-
-final class AvitoProductType extends UidType
+interface AllProductsWithAvitoImageInterface
 {
-    public function getClassType(): string
-    {
-        return AvitoProductUid::class;
-    }
+    public function filter(ProductFilterDTO $filter): self;
 
-    public function getName(): string
-    {
-        return AvitoProductUid::TYPE;
-    }
+    public function findAll(): PaginatorInterface;
 }

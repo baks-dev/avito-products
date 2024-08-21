@@ -23,4 +23,11 @@
 
 namespace BaksDev\Avito\Products\Entity\Images;
 
-interface AvitoProductImagesInterface {}
+interface AvitoProductImagesInterface
+{
+    public function getName(): ?string;
+
+    public function getExt(): ?string;
+
+    public function getCdn(): bool;
+}

@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'avito_product_image_modify')]
+#[ORM\Table(name: 'avito_product_modify')]
 #[ORM\Index(columns: ['action'])]
 class AvitoProductImageModify extends EntityEvent
 {
