@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Controller\Admin\Images;
+namespace BaksDev\Avito\Products\Controller\Admin;
 
 use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImageRepository;
 use BaksDev\Core\Controller\AbstractController;
@@ -42,10 +42,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_INDEX')]
 final class IndexController extends AbstractController
 {
-    #[Route('/admin/avito/product/images/{page<\d+>}', name: 'admin.product.images.index', methods: ['GET', 'POST'])]
+    #[Route('/admin/avito/products/{page<\d+>}', name: 'admin.products.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        AllProductParameterInterface $allProductParameter,
         AllProductsWithAvitoImageRepository $productImages,
         int $page = 0,
     ): Response {
@@ -55,7 +54,7 @@ final class IndexController extends AbstractController
         $searchForm = $this->createForm(
             SearchForm::class,
             $search,
-            ['action' => $this->generateUrl('avito-products:admin.product.images.index')]
+            ['action' => $this->generateUrl('avito-products:admin.products.index')]
         );
         $searchForm->handleRequest($request);
 
@@ -64,7 +63,7 @@ final class IndexController extends AbstractController
          */
         $filter = new ProductFilterDTO($request);
         $filterForm = $this->createForm(ProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('avito-products:admin.product.images.index'),
+            'action' => $this->generateUrl('avito-products:admin.products.index'),
         ]);
 
         $filterForm->handleRequest($request);

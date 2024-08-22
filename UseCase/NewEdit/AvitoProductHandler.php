@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BaksDev\Avito\Products\UseCase\NewEdit;
+
+use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Core\Entity\AbstractHandler;
+
+final class AvitoProductHandler extends AbstractHandler
+{
+    /** @see */
+    public function handle(AvitoProductDTO $command): string|AvitoProduct
+    {
+        /** Валидация DTO  */
+        $this->validatorCollection->add($command);
+
+        /** @var AvitoProduct|null $entity */
+        $entity = $this->entityManager->getRepository(AvitoProduct::class)
+            ->findOneBy([
+                'product' => $command->getProduct(),
+                'offer' => $command->getOffer(),
+                'variation' => $command->getVariation(),
+                'modification' => $command->getModification()
+            ]);
+
+
+        if(null === $entity)
+        {
+            $entity = new AvitoProduct();
+            $this->entityManager->persist($entity);
+        }
+
+        $entity->setEntity($command);
+        $this->validatorCollection->add($entity);
+
+        /** Валидация всех объектов */
+        if ($this->validatorCollection->isInvalid())
+        {
+            return $this->validatorCollection->getErrorUniqid();
+        }
+
+        $this->entityManager->flush();
+
+        // @TODO без сообщения?
+        //
+        //        $this->messageDispatch->dispatch(
+        //            message: new Message($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
+        //            transport: ''
+        //        );
+
+        return $entity;
+    }
+}

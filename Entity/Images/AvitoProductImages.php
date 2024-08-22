@@ -25,15 +25,18 @@ namespace BaksDev\Avito\Products\Entity\Images;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
+use BaksDev\Core\Entity\EntityState;
 use BaksDev\Files\Resources\Upload\UploadEntityInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-class AvitoProductImages implements UploadEntityInterface
+class AvitoProductImages extends EntityState implements UploadEntityInterface
 {
     /** ID */
     #[Assert\NotBlank]
@@ -65,7 +68,7 @@ class AvitoProductImages implements UploadEntityInterface
 
     /** Размер файла */
     #[Assert\NotBlank]
-    #[Assert\Range(max: 1048576)] // 1024 * 1024
+    #[Assert\Range(max: 10485760)] // (1024 * 1024)*10
     #[ORM\Column(type: Types::INTEGER)]
     private int $size = 0;
 
@@ -124,5 +127,38 @@ class AvitoProductImages implements UploadEntityInterface
     public function getPathDir(): string
     {
         return $this->name;
+    }
+
+    public function getDto($dto): mixed
+    {
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if($dto instanceof AvitoProductImagesDTO)
+        {
+            return parent::getDto($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function setEntity($dto): mixed
+    {
+        // Если размер файла нулевой - не заполняем сущность
+        if(empty($dto->file) && empty($dto->getName()))
+        {
+            return false;
+        }
+
+        if(!empty($dto->file))
+        {
+            $dto->setEntityUpload($this);
+        }
+
+        if($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
+        {
+            return parent::setEntity($dto);
+        }
+
+        throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 }

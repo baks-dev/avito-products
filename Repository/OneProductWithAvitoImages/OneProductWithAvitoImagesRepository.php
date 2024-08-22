@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Repository\ProductWithAvitoImages;
+namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
@@ -48,7 +48,6 @@ use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Quantity\ProductOfferQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
-use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Image\ProductModificationImage;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
@@ -65,20 +64,22 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 
-final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesInterface
+final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoImagesInterface
 {
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+    ) {}
 
     /**
      * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
      *
-     * @param ?ProductOfferConst $offer - значение торгового предложения
-     * @param ?ProductVariationConst $variation - значение множественного варианта ТП
-     * @param ?ProductModificationConst $modification - значение модификации множественного варианта ТП
+     * @param ProductOfferConst $offer - значение торгового предложения
+     * @param ProductVariationConst|null $variation - значение множественного варианта ТП
+     * @param ProductModificationConst|null $modification - значение модификации множественного варианта ТП
      */
-    public function findOneBy(
+    public function findBy(
         ProductUid $product,
-        ?ProductOfferConst $offer = null,
+        ProductOfferConst $offer,
         ?ProductVariationConst $variation = null,
         ?ProductModificationConst $modification = null,
     ): array|bool {
@@ -96,8 +97,8 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 
         $dbal
             ->addSelect('product_active.active')
-            ->addSelect('product_active.active_from')
-            ->addSelect('product_active.active_to')
+//            ->addSelect('product_active.active_from')
+//            ->addSelect('product_active.active_to')
             ->leftJoin(
                 'product',
                 ProductActive::class,
@@ -126,7 +127,7 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
             ->addGroupBy('product_price.quantity')
             ->addGroupBy('product_price.reserve');
 
-        /* ProductInfo */
+        /* Базовый артикул продукта */
         $dbal
             ->addSelect('product_info.url AS product_url')
             ->leftJoin(
@@ -164,6 +165,7 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 
         $dbal
             ->addSelect('product_offer.id as product_offer_uid')
+            ->addSelect('product_offer.const as product_offer_const')
             ->addSelect('product_offer.value as product_offer_value')
             ->addSelect('product_offer.postfix as product_offer_postfix')
             ->addGroupBy('product_offer.article');
@@ -238,10 +240,10 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 
         $dbal
             ->addSelect('product_offer_variation.id as product_variation_uid')
+            ->addSelect('product_offer_variation.const as product_variation_const')
             ->addSelect('product_offer_variation.value as product_variation_value')
             ->addSelect('product_offer_variation.postfix as product_variation_postfix')
             ->addGroupBy('product_offer_variation.article');
-
 
         /* Цена множественного варианта */
         $dbal
@@ -358,7 +360,6 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
             ->addGroupBy('product_modification_quantity.quantity')
             ->addGroupBy('product_modification_quantity.reserve');
 
-
         /* Артикул продукта */
         $dbal->addSelect(
             '
@@ -460,7 +461,6 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 			END AS product_image_cdn
 		');
 
-
         /* Наличие продукта */
 
         $dbal->addSelect(
@@ -485,7 +485,6 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 		'
         );
 
-
         /* Категория */
         $dbal->join(
             'product',
@@ -493,7 +492,6 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
             'product_event_category',
             'product_event_category.event = product.event AND product_event_category.root = true'
         );
-
 
         $dbal->join(
             'product_event_category',
@@ -527,8 +525,7 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
             'category_section.event = category.event'
         );
 
-        /* Свойства, учавствующие в карточке */
-
+        /* Свойства, участвующие в карточке */
         $dbal->leftJoin(
             'category_section',
             CategoryProductSectionField::class,
@@ -571,11 +568,42 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 			AS category_section_field"
         );
 
-        $dbal->join(
-            'product_offer_modification',
+        $dbal->addSelect(
+            '
+                CASE
+                    WHEN product_offer_modification.id IS NOT NULL THEN product_offer_modification.id
+                    WHEN product_offer_variation.const IS NOT NULL THEN product_offer_variation.const
+                    WHEN product_offer.const IS NOT NULL THEN product_offer.const
+                    ELSE NULL
+                END AS avito_product_const'
+        );
+
+        $from = null;
+        $condition = null;
+
+        if (isset($offer))
+        {
+            $from = 'product_offer';
+            $condition = 'avito_product.offer = product_offer.const';
+        }
+
+        if (isset($variation))
+        {
+            $from = 'product_offer_variation';
+            $condition = 'avito_product.variation = product_offer_variation.const';
+        }
+
+        if (isset($modification))
+        {
+            $from = 'product_offer_modification';
+            $condition = 'avito_product.modification = product_offer_modification.const';
+        }
+
+        $dbal->leftJoin(
+            $from,
             AvitoProduct::class,
             'avito_product',
-            'avito_product.modification = product_offer_modification.id'
+            $condition
         );
 
         $dbal->leftJoin(
@@ -587,21 +615,26 @@ final class ProductWithAvitoImagesRepository implements ProductWithAvitoImagesIn
 
         $dbal->addSelect(
             "
-            JSON_AGG (DISTINCT
-                JSONB_BUILD_OBJECT
-                    (
-                        'product_img_root', avito_product_images.root,
-                        'product_img', CONCAT ( '/upload/" . $dbal->table(AvitoProductImages::class) . "' , '/', avito_product_images.name),
-                        'product_img_ext', avito_product_images.ext,
-                        'product_img_cdn', avito_product_images.cdn
-                    ))
-			AS avito_product_images"
+            JSON_AGG
+                (DISTINCT
+                    CASE
+                        WHEN avito_product_images.ext IS NOT NULL 
+                        THEN JSONB_BUILD_OBJECT
+                        (
+                            'avito_img_root', avito_product_images.root,
+                            'avito_img_root', avito_product_images.root,
+                            'avito_img', CONCAT ( '/upload/" . $dbal->table(AvitoProductImages::class) . "' , '/', avito_product_images.name),
+                            'avito_img_ext', avito_product_images.ext,
+                            'avito_img_cdn', avito_product_images.cdn
+                        )
+                    END)
+                AS avito_product_images"
         );
 
         $dbal->allGroupByExclude();
 
         return $dbal
-            ->enableCache('avito-products')
+//            ->enableCache('avito-products')
             ->fetchAssociative();
     }
 }

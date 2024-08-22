@@ -11,6 +11,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\Common\Collections\ArrayCollection;
+use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see AvitoProduct */
@@ -23,7 +24,8 @@ final class AvitoProductDTO implements AvitoProductInterface
 
     /** Константа ТП */
     #[Assert\Uuid]
-    private ?ProductOfferConst $offer = null;
+    #[Assert\NotBlank]
+    private ?ProductOfferConst $offer;
 
     /** Константа множественного варианта */
     #[Assert\Uuid]
@@ -36,10 +38,10 @@ final class AvitoProductDTO implements AvitoProductInterface
     /**
      * Коллекция "живых" изображений продукта
      *
-     * @var ArrayCollection<int, AvitoProductImagesDTO> $images
+     * @var ArrayCollection<int, AvitoProductImagesDTO>|null $images
      */
     #[Assert\Valid]
-    private ArrayCollection $images;
+    private ?ArrayCollection $images;
 
     public function getProduct(): ProductUid
     {
@@ -87,22 +89,5 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function getImages(): ArrayCollection
     {
         return $this->images;
-    }
-
-    public function addImage(AvitoProductImagesDTO $image): void
-    {
-        $filter = $this->images->filter(function (AvitoProductImagesDTO $element) use ($image) {
-            return !$image->file && $image->getName() === $element->getName();
-        });
-
-        if($filter->isEmpty())
-        {
-            $this->images->add($image);
-        }
-    }
-
-    public function removeImage(AvitoProductImagesDTO $image): void
-    {
-        $this->images->removeElement($image);
     }
 }

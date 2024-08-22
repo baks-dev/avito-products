@@ -32,13 +32,15 @@ use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product')]
-class AvitoProduct extends EntityState // extends EntityEvent // implements UploadEntityInterface
+class AvitoProduct extends EntityState
 {
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -64,21 +66,16 @@ class AvitoProduct extends EntityState // extends EntityEvent // implements Uplo
     #[ORM\Column(type: ProductModificationConst::TYPE, nullable: true)]
     private ?ProductModificationConst $modification = null;
 
-    //    /** Модификатор */
-    //    #[ORM\OneToOne(mappedBy: 'event', targetEntity: AvitoProductImageModify::class, cascade: ['all'])]
-    //    private AvitoProductImageModify $modify;
-
     /** Коллекция "живых" изображений продукта */
     #[ORM\OneToMany(targetEntity: AvitoProductImages::class, mappedBy: 'avito', cascade: ['all'])]
-    private ?AvitoProductImages $images = null;
+    private ?Collection $images = null;
 
     public function __construct()
     {
         $this->id = new AvitoProductUid();
-        //        $this->modify = new AvitoProductImageModify($this);
+//        $this->images = new ArrayCollection();
     }
 
-    /** Идентификатор события */
     public function __clone()
     {
         $this->id = clone new AvitoProductUid();
@@ -94,6 +91,7 @@ class AvitoProduct extends EntityState // extends EntityEvent // implements Uplo
         return $this->id;
     }
 
+    /** Гидрирует переданную DTO */
     public function getDto($dto): mixed
     {
         if ($dto instanceof AvitoProductInterface)
@@ -106,11 +104,16 @@ class AvitoProduct extends EntityState // extends EntityEvent // implements Uplo
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof AvitoProductInterface)
+        if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function getImages(): ?Collection
+    {
+        return $this->images;
     }
 }

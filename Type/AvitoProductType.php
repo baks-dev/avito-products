@@ -25,18 +25,17 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Type;
 
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use BaksDev\Core\Type\UidType\UidType;
 
 final class AvitoProductType extends UidType
 {
     public function getClassType(): string
     {
-        return AvitoProductImageUid::class;
+        return AvitoProductUid::class;
     }
 
     public function getName(): string
     {
-        return AvitoProductImageUid::TYPE;
+        return AvitoProductUid::TYPE;
     }
 }

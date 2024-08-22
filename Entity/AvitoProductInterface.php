@@ -23,4 +23,7 @@
 
 namespace BaksDev\Avito\Products\Entity;
 
-interface AvitoProductInterface{}
+/** @see AvitoProductDTO */
+interface AvitoProductInterface{
+
+}

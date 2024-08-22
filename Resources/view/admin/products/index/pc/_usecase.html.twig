@@ -40,7 +40,7 @@
         {% if  is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN') %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('avito-products:admin.product.images.edit', {
+                <a href="{{ path('avito-products:admin.products.edit', {
                     product : item.id,
                     offer: item.product_offer_const,
                     variation: item.product_variation_const,

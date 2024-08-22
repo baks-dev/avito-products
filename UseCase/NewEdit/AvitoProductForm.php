@@ -25,12 +25,14 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -45,7 +47,6 @@ final class AvitoProductForm extends AbstractType
          */
         $builder->add('product', HiddenType::class);
 
-
         $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
                 function ($product) {
@@ -57,9 +58,8 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
-
         /**
-         * Постоянный уникальный идентификатор ТП
+         * Константа ТП
          */
         $builder->add('offer', HiddenType::class, ['required' => false]);
 
@@ -76,7 +76,7 @@ final class AvitoProductForm extends AbstractType
 
 
         /**
-         * Постоянный уникальный идентификатор варианта.
+         * Константа варианта
          */
         $builder->add('variation', HiddenType::class, ['required' => false]);
 
@@ -93,7 +93,7 @@ final class AvitoProductForm extends AbstractType
 
 
         /**
-         * Постоянный уникальный идентификатор модификации.
+         * Константа модификации варианта
          */
         $builder->add('modification', HiddenType::class, ['required' => false]);
 
@@ -108,10 +108,21 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
+        $builder->add('images', CollectionType::class, [
+            'entry_type' => AvitoProductsImagesForm::class,
+            'entry_options' => [
+                'label' => false,
+            ],
+            'label' => false,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'allow_add' => true,
+            'prototype_name' => '__offer_image__',
+        ]);
 
         /** Сохранить */
         $builder->add(
-            'product_stock_parameter',
+            'avito_product',
             SubmitType::class,
             ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
         );

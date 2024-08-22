@@ -24,7 +24,7 @@
                 {% set image_path = img_host ~ img_dir ~ img_file %}
             {% endif %}
 
-            <a href="{{ path('avito-products:admin.product.images.edit', {
+            <a href="{{ path('avito-products:admin.products.edit', {
                 product : item.id,
                 offer: item.product_offer_const,
                 variation: item.product_variation_const,
@@ -42,7 +42,7 @@
             <div class="ms-5">
 
                 {# Название #}
-                <a href="{{ path('avito-products:admin.product.images.edit', {
+                <a href="{{ path('avito-products:admin.products.edit', {
                     product : item.id,
                     offer: item.product_offer_const,
                     variation: item.product_variation_const,
