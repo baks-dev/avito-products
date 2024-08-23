@@ -68,12 +68,12 @@ class AvitoProduct extends EntityState
 
     /** Коллекция "живых" изображений продукта */
     #[ORM\OneToMany(targetEntity: AvitoProductImages::class, mappedBy: 'avito', cascade: ['all'])]
-    private ?Collection $images = null;
+    private Collection $images;
 
     public function __construct()
     {
         $this->id = new AvitoProductUid();
-//        $this->images = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function __clone()
@@ -91,7 +91,7 @@ class AvitoProduct extends EntityState
         return $this->id;
     }
 
-    /** Гидрирует переданную DTO */
+    /** Гидрирует переданную DTO, вызывая ее сеттеры */
     public function getDto($dto): mixed
     {
         if ($dto instanceof AvitoProductInterface)
@@ -102,6 +102,7 @@ class AvitoProduct extends EntityState
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
+    /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
@@ -112,7 +113,7 @@ class AvitoProduct extends EntityState
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
-    public function getImages(): ?Collection
+    public function getImages(): Collection
     {
         return $this->images;
     }

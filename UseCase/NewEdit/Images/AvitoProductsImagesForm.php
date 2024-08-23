@@ -24,7 +24,6 @@
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Images;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -46,13 +45,13 @@ final class AvitoProductsImagesForm extends AbstractType
 
         $builder->add('root', RadioType::class, ['required' => false]);
 
-        $builder->add(
-            'image_delete',
-            ButtonType::class,
-            [
-                'label_html' => true,
-            ]
-        );
+        //        $builder->add(
+        //            'image_delete',
+        //            ButtonType::class,
+        //            [
+        //                'label_html' => true,
+        //            ]
+        //        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

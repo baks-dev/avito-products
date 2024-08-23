@@ -143,6 +143,7 @@ class AvitoProductImages extends EntityState implements UploadEntityInterface
 
     public function setEntity($dto): mixed
     {
+
         // Если размер файла нулевой - не заполняем сущность
         if(empty($dto->file) && empty($dto->getName()))
         {

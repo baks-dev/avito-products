@@ -1,6 +1,6 @@
 {% trans_default_domain 'avito-products.admin' %}
 
-<div class="modal-dialog modal-dialog-centered " style="max-width: 800px;">
+<div id="avito_images_modal" class="modal-dialog modal-dialog-centered " style="max-width: 800px;">
 
     {% if product %}
 
@@ -72,9 +72,8 @@
 
             </div>
 
-
             {# Изображения #}
-{#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }}#}
+            {#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }} #}
             {{ include('@avito-products/admin/products/edit/pc/_images.html.twig') }}
 
 
@@ -97,8 +96,13 @@
             </div>
 
         </div>
-        {{ form_end(form) }}
 
+        {# Прототип #}
+        <div id="prototype.gallery.image"
+             data-prototype="{{ include(_self|replace({ "content.html.twig": "_prototype.image.html.twig" }))|e('html_attr') }}">
+        </div>
+
+        {{ form_end(form) }}
 
     {% else %}
 
@@ -128,3 +132,4 @@
     {% endif %}
 
 </div>
+

@@ -12,6 +12,7 @@ final class AvitoProductHandler extends AbstractHandler
     /** @see */
     public function handle(AvitoProductDTO $command): string|AvitoProduct
     {
+
         /** Валидация DTO  */
         $this->validatorCollection->add($command);
 
@@ -24,7 +25,6 @@ final class AvitoProductHandler extends AbstractHandler
                 'modification' => $command->getModification()
             ]);
 
-
         if(null === $entity)
         {
             $entity = new AvitoProduct();
@@ -32,6 +32,7 @@ final class AvitoProductHandler extends AbstractHandler
         }
 
         $entity->setEntity($command);
+        dd($entity);
         $this->validatorCollection->add($entity);
 
         /** Валидация всех объектов */
@@ -39,6 +40,7 @@ final class AvitoProductHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
+
 
         $this->entityManager->flush();
 

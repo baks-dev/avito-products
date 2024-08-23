@@ -117,7 +117,7 @@ final class AvitoProductForm extends AbstractType
             'by_reference' => false,
             'allow_delete' => true,
             'allow_add' => true,
-            'prototype_name' => '__offer_image__',
+            'prototype_name' => '__images__',
         ]);
 
         /** Сохранить */

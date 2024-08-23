@@ -11,7 +11,6 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\Common\Collections\ArrayCollection;
-use ReflectionProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see AvitoProduct */
@@ -23,9 +22,9 @@ final class AvitoProductDTO implements AvitoProductInterface
     private ProductUid $product;
 
     /** Константа ТП */
-    #[Assert\Uuid]
     #[Assert\NotBlank]
-    private ?ProductOfferConst $offer;
+    #[Assert\Uuid]
+    private ProductOfferConst $offer;
 
     /** Константа множественного варианта */
     #[Assert\Uuid]
@@ -38,19 +37,25 @@ final class AvitoProductDTO implements AvitoProductInterface
     /**
      * Коллекция "живых" изображений продукта
      *
-     * @var ArrayCollection<int, AvitoProductImagesDTO>|null $images
+     * @var ArrayCollection<int, AvitoProductImagesDTO> $images
      */
     #[Assert\Valid]
-    private ?ArrayCollection $images;
+    private ArrayCollection $images;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
 
     public function getProduct(): ProductUid
     {
         return $this->product;
     }
 
-    public function setProduct(ProductUid $product): void
+    public function setProduct(ProductUid $product): self
     {
         $this->product = $product;
+        return $this;
     }
 
     public function getOffer(): ?ProductOfferConst
@@ -58,9 +63,10 @@ final class AvitoProductDTO implements AvitoProductInterface
         return $this->offer;
     }
 
-    public function setOffer(?ProductOfferConst $offer): void
+    public function setOffer(?ProductOfferConst $offer): self
     {
         $this->offer = $offer;
+        return $this;
     }
 
     public function getVariation(): ?ProductVariationConst
@@ -68,9 +74,10 @@ final class AvitoProductDTO implements AvitoProductInterface
         return $this->variation;
     }
 
-    public function setVariation(?ProductVariationConst $variation): void
+    public function setVariation(?ProductVariationConst $variation): self
     {
         $this->variation = $variation;
+        return $this;
     }
 
     public function getModification(): ?ProductModificationConst
@@ -78,9 +85,10 @@ final class AvitoProductDTO implements AvitoProductInterface
         return $this->modification;
     }
 
-    public function setModification(?ProductModificationConst $modification): void
+    public function setModification(?ProductModificationConst $modification): self
     {
         $this->modification = $modification;
+        return $this;
     }
 
     /**
@@ -89,5 +97,26 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function getImages(): ArrayCollection
     {
         return $this->images;
+    }
+
+    public function addImage(AvitoProductImagesDTO $image): void
+    {
+
+        //        $filter = $this->images->filter(function (AvitoProductImagesDTO $element) use ($image) {
+        //            return !$image->file && $image->getName() === $element->getName();
+        //        });
+        //
+        //
+        //        if($filter->isEmpty())
+        //        {
+        //            $this->images->add($image);
+        //        }
+
+        $this->images->add($image);
+    }
+
+    public function removeImage(AvitoProductImagesDTO $image): void
+    {
+        $this->images->removeElement($image);
     }
 }

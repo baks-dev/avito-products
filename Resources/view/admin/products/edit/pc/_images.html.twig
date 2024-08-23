@@ -17,7 +17,7 @@
 			{% set images = form.images %}
 
 			{% for image in images %}
-				{{ dd(image) }}
+{#				{{ dd(image) }}#}
 
 				<div class="item-collection-photo">
 
@@ -70,7 +70,6 @@
 
 	</div>
 
-
 	{# Кнопки загрузки изображения #}
 	<div class="card-footer border-light bg-body d-flex justify-content-between align-items-end">
 
@@ -80,7 +79,7 @@
 
 		<button type="button" id="photo_addCollection"
 				class="btn btn-sm btn-outline-primary border-0"
-				data-prototype="prototype.gallery.photo"
+				data-prototype="prototype.gallery.image"
 				data-index="{{ form.images.count }}"
 		>
 			<span class="svg-icon svg-icon-2">

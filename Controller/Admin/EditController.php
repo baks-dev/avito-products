@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Controller\Admin;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductForm;
@@ -34,7 +33,6 @@ use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Type\UidType\ParamConverter;
-use BaksDev\DeliveryTransport\Entity\ProductParameter\DeliveryPackageProductParameter;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -60,25 +58,30 @@ final class EditController extends AbstractController
         AvitoProductHandler $handler,
         OneProductWithAvitoImagesInterface $productWithImages,
         #[ParamConverter(ProductUid::class)] $product,
-        #[ParamConverter(ProductOfferConst::class)] $offer = null,
+        #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
     ): Response {
 
         $editDTO = new AvitoProductDTO();
 
-        $editDTO->setProduct($product);
-        $editDTO->setOffer($offer);
-        $editDTO->setVariation($variation);
-        $editDTO->setModification($modification);
+        $editDTO
+            ->setProduct($product)
+            ->setOffer($offer)
+            ->setVariation($variation)
+            ->setModification($modification);
 
-        /** @var AvitoProduct|null $avitoProduct */
+        /**
+         * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
+         *
+         * @var AvitoProduct|null $avitoProduct
+         */
         $avitoProduct = $entityManager->getRepository(AvitoProduct::class)
             ->findOneBy([
-                'product' => $editDTO->getProduct(),
-                'offer' => $editDTO->getOffer(),
-                'variation' => $editDTO->getVariation(),
-                'modification' => $editDTO->getModification()
+                'product' => $product,
+                'offer' => $offer,
+                'variation' => $variation,
+                'modification' => $modification,
             ]);
 
         if ($avitoProduct)
@@ -119,7 +122,7 @@ final class EditController extends AbstractController
         }
 
         $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
-        //        dd($avitoProduct);
+//        dd($avitoProduct);
 
         return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
     }
