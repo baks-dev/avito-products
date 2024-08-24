@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
+use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -47,7 +49,7 @@ use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 
-final class AllProductsWithAvitoImageRepository implements AllProductsWithAvitoImageInterface
+final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvitoImagesInterface
 {
     private ?ProductFilterDTO $filter = null;
 
@@ -303,7 +305,7 @@ final class AllProductsWithAvitoImageRepository implements AllProductsWithAvitoI
                     category_trans.local = :local'
             );
 
-        /**
+              /**
          * Все фото
          */
         /** Фото продукта */

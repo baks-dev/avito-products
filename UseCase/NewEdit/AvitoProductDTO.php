@@ -102,17 +102,15 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function addImage(AvitoProductImagesDTO $image): void
     {
 
-        //        $filter = $this->images->filter(function (AvitoProductImagesDTO $element) use ($image) {
-        //            return !$image->file && $image->getName() === $element->getName();
-        //        });
-        //
-        //
-        //        if($filter->isEmpty())
-        //        {
-        //            $this->images->add($image);
-        //        }
+        $filter = $this->images->filter(function (AvitoProductImagesDTO $element) use ($image) {
+            return !$image->file && $image->getName() === $element->getName();
+        });
 
-        $this->images->add($image);
+
+        if ($filter->isEmpty())
+        {
+            $this->images->add($image);
+        }
     }
 
     public function removeImage(AvitoProductImagesDTO $image): void

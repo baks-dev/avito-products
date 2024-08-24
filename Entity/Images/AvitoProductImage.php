@@ -36,8 +36,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-class AvitoProductImages extends EntityState implements UploadEntityInterface
+class AvitoProductImage extends EntityState implements UploadEntityInterface
 {
+    // @TODO легаси, которое участвует в загрузке
+    /** Обязательная константа с названием таблицы */
+    public const string TABLE = "avito_product_images";
+
     /** ID */
     #[Assert\NotBlank]
     #[Assert\Uuid]
@@ -96,6 +100,15 @@ class AvitoProductImages extends EntityState implements UploadEntityInterface
         return (string)$this->avito;
     }
 
+    /**
+     * Обязательно для загрузки на cdn
+     * @see ImageUpload
+     */
+    public function getId(): AvitoProductImageUid
+    {
+        return $this->id;
+    }
+
     public function updFile(string $name, string $ext, int $size): void
     {
         $this->name = $name;
@@ -133,7 +146,7 @@ class AvitoProductImages extends EntityState implements UploadEntityInterface
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if($dto instanceof AvitoProductImagesDTO)
+        if ($dto instanceof AvitoProductImagesDTO)
         {
             return parent::getDto($dto);
         }
@@ -145,17 +158,17 @@ class AvitoProductImages extends EntityState implements UploadEntityInterface
     {
 
         // Если размер файла нулевой - не заполняем сущность
-        if(empty($dto->file) && empty($dto->getName()))
+        if (empty($dto->file) && empty($dto->getName()))
         {
             return false;
         }
 
-        if(!empty($dto->file))
-        {
-            $dto->setEntityUpload($this);
-        }
+        //        if(!empty($dto->file))
+        //        {
+        //            $dto->setEntityUpload($this);
+        //        }
 
-        if($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
+        if ($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

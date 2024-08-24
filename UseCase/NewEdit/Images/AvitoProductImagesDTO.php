@@ -26,7 +26,7 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit\Images;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImagesInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
-/** @see AvitoProductImages */
+/** @see AvitoProductImage */
 final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 {
     /** Обложка категории */

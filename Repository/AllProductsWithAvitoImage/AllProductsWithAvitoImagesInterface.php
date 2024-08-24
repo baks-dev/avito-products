@@ -26,7 +26,7 @@ namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 
-interface AllProductsWithAvitoImageInterface
+interface AllProductsWithAvitoImagesInterface
 {
     public function filter(ProductFilterDTO $filter): self;
 

@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
+use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
@@ -608,7 +608,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 
         $dbal->leftJoin(
             'avito_product',
-            AvitoProductImages::class,
+            AvitoProductImage::class,
             'avito_product_images',
             'avito_product_images.avito = avito_product.id'
         );
@@ -623,7 +623,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                         (
                             'avito_img_root', avito_product_images.root,
                             'avito_img_root', avito_product_images.root,
-                            'avito_img', CONCAT ( '/upload/" . $dbal->table(AvitoProductImages::class) . "' , '/', avito_product_images.name),
+                            'avito_img', CONCAT ( '/upload/" . $dbal->table(AvitoProductImage::class) . "' , '/', avito_product_images.name),
                             'avito_img_ext', avito_product_images.ext,
                             'avito_img_cdn', avito_product_images.cdn
                         )

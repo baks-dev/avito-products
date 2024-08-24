@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Entity;
 
-use BaksDev\Avito\Products\Entity\Images\AvitoProductImages;
+use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
@@ -67,7 +67,7 @@ class AvitoProduct extends EntityState
     private ?ProductModificationConst $modification = null;
 
     /** Коллекция "живых" изображений продукта */
-    #[ORM\OneToMany(targetEntity: AvitoProductImages::class, mappedBy: 'avito', cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
     private Collection $images;
 
     public function __construct()

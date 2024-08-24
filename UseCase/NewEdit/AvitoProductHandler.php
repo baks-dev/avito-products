@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\AbstractHandler;
 
 final class AvitoProductHandler extends AbstractHandler
@@ -29,10 +31,26 @@ final class AvitoProductHandler extends AbstractHandler
         {
             $entity = new AvitoProduct();
             $this->entityManager->persist($entity);
+            dd($entity);
         }
 
         $entity->setEntity($command);
-        dd($entity);
+//        dump($command);
+//        dd($entity);
+
+        /** @var AvitoProductImage $image */
+        foreach($entity->getImages() as $image)
+        {
+
+            /** @var AvitoProductImagesDTO $avitoImagesDTO */
+            $avitoImagesDTO = $image->getEntityDto();
+
+            if(null !== $avitoImagesDTO->file)
+            {
+                $this->imageUpload->upload($avitoImagesDTO->file, $image);
+            }
+        }
+
         $this->validatorCollection->add($entity);
 
         /** Валидация всех объектов */
@@ -40,6 +58,9 @@ final class AvitoProductHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
+
+
+
 
 
         $this->entityManager->flush();
