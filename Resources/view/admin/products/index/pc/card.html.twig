@@ -14,16 +14,6 @@
     <td class="ps-5 align-middle w-100">
         <div class="d-flex">
 
-            {# Обложка  #}
-            {% set image_path = '/assets/img/blank.svg' %}
-
-            {% if item.product_image_ext is defined and item.product_image_ext is not null %}
-                {% set img_host =  item.product_image_cdn == true  ? CDN_HOST : '' %}
-                {% set img_dir = item.product_image %}
-                {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ item.product_image_ext %}
-                {% set image_path = img_host ~ img_dir ~ img_file %}
-            {% endif %}
-
             <a href="{{ path('avito-products:admin.products.edit', {
                 product : item.id,
                 offer: item.product_offer_const,
@@ -34,9 +24,20 @@
                data-bs-target="#modal"
                class="pe-3 modal-link disabled"
             >
+                {#                             Обложка#}
+                {% set image_path = '/assets/img/blank.svg' %}
+
+                {% if item.product_image_ext is defined and item.product_image_ext is not null %}
+                    {% set img_host =  item.product_image_cdn == true  ? CDN_HOST : '' %}
+                    {% set img_dir = item.product_image %}
+                    {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ item.product_image_ext %}
+                    {% set image_path = img_host ~ img_dir ~ img_file %}
+                {% endif %}
+
                 <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px;"
                      data-bg="{{ image_path }}">
                 </div>
+
             </a>
 
             <div class="ms-5">
@@ -86,7 +87,24 @@
         </div>
     </td>
 
-{#        <td class="text-center">#}
+
+
+        <td class="text-center">
+            {#                             Обложка#}
+            {% set image_path = '/assets/img/blank.svg' %}
+
+            {% if item.avito_product_image_ext is defined and item.avito_product_image_ext is not null %}
+                {% set img_host =  item.avito_product_image_cdn == true  ? CDN_HOST : '' %}
+                {% set img_dir = item.avito_product_image %}
+                {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ item.avito_product_image_ext %}
+                {% set image_path = img_host ~ img_dir ~ img_file %}
+            {% endif %}
+
+            <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px;"
+                 data-bg="{{ image_path }}">
+            </div>        </td>
+
+{#    <td class="text-center">#}
 {#            {{ item.product_parameter_length ?: badge|raw }}#}
 {#        </td>#}
 

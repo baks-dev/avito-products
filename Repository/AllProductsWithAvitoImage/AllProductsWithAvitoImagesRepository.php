@@ -35,16 +35,20 @@ use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
 use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
 use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Entity\Active\ProductActive;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
 use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
@@ -155,7 +159,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
         /**
-         * МНОЖЕСТВЕННЫЕ ВАРИАНТЫ торгового предложения
+         * ВАРИАНТЫ торгового предложения
          */
         $dbal
             ->addSelect('product_variation.id as product_variation_id')
@@ -262,6 +266,152 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
         /**
+         * Все фото
+         */
+        $dbal->leftJoin(
+            'product_event',
+            ProductPhoto::class,
+            'product_photo',
+            '
+                product_photo.event = product_event.id AND
+                product_photo.root = true'
+        );
+
+        $dbal->leftJoin(
+            'product_offer',
+            ProductVariationImage::class,
+            'product_variation_image',
+            '
+                product_variation_image.variation = product_variation.id AND
+                product_variation_image.root = true'
+        );
+
+        $dbal->leftJoin(
+            'product_offer',
+            ProductOfferImage::class,
+            'product_offer_images',
+            '
+                product_offer_images.offer = product_offer.id AND
+                product_offer_images.root = true'
+        );
+
+
+        $dbal->addSelect(
+            "
+			CASE
+			   WHEN product_variation_image.name IS NOT NULL THEN
+					CONCAT ( '/upload/" . ProductVariationImage::TABLE . "' , '/', product_variation_image.name)
+			   WHEN product_offer_images.name IS NOT NULL THEN
+					CONCAT ( '/upload/" . ProductOfferImage::TABLE . "' , '/', product_offer_images.name)
+			   WHEN product_photo.name IS NOT NULL THEN
+					CONCAT ( '/upload/" . ProductPhoto::TABLE . "' , '/', product_photo.name)
+			   ELSE NULL
+			END AS product_image
+		"
+        );
+
+
+        /** Расширение изображения */
+        $dbal->addSelect('
+			CASE
+			   WHEN product_variation_image.name IS NOT NULL THEN
+					product_variation_image.ext
+			   WHEN product_offer_images.name IS NOT NULL THEN
+					product_offer_images.ext
+			   WHEN product_photo.name IS NOT NULL THEN
+					product_photo.ext
+			   ELSE NULL
+			END AS product_image_ext
+		');
+
+        /** Флаг загрузки файла CDN */
+        $dbal->addSelect('
+			CASE
+			   WHEN product_variation_image.name IS NOT NULL THEN
+					product_variation_image.cdn
+			   WHEN product_offer_images.name IS NOT NULL THEN
+					product_offer_images.cdn
+			   WHEN product_photo.name IS NOT NULL THEN
+					product_photo.cdn
+			   ELSE NULL
+			END AS product_image_cdn
+		');
+
+
+        $dbal->leftJoin(
+            'product_modification',
+            AvitoProduct::class,
+            'avito_product',
+            '
+                avito_product.modification = product_modification.const OR
+                avito_product.variation = product_variation.const OR
+                avito_product.offer = product_offer.const AND
+                avito_product.product = product.id'
+        );
+
+        //        $dbal->leftJoin(
+        //            'avito_product',
+        //            ProductVariation::class,
+        //            'avito_product_variation',
+        //            '
+        //                avito_product_variation.const = avito_product.variation AND
+        //                avito_product IS NOT NULL'
+        //        );
+        //        $dbal->addSelect('avito_product_variation.const as avito_product_variation');
+        //
+        //        $dbal->leftJoin(
+        //            'avito_product',
+        //            ProductModification::class,
+        //            'avito_product_modification',
+        //            '
+        //                avito_product_modification.const = avito_product.modification'
+        //        );
+        //        $dbal->addSelect('avito_product_modification.const as avito_product_modification');
+
+        $dbal->leftJoin(
+            'avito_product',
+            AvitoProductImage::class,
+            'avito_product_images',
+            '
+                avito_product_images.avito = avito_product.id AND
+                avito_product_images.root = true
+                '
+        );
+
+        //        $dbal->addSelect('avito_product.id as avito_product_id');
+        //        $dbal->addSelect('avito_product_images.ext as avito_product_image_ext');
+        //        $dbal->addSelect('avito_product_images.cdn as avito_product_image_cdn');
+
+        $dbal->addSelect(
+            "
+            CASE
+                WHEN avito_product_images.name IS NOT NULL THEN
+                    CONCAT ( '/upload/" . AvitoProductImage::TABLE . "' , '/', avito_product_images.name) 
+                ELSE NULL 
+                END as avito_product_image
+            "
+        );
+
+        /** Расширение изображения */
+        $dbal->addSelect('
+			CASE
+			   WHEN avito_product_images.name IS NOT NULL THEN
+					avito_product_images.ext
+			   ELSE NULL
+			END AS avito_product_image_ext
+		');
+
+        /** Флаг загрузки файла CDN */
+        $dbal->addSelect('
+			CASE
+			   WHEN avito_product_images.name IS NOT NULL THEN
+					avito_product_images.cdn
+			   ELSE NULL
+			END AS avito_product_image_cdn
+		');
+
+
+        /**
          * Категория
          */
         $dbal
@@ -273,6 +423,12 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     product_category.event = product_event.id AND 
                     product_category.root = true'
             );
+
+        if ($this->filter?->getCategory())
+        {
+            $dbal->andWhere('product_event_category.category = :category');
+            $dbal->setParameter('category', $this->filter->getCategory(), CategoryProductUid::TYPE);
+        }
 
         $dbal->join(
             'product_category',
@@ -305,53 +461,13 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     category_trans.local = :local'
             );
 
-              /**
-         * Все фото
-         */
-        /** Фото продукта */
-        //        $dbal->leftJoin(
-        //            'product',
-        //            ProductPhoto::class,
-        //            'product_photo',
-        //            'product_photo.event = product.event'
-        //        );
+        //        dd($dbal
+        //            ->where("product_trans.name = 'Triangle test'")
+        //            ->setMaxResults(10)
+        //            ->fetchAllAssociative());
 
-        /** Фото торговых предложений */
-        //        $dbal->leftJoin(
-        //            'product_offer',
-        //            ProductOfferImage::class,
-        //            'product_offer_images',
-        //            'product_offer_images.offer = product_offer.id'
-        //        );
-
-        /** Фото вариантов */
-        //        $dbal->leftJoin(
-        //            'product_offer',
-        //            ProductVariationImage::class,
-        //            'product_variation_image',
-        //            'product_variation_image.variation = product_offer_variation.id'
-        //        );
-
-        /** Фото модификаций */
-        //        $dbal
-        //            ->leftJoin(
-        //                'product_modification',
-        //                ProductModificationImage::class,
-        //                'product_modification_image',
-        //                'product_modification_image.modification = product_modification.id'
-        //            );
-
-        /** Идентификатор фото */
-        //        $dbal
-        //            ->addSelect('product_photo.id as product_photo')
-        //            ->addSelect('product_offer_images.id as offer_photo')
-        //            ->addSelect('product_variation_image.id as variation_photo')
-        //            ->addSelect('product_modification_image.id as modification_photo');
-
-//                dd($dbal
-//                    ->setMaxResults(50)
-//                    ->fetchAllAssociative());
-
+        $dbal
+            ->where("product_trans.name = 'Triangle test'");
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

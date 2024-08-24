@@ -71,6 +71,8 @@ final class IndexController extends AbstractController
         /** Если перезагрузить страницу */
         false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
+//        dd($allProductsWithAvitoImages->findAll());
+
 
         return $this->render(
             [

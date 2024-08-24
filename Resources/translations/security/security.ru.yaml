@@ -1,0 +1,22 @@
+# Роль
+ROLE_AVITO_PRODUCTS:
+  header: 'Настройки продукта Авито'
+  name: 'Настройки продукта Авито'
+  desc: 'Настройки продукта Авито'
+
+# Правила
+ROLE_AVITO_PRODUCTS_INDEX:
+  name: 'Просмотр'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_NEW:
+  name: 'Добавить'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_EDIT:
+  name: 'Редактировать'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_DELETE:
+  name: 'Удалить'
+  desc: ''

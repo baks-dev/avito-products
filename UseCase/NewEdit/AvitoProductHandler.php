@@ -31,7 +31,7 @@ final class AvitoProductHandler extends AbstractHandler
         {
             $entity = new AvitoProduct();
             $this->entityManager->persist($entity);
-            dd($entity);
+//            dd($entity);
         }
 
         $entity->setEntity($command);
