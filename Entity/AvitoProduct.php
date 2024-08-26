@@ -27,6 +27,7 @@ namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -76,11 +77,6 @@ class AvitoProduct extends EntityState
         $this->images = new ArrayCollection();
     }
 
-    public function __clone()
-    {
-        $this->id = clone new AvitoProductUid();
-    }
-
     public function __toString(): string
     {
         return (string)$this->id;
@@ -105,8 +101,16 @@ class AvitoProduct extends EntityState
     /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
+
+
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
+//            dump($this);
+//            dump($dto);
+//            dump(parent::setEntity($dto));
+//            dd();
+
+
             return parent::setEntity($dto);
         }
 

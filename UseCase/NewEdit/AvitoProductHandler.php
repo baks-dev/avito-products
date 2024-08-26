@@ -27,25 +27,42 @@ final class AvitoProductHandler extends AbstractHandler
                 'modification' => $command->getModification()
             ]);
 
-        if(null === $entity)
+        if (null === $entity)
         {
             $entity = new AvitoProduct();
             $this->entityManager->persist($entity);
-//            dd($entity);
         }
 
-        $entity->setEntity($command);
-//        dump($command);
-//        dd($entity);
+        dump($entity);
 
         /** @var AvitoProductImage $image */
-        foreach($entity->getImages() as $image)
+        foreach ($entity->getImages() as $image)
         {
+            /** @var AvitoProductImagesDTO $dto */
+            foreach ($command->getImages() as $dto)
+            {
+                if ($image->getId()->equals($dto->getId()))
+                {
+                    $command->removeImage($dto);
+                }
+            }
+        }
 
+
+        $entity->setEntity($command);
+
+
+        dump($command);
+        dump($entity);
+        dd();
+
+        /** @var AvitoProductImage $image */
+        foreach ($entity->getImages() as $image)
+        {
             /** @var AvitoProductImagesDTO $avitoImagesDTO */
             $avitoImagesDTO = $image->getEntityDto();
 
-            if(null !== $avitoImagesDTO->file)
+            if (null !== $avitoImagesDTO->file)
             {
                 $this->imageUpload->upload($avitoImagesDTO->file, $image);
             }
@@ -58,9 +75,6 @@ final class AvitoProductHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
-
-
-
 
 
         $this->entityManager->flush();

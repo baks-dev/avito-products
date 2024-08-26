@@ -23,12 +23,16 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Images;
 
+use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImagesInterface;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use Symfony\Component\HttpFoundation\File\File;
 
 /** @see AvitoProductImage */
 final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 {
+    private AvitoProductImageUid $id;
+
     /** Обложка категории */
     public ?File $file = null;
 
@@ -46,6 +50,12 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 
     /** Размер файла */
     private ?int $size = null;
+
+    public function __construct()
+    {
+        $this->id = new AvitoProductImageUid();
+    }
+
 
     public function getName(): ?string
     {
@@ -93,5 +103,21 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
     {
         $this->size = $size;
         return $this;
+    }
+
+    public function getTable(): string
+    {
+        // @TODO получать название таблицы через рефлексию?
+        return 'avito_product_images';
+    }
+
+    public function getId(): AvitoProductImageUid
+    {
+        return $this->id;
+    }
+
+    public function setId(AvitoProductImageUid $id): void
+    {
+        $this->id = $id;
     }
 }

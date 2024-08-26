@@ -33,6 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
+// @TODO нужно ли ограничить root по ключу?
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
@@ -47,7 +48,7 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     #[Assert\Uuid]
     #[ORM\Id]
     #[ORM\Column(type: AvitoProductImageUid::TYPE)]
-    private AvitoProductImageUid $id;
+    private readonly AvitoProductImageUid $id;
 
     /**
      * Идентификатор продукта Авито
@@ -88,11 +89,6 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     {
         $this->id = new AvitoProductImageUid();
         $this->avito = $avito;
-    }
-
-    public function __clone()
-    {
-        $this->id = clone $this->id;
     }
 
     public function __toString(): string
@@ -162,11 +158,6 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
         {
             return false;
         }
-
-        //        if(!empty($dto->file))
-        //        {
-        //            $dto->setEntityUpload($this);
-        //        }
 
         if ($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
         {

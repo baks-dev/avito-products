@@ -633,6 +633,9 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 
         $dbal->allGroupByExclude();
 
+//        dd($dbal->fetchAllAssociative());
+
+
         return $dbal
 //            ->enableCache('avito-products')
             ->fetchAssociative();

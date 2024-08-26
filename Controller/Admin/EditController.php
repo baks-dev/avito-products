@@ -89,6 +89,9 @@ final class EditController extends AbstractController
             $avitoProduct->getDto($editDTO);
         }
 
+//        dump($avitoProduct->getImages()->toArray());
+//        dd($editDTO);
+
         $form = $this->createForm(
             AvitoProductForm::class,
             $editDTO,
@@ -107,7 +110,7 @@ final class EditController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
-            $this->refreshTokenForm($form);
+//            $this->refreshTokenForm($form);
 
             $handle = $handler->handle($editDTO);
 

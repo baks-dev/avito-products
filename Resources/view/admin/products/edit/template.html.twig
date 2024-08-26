@@ -10,4 +10,6 @@
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
+<script nonce='{{ csp_nonce() }}' async data-src='/assets/avito-products/avito.images.min.js?v={{ version }}' class='lazy'></script>
 {% endblock %}
+

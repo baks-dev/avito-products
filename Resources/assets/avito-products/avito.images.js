@@ -20,33 +20,34 @@
  *  THE SOFTWARE.
  */
 
-// проверка открыто ли модальное окно - вне модального окна скрипт работать не будет!
-if (document.getElementById('avito_images_modal')) {
+function init() {
+
     /* кнопка Добавить ФОТО */
-    let $addButtonPhoto = document.getElementById('photo_addCollection');
+    let $addImageButton = document.getElementById('photo_addCollection');
 
     /* Блок для новой коллекции */
     let $blockCollectionPhoto = document.getElementById('photo_collection');
 
-    if ($addButtonPhoto) {
-        /* добавить событие на удаление ко всем существующим элементам формы в блок с классом .del-item */
+    if ($addImageButton) {
+
+        /* элементы блока с классом photo_collection */
+        /* удаление блока из коллекции изображений */
         let $delItemPhoto = $blockCollectionPhoto.querySelectorAll('.del-item-photo');
 
-        /* Удаляем при клике коллекцию СЕКЦИЙ */
         $delItemPhoto.forEach(function (item) {
             item.addEventListener('click', function () {
                 let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
-                if ($counter > 1) {
+                if ($counter > 0) {
                     item.closest('.item-collection-photo').remove();
                 }
             });
         });
 
-        let $changeItemPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
+        /* изменение чекбокса*/
+        let $changeRootPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
 
-        $changeItemPhoto.forEach(function (item) {
-
-            if ($changeItemPhoto.length === 1 && item.checked === false) {
+        $changeRootPhoto.forEach(function (item) {
+            if ($changeRootPhoto.length === 1 && item.checked === false) {
                 item.checked = true;
             }
 
@@ -58,19 +59,19 @@ if (document.getElementById('avito_images_modal')) {
                     rootCheck.checked = false;
                 });
 
-
                 this.checked = true;
             });
         });
 
-        /* Добавляем новую коллекцию */
-        $addButtonPhoto.addEventListener('click', function () {
 
-            let $addButtonPhoto = this;
+        /* Добавляем новую коллекцию */
+        $addImageButton.addEventListener('click', function () {
+
+            let $addImageButton = this;
 
             /* получаем прототип коллекции  */
-            let newForm = document.getElementById($addButtonPhoto.dataset.prototype).dataset.prototype;
-            let index = $addButtonPhoto.dataset.index * 1;
+            let newForm = document.getElementById($addImageButton.dataset.prototype).dataset.prototype;
+            let index = $addImageButton.dataset.index * 1;
 
             if (index === 6) {
                 return;
@@ -88,10 +89,11 @@ if (document.getElementById('avito_images_modal')) {
             /* Удаляем при клике коллекцию СЕКЦИЙ */
             div.querySelector('.del-item-photo').addEventListener('click', function () {
                 let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
+                console.log($counter)
                 //if ($counter > 1) {
                 this.closest('.item-collection-photo').remove();
-                let index = $addButtonPhoto.dataset.index * 1;
-                $addButtonPhoto.dataset.index = (index - 1).toString()
+                let index = $addImageButton.dataset.index * 1;
+                $addImageButton.dataset.index = (index - 1).toString()
 
                 //}
             });
@@ -108,8 +110,9 @@ if (document.getElementById('avito_images_modal')) {
             });
 
             /* Увеличиваем data-index на 1 после вставки новой коллекции */
-            $addButtonPhoto.dataset.index = (index + 1).toString();
+            $addImageButton.dataset.index = (index + 1).toString();
 
+            /* загрузка изображения */
             let inputElement = div.querySelector('input[type="file"]');
 
             inputElement.addEventListener('change', function (e) {
@@ -130,7 +133,12 @@ if (document.getElementById('avito_images_modal')) {
 
                 }
             });
+
         });
+
     }
 }
+
+init()
+
 
