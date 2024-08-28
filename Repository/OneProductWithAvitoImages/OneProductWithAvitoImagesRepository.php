@@ -578,63 +578,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                 END AS avito_product_const'
         );
 
-        $from = null;
-        $condition = null;
-
-        if (isset($offer))
-        {
-            $from = 'product_offer';
-            $condition = 'avito_product.offer = product_offer.const';
-        }
-
-        if (isset($variation))
-        {
-            $from = 'product_offer_variation';
-            $condition = 'avito_product.variation = product_offer_variation.const';
-        }
-
-        if (isset($modification))
-        {
-            $from = 'product_offer_modification';
-            $condition = 'avito_product.modification = product_offer_modification.const';
-        }
-
-        $dbal->leftJoin(
-            $from,
-            AvitoProduct::class,
-            'avito_product',
-            $condition
-        );
-
-        $dbal->leftJoin(
-            'avito_product',
-            AvitoProductImage::class,
-            'avito_product_images',
-            'avito_product_images.avito = avito_product.id'
-        );
-
-        $dbal->addSelect(
-            "
-            JSON_AGG
-                (DISTINCT
-                    CASE
-                        WHEN avito_product_images.ext IS NOT NULL 
-                        THEN JSONB_BUILD_OBJECT
-                        (
-                            'avito_img_root', avito_product_images.root,
-                            'avito_img_root', avito_product_images.root,
-                            'avito_img', CONCAT ( '/upload/" . $dbal->table(AvitoProductImage::class) . "' , '/', avito_product_images.name),
-                            'avito_img_ext', avito_product_images.ext,
-                            'avito_img_cdn', avito_product_images.cdn
-                        )
-                    END)
-                AS avito_product_images"
-        );
-
         $dbal->allGroupByExclude();
-
-//        dd($dbal->fetchAllAssociative());
-
 
         return $dbal
 //            ->enableCache('avito-products')

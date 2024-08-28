@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Files\Resources\Upload\UploadEntityInterface;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -51,18 +52,29 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
-use Doctrine\ORM\Mapping\Table;
+use BaksDev\Elastic\Api\Index\ElasticGetIndex;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\Property\ProductFilterPropertyDTO;
 
 final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvitoImagesInterface
 {
     private ?ProductFilterDTO $filter = null;
 
+    private ?SearchDTO $search = null;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
+        private readonly ?ElasticGetIndex $elasticGetIndex = null,
     ) {}
+
+    public function search(SearchDTO $search): self
+    {
+        $this->search = $search;
+        return $this;
+    }
 
     public function filter(ProductFilterDTO $filter): self
     {
@@ -135,6 +147,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_offer.event = product_event.id'
             );
 
+
         /** ФИЛЬТР по торговому предложения */
         if ($this->filter?->getOffer())
         {
@@ -178,9 +191,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         /** ФИЛЬТР по множественным вариантам */
         if ($this->filter?->getVariation())
         {
-            $dbal->andWhere('product_offer_variation.value = :variation');
+            $dbal->andWhere('product_variation.value = :variation');
             $dbal->setParameter('variation', $this->filter->getVariation());
         }
+
 
         /** ЦЕНА множественных вариантов */
         $dbal->leftJoin(
@@ -297,7 +311,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 product_offer_images.root = true'
         );
 
-
         $dbal->addSelect(
             "
 			CASE
@@ -339,9 +352,9 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'avito_product',
             '
                 avito_product.product = product.id AND 
-                avito_product.offer = product_offer.const AND 
-                avito_product.variation = product_variation.const AND 
-                avito_product.modification = product_modification.const
+                (avito_product.offer IS NULL OR avito_product.offer = product_offer.const) AND 
+                (avito_product.variation IS NULL OR avito_product.variation = product_variation.const) AND 
+                (avito_product.modification IS NULL OR avito_product.modification = product_modification.const)
             '
         );
 
@@ -383,7 +396,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 			END AS avito_product_image_cdn
 		');
 
-
         /**
          * Категория
          */
@@ -399,7 +411,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         if ($this->filter?->getCategory())
         {
-            $dbal->andWhere('product_event_category.category = :category');
+            $dbal->andWhere('product_category.category = :category');
             $dbal->setParameter('category', $this->filter->getCategory(), CategoryProductUid::TYPE);
         }
 
@@ -434,12 +446,80 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     category_trans.local = :local'
             );
 
-        //        dd($dbal
-        //            ->where("product_trans.name = 'Triangle test'")
-        //            ->setMaxResults(10)
-        //            ->fetchAllAssociative());
-        //        $dbal
-        //            ->where("product_trans.name = 'Triangle test'");
+        /**
+         * Фильтр по свойства продукта
+         */
+        if ($this->filter?->getProperty())
+        {
+            /** @var ProductFilterPropertyDTO $property */
+            foreach ($this->filter->getProperty() as $property)
+            {
+                if ($property->getValue())
+                {
+                    $dbal->join(
+                        'product',
+                        ProductProperty::class,
+                        'product_property_' . $property->getType(),
+                        'product_property_' . $property->getType() . '.event = product.event AND
+                        product_property_' . $property->getType() . '.field = :' . $property->getType() . '_const AND
+                        product_property_' . $property->getType() . '.value = :' . $property->getType() . '_value'
+                    );
+
+                    $dbal->setParameter($property->getType() . '_const', $property->getConst());
+                    $dbal->setParameter($property->getType() . '_value', $property->getValue());
+                }
+            }
+        }
+
+        if ($this->search?->getQuery())
+        {
+            /** Поиск по модификации */
+            $result = $this->elasticGetIndex ? $this->elasticGetIndex->handle(ProductModification::class, $this->search->getQuery(), 1) : false;
+
+            if ($result)
+            {
+                $counter = $result['hits']['total']['value'];
+
+                if ($counter)
+                {
+                    /** Идентификаторы */
+                    $data = array_column($result['hits']['hits'], "_source");
+
+                    $dbal
+                        ->createSearchQueryBuilder($this->search)
+                        ->addSearchInArray('product_modification.id', array_column($data, "id"));
+
+                    return $this->paginator->fetchAllAssociative($dbal);
+                }
+
+                /** Поиск по продукции */
+                $result = $this->elasticGetIndex->handle(Product::class, $this->search->getQuery(), 1);
+
+                $counter = $result['hits']['total']['value'];
+
+                if ($counter)
+                {
+                    /** Идентификаторы */
+                    $data = array_column($result['hits']['hits'], "_source");
+
+                    $dbal
+                        ->createSearchQueryBuilder($this->search)
+                        ->addSearchInArray('product.id', array_column($data, "id"));
+
+                    return $this->paginator->fetchAllAssociative($dbal);
+                }
+            }
+
+            $dbal
+                ->createSearchQueryBuilder($this->search)
+                ->addSearchEqualUid('account.id')
+                ->addSearchEqualUid('account.event')
+                ->addSearchLike('product_trans.name')
+                ->addSearchLike('product_info.article')
+                ->addSearchLike('product_offer.article')
+                ->addSearchLike('product_modification.article')
+                ->addSearchLike('product_variation.article');
+        }
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

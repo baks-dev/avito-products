@@ -33,7 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// @TODO нужно ли ограничить root по ключу?
+// @TODO нужно ли ограничить root по уникальности - root + id?
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
@@ -152,7 +152,6 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
 
     public function setEntity($dto): mixed
     {
-
         // Если размер файла нулевой - не заполняем сущность
         if (empty($dto->file) && empty($dto->getName()))
         {
@@ -165,5 +164,10 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

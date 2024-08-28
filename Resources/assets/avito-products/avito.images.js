@@ -30,7 +30,6 @@ function init() {
 
     if ($addImageButton) {
 
-        /* элементы блока с классом photo_collection */
         /* удаление блока из коллекции изображений */
         let $delItemPhoto = $blockCollectionPhoto.querySelectorAll('.del-item-photo');
 
@@ -43,26 +42,49 @@ function init() {
             });
         });
 
+        // @TODO убрал чекбокс на root
         /* изменение чекбокса*/
-        let $changeRootPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
+        // let $changeRootPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
+        //
+        // $changeRootPhoto.forEach(function (item) {
+        //     if ($changeRootPhoto.length === 1 && item.checked === false) {
+        //         item.checked = true;
+        //     }
+        //
+        //     item.addEventListener('change', function () {
+        //
+        //         let photo_collection = document.getElementById('photo_collection');
+        //
+        //         photo_collection.querySelectorAll('.change-root').forEach(function (rootCheck) {
+        //             rootCheck.checked = false;
+        //         });
+        //
+        //         this.checked = true;
+        //     });
+        // });
 
-        $changeRootPhoto.forEach(function (item) {
-            if ($changeRootPhoto.length === 1 && item.checked === false) {
-                item.checked = true;
-            }
+        let uploadedFile = $blockCollectionPhoto.querySelectorAll('input[type="file"]');
 
-            item.addEventListener('change', function () {
+        uploadedFile.forEach(function (item) {
 
-                let photo_collection = document.getElementById('photo_collection');
+            item.addEventListener('change', function (e) {
 
-                photo_collection.querySelectorAll('.change-root').forEach(function (rootCheck) {
-                    rootCheck.checked = false;
-                });
+                let newFile = item.files[0];
+                let reader = new FileReader();
+                // let image = item.parentNode.parentNode;
+                let image = item.closest('.image-input');
 
-                this.checked = true;
+                reader.onloadend = function () {
+                    image.style.setProperty("background-image", "url(" + reader.result + ")", "important")
+                }
+
+                if (newFile) {
+                    reader.readAsDataURL(newFile);
+                } else {
+                    image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
+                }
             });
         });
-
 
         /* Добавляем новую коллекцию */
         $addImageButton.addEventListener('click', function () {
@@ -70,7 +92,7 @@ function init() {
             let $addImageButton = this;
 
             /* получаем прототип коллекции  */
-            let newForm = document.getElementById($addImageButton.dataset.prototype).dataset.prototype;
+            let newPrototype = document.getElementById($addImageButton.dataset.prototype).dataset.prototype;
             let index = $addImageButton.dataset.index * 1;
 
             if (index === 6) {
@@ -78,36 +100,33 @@ function init() {
             }
 
             /* Замена '__name__' в HTML-коде прототипа число, основанное на том, сколько коллекций */
-            newForm = newForm.replace(/__photos__/g, index);
+            newPrototype = newPrototype.replace(/__images__/g, index);
 
             /* Вставляем новую коллекцию */
             let div = document.createElement('div');
             div.classList.add('item-collection-photo')
-            div.innerHTML = newForm;
+            div.innerHTML = newPrototype;
             $blockCollectionPhoto.append(div);
 
             /* Удаляем при клике коллекцию СЕКЦИЙ */
             div.querySelector('.del-item-photo').addEventListener('click', function () {
                 let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
-                console.log($counter)
-                //if ($counter > 1) {
                 this.closest('.item-collection-photo').remove();
                 let index = $addImageButton.dataset.index * 1;
                 $addImageButton.dataset.index = (index - 1).toString()
-
-                //}
             });
 
-            div.querySelector('.change-root').addEventListener('change', function (selector) {
-
-                let photo_collection = document.getElementById('photo_collection');
-
-                photo_collection.querySelectorAll('.change-root').forEach(function (rootChack, i, arr) {
-                    rootChack.checked = false;
-                });
-
-                this.checked = true;
-            });
+            // @TODO убрал чекбокс на root
+            // div.querySelector('.change-root').addEventListener('change', function (selector) {
+            //
+            //     let photo_collection = document.getElementById('photo_collection');
+            //
+            //     photo_collection.querySelectorAll('.change-root').forEach(function (rootChack, i, arr) {
+            //         rootChack.checked = false;
+            //     });
+            //
+            //     this.checked = true;
+            // });
 
             /* Увеличиваем data-index на 1 после вставки новой коллекции */
             $addImageButton.dataset.index = (index + 1).toString();
@@ -117,8 +136,8 @@ function init() {
 
             inputElement.addEventListener('change', function (e) {
 
-                var file = inputElement.files[0];
-                var reader = new FileReader();
+                let file = inputElement.files[0];
+                let reader = new FileReader();
                 let image = div.querySelector('.image-input');
 
                 reader.onloadend = function () {
@@ -130,15 +149,11 @@ function init() {
                     reader.readAsDataURL(file);
                 } else {
                     image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
-
                 }
             });
-
         });
-
     }
 }
-
 init()
 
 

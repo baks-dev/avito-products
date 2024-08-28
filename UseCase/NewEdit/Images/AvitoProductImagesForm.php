@@ -23,22 +23,21 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\UseCase\NewEdit;
+namespace BaksDev\Avito\Products\UseCase\Images;
 
-use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class AvitoProductForm extends AbstractType
+final class AvitoProductImagesForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -46,6 +45,7 @@ final class AvitoProductForm extends AbstractType
          * ID продукта.
          */
         $builder->add('product', HiddenType::class);
+
 
         $builder->get('product')->addModelTransformer(
             new CallbackTransformer(
@@ -58,8 +58,9 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
+
         /**
-         * Константа ТП
+         * Постоянный уникальный идентификатор ТП
          */
         $builder->add('offer', HiddenType::class, ['required' => false]);
 
@@ -74,8 +75,9 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
+
         /**
-         * Константа варианта
+         * Постоянный уникальный идентификатор варианта.
          */
         $builder->add('variation', HiddenType::class, ['required' => false]);
 
@@ -90,8 +92,9 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
+
         /**
-         * Константа модификации варианта
+         * Постоянный уникальный идентификатор модификации.
          */
         $builder->add('modification', HiddenType::class, ['required' => false]);
 
@@ -106,21 +109,26 @@ final class AvitoProductForm extends AbstractType
             )
         );
 
-        $builder->add('images', CollectionType::class, [
-            'entry_type' => AvitoProductsImagesForm::class,
-            'entry_options' => [
-                'label' => false,
-            ],
-            'label' => false,
-            'by_reference' => false,
-            'allow_delete' => true,
-            'allow_add' => true,
-            'prototype_name' => '__images__',
-        ]);
 
-        /** Сохранить */
+        /**
+         * Длина (Глубина), см
+         */
+        $builder->add('length', IntegerType::class);
+
+        /**
+         * Ширина, см
+         */
+        $builder->add('width', IntegerType::class);
+
+        /**
+         * Высота, см
+         */
+        $builder->add('height', IntegerType::class);
+
+
+        /* Сохранить ******************************************************/
         $builder->add(
-            'avito_product',
+            'product_stock_parameter',
             SubmitType::class,
             ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
         );
@@ -129,7 +137,7 @@ final class AvitoProductForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => AvitoProductDTO::class,
+            'data_class' => DeliveryPackageProductParameterDTO::class,
             'method' => 'POST',
             'attr' => ['class' => 'w-100'],
         ]);

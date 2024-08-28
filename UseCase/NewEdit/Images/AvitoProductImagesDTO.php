@@ -23,7 +23,6 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Images;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImagesInterface;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use Symfony\Component\HttpFoundation\File\File;
@@ -31,7 +30,7 @@ use Symfony\Component\HttpFoundation\File\File;
 /** @see AvitoProductImage */
 final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 {
-    private AvitoProductImageUid $id;
+    private ?AvitoProductImageUid $id = null;
 
     /** Обложка категории */
     public ?File $file = null;
@@ -50,12 +49,6 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 
     /** Размер файла */
     private ?int $size = null;
-
-    public function __construct()
-    {
-        $this->id = new AvitoProductImageUid();
-    }
-
 
     public function getName(): ?string
     {
@@ -105,19 +98,23 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
         return $this;
     }
 
-    public function getTable(): string
+    public function getFile(): ?File
     {
-        // @TODO получать название таблицы через рефлексию?
-        return 'avito_product_images';
+        return $this->file;
     }
 
-    public function getId(): AvitoProductImageUid
+    public function getId(): ?AvitoProductImageUid
     {
         return $this->id;
     }
 
-    public function setId(AvitoProductImageUid $id): void
+    public function setId(?AvitoProductImageUid $id): void
     {
         $this->id = $id;
+    }
+
+    public function setFile(?File $file): void
+    {
+        $this->file = $file;
     }
 }

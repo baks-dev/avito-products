@@ -6,16 +6,15 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\AbstractHandler;
 
 final class AvitoProductHandler extends AbstractHandler
 {
-    /** @see */
     public function handle(AvitoProductDTO $command): string|AvitoProduct
     {
-
-        /** Валидация DTO  */
+        /** Валидация DTO */
         $this->validatorCollection->add($command);
 
         /** @var AvitoProduct|null $entity */
@@ -33,40 +32,14 @@ final class AvitoProductHandler extends AbstractHandler
             $this->entityManager->persist($entity);
         }
 
-        dump($entity);
-
-        /** @var AvitoProductImage $image */
+        /** Удаляем все предыдущие изображения */
         foreach ($entity->getImages() as $image)
         {
-            /** @var AvitoProductImagesDTO $dto */
-            foreach ($command->getImages() as $dto)
-            {
-                if ($image->getId()->equals($dto->getId()))
-                {
-                    $command->removeImage($dto);
-                }
-            }
+            $this->entityManager->remove($image);
         }
-
 
         $entity->setEntity($command);
-
-
-        dump($command);
-        dump($entity);
-        dd();
-
-        /** @var AvitoProductImage $image */
-        foreach ($entity->getImages() as $image)
-        {
-            /** @var AvitoProductImagesDTO $avitoImagesDTO */
-            $avitoImagesDTO = $image->getEntityDto();
-
-            if (null !== $avitoImagesDTO->file)
-            {
-                $this->imageUpload->upload($avitoImagesDTO->file, $image);
-            }
-        }
+        dd($entity);
 
         $this->validatorCollection->add($entity);
 
@@ -76,15 +49,28 @@ final class AvitoProductHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
+        /**
+         * Загружаем изображения
+         * @var AvitoProductImage $image
+         */
+        foreach ($entity->getImages() as $image)
+        {
+            /** @var AvitoProductImagesDTO $avitoImagesDTO */
+            if ($avitoImagesDTO = $image->getEntityDto())
+            {
+                if (null !== $avitoImagesDTO->getFile())
+                {
+                    $this->imageUpload->upload($avitoImagesDTO->getFile(), $image);
+                }
+            }
+        }
 
         $this->entityManager->flush();
 
-        // @TODO без сообщения?
-        //
-        //        $this->messageDispatch->dispatch(
-        //            message: new Message($this->main->getId(), $this->main->getEvent(), $command->getEvent()),
-        //            transport: ''
-        //        );
+        $this->messageDispatch->dispatch(
+            message: new AvitoProductMessage($entity->getId()),
+            transport: 'avito-products'
+        );
 
         return $entity;
     }

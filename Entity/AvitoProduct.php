@@ -101,15 +101,26 @@ class AvitoProduct extends EntityState
     /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
-
+        // Если файлов для загрузки нет - не заполняем и не создаем сущность
+        if ($dto->getImages()->isEmpty())
+        {
+            return false;
+        }
 
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
-//            dump($this);
-//            dump($dto);
-//            dump(parent::setEntity($dto));
-//            dd();
+            $filter = $dto->getImages()->filter(function (AvitoProductImagesDTO $DTO) {
 
+                return $DTO->getRoot() === true;
+            });
+
+            if($filter->isEmpty())
+            {
+                $dto->getImages()->current()->setRoot(true);
+            }
+
+            // @TODO костыль для маппера
+            $this->images = new ArrayCollection();
 
             return parent::setEntity($dto);
         }

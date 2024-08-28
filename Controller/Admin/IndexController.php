@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,6 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\DeliveryTransport\Repository\ProductParameter\AllProductParameter\AllProductParameterInterface;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,18 +70,16 @@ final class IndexController extends AbstractController
         /** Если перезагрузить страницу */
         false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
-//        dd($allProductsWithAvitoImages->findAll());
-
+        $products = $allProductsWithAvitoImages
+            ->search($search)
+            ->filter($filter)
+            ->findAll();
 
         return $this->render(
             [
                 'filter' => $filterForm->createView(),
                 'search' => $searchForm->createView(),
-//                'query' => $allProductParameter
-//            ->search($search)
-//            ->filter($filter)
-//            ->fetchAllProductParameterAssociative(),
-                'query' => $allProductsWithAvitoImages->findAll(),
+                'query' => $products,
             ]
         );
     }

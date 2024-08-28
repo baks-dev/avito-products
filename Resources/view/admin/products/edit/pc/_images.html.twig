@@ -15,7 +15,6 @@
         <div id="photo_collection" class="d-flex gap-5 flex-wrap">
 
             {% set images = form.images %}
-{#            {{ dd(images) }}#}
 
             {% for image in images %}
                 <div class="item-collection-photo">
@@ -26,10 +25,12 @@
                     {% if image.vars.data.ext is defined and image.vars.data.ext is not null %}
 
                         {% set img_host =  image.vars.data.cdn == true  ? CDN_HOST : '' %}
-                        {% set img_table = '/upload/' ~ image.vars.value.table ~ '/' %}
+                        {% set dir = '/upload' %}
+                        {# Название таблицы из аттрибутов AvitoProductImage #}
+                        {% set img_table = '/avito_product_images/' %}
                         {% set img_dir = image.vars.data.name %}
                         {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ image.vars.data.ext %}
-                        {% set image_path = img_host ~ img_table ~ img_dir ~ img_file %}
+                        {% set image_path = img_host ~ dir ~ img_table ~ img_dir ~ img_file %}
                     {% endif %}
 
                     <label class="icon rounded-1 bg-contain lazy position-relative image-input"
@@ -60,7 +61,7 @@
                             </svg>
                         </button>
 
-                        {{ form_widget(image.root, { label: 'Главное',  attr  : { 'class' : 'change-root' } }) }}
+{#                        {{ form_widget(image.root, { label: 'Главное',  attr  : { 'class' : 'change-root' } }) }}#}
                     </div>
                 </div>
 

@@ -21,24 +21,24 @@ namespace BaksDev\Avito\Products\Controller\Admin\Tests;
 use BaksDev\Avito\Board\Entity\AvitoBoard;
 use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Board\Type\Event\AvitoBoardEventUid;
+use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 /**
- *  @group avito-products
- *  @group avito-products-controllers
- *  @group avito-products-controllers-edit
+ * @group avito-products
+ * @group avito-products-controllers
+ * @group avito-products-controllers-edit
  */
 #[When(env: 'test')]
 final class AvitoProductEditControllerTest extends WebTestCase
 {
-    private const string URL = '/admin/avito/product/images/{product}/{offer}/{variation}/{modification}';
-
     private const string ROLE = 'ROLE_AVITO_PRODUCTS_EDIT';
 
-    private static ?AvitoBoardEventUid $eventId = null;
+    private static ?string $url = null;
 
     public static function setUpBeforeClass(): void
     {
@@ -47,8 +47,16 @@ final class AvitoProductEditControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get(EntityManagerInterface::class);
 
-        $avitoBoard = $em->getRepository(AvitoBoard::class)->findOneBy([]);
-        self::$eventId = $em->getRepository(AvitoBoardEvent::class)->find($avitoBoard->getEvent())->getId();
+        $avito = $em->getRepository(AvitoProduct::class)->findOneBy([]);
+        $dto = new AvitoProductDTO();
+        $avito->getDto($dto);
+
+        $product = $dto->getProduct();
+        $offer = $dto->getOffer();
+        $variation = $dto->getVariation() ? '/' . $dto->getVariation() : '';
+        $modification = $dto->getModification() ? '/' . $dto->getModification() : '';
+
+        self::$url = sprintf("/admin/avito/product/%s/%s%s%s", $product, $offer, $variation, $modification);
 
         $em->clear();
     }
@@ -56,25 +64,20 @@ final class AvitoProductEditControllerTest extends WebTestCase
     /** Доступ по роли */
     public function testRoleSuccessful(): void
     {
-        // Получаем одно из событий
-        $eventId = self::$eventId;
+        self::ensureKernelShutdown();
+        $client = static::createClient();
 
-        if ($eventId)
+        foreach (TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getModer(self::ROLE);
 
-                $usr = TestUserAccount::getModer(self::ROLE);
+            $client->loginUser($usr, 'user');
 
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $eventId));
+            $client->request('GET', self::$url);
 
-                self::assertResponseIsSuccessful();
-            }
+            self::assertResponseIsSuccessful();
         }
 
         self::assertTrue(true);
@@ -83,25 +86,19 @@ final class AvitoProductEditControllerTest extends WebTestCase
     /** Доступ по роли ROLE_ADMIN */
     public function testRoleAdminSuccessful(): void
     {
-        // Получаем одно из событий
-        $eventId = self::$eventId;
+        self::ensureKernelShutdown();
+        $client = static::createClient();
 
-
-        if ($eventId)
+        foreach (TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getAdmin();
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
-                $usr = TestUserAccount::getAdmin();
+            $client->loginUser($usr, 'user');
 
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $eventId));
+            $client->request('GET', self::$url);
 
-                self::assertResponseIsSuccessful();
-            }
+            self::assertResponseIsSuccessful();
         }
 
         self::assertTrue(true);
@@ -110,24 +107,19 @@ final class AvitoProductEditControllerTest extends WebTestCase
     /** Доступ по роли ROLE_USER */
     public function testRoleUserDeny(): void
     {
-        // Получаем одно из событий
-        $eventId = self::$eventId;
+        self::ensureKernelShutdown();
+        $client = static::createClient();
 
-        if ($eventId)
+        foreach (TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $usr = TestUserAccount::getUsr();
+            $client->loginUser($usr, 'user');
 
-                $usr = TestUserAccount::getUsr();
-                $client->loginUser($usr, 'user');
-                $client->request('GET', sprintf(self::URL, $eventId));
+            $client->request('GET', self::$url);
 
-                self::assertResponseStatusCodeSame(403);
-            }
+            self::assertResponseStatusCodeSame(403);
         }
 
         self::assertTrue(true);
@@ -136,23 +128,17 @@ final class AvitoProductEditControllerTest extends WebTestCase
     /** Доступ без роли */
     public function testGuestFiled(): void
     {
-        // Получаем одно из событий
-        $eventId = self::$eventId;
+        self::ensureKernelShutdown();
+        $client = static::createClient();
 
-        if ($eventId)
+        foreach (TestUserAccount::getDevice() as $device)
         {
-            self::ensureKernelShutdown();
-            $client = static::createClient();
+            $client->setServerParameter('HTTP_USER_AGENT', $device);
 
-            foreach (TestUserAccount::getDevice() as $device)
-            {
-                $client->setServerParameter('HTTP_USER_AGENT', $device);
+            $client->request('GET', self::$url);
 
-                $client->request('GET', sprintf(self::URL, $eventId));
-
-                // Full authentication is required to access this resource
-                self::assertResponseStatusCodeSame(401);
-            }
+            // Full authentication is required to access this resource
+            self::assertResponseStatusCodeSame(401);
         }
 
         self::assertTrue(true);

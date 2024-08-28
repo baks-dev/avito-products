@@ -44,7 +44,7 @@ final class Role implements RoleInterface, MenuAdminInterface
      */
     public function getSortMenu(): int
     {
-        return 441;
+        return 461;
     }
 
     /**

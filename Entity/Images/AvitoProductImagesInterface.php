@@ -30,6 +30,4 @@ interface AvitoProductImagesInterface
     public function getExt(): ?string;
 
     public function getCdn(): bool;
-
-    public function getTable(): string;
 }
