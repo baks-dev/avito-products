@@ -101,9 +101,21 @@ final class AvitoProductDTO implements AvitoProductInterface
 
     public function addImage(AvitoProductImagesDTO $image): void
     {
+
+        if(null === $image->getFile() && null === $image->getName())
+        {
+            return;
+        }
+
         /** Пропускаем, если форма не содержит изображения, либо изображение уже есть в коллекции */
         $filter = $this->images->filter(function (AvitoProductImagesDTO $current) use ($image) {
-            return null === $image->getFile() && $image->getName() === $current->getName() || null === $image->getFile() && null === $image->getName();
+
+            if(null !== $image->getFile())
+            {
+                return false;
+            }
+
+            return $image->getName() === $current->getName(); //|| null === $image->getFile() && null === $image->getName();
         });
 
         if ($filter->isEmpty()) {

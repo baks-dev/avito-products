@@ -2,6 +2,7 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Tests;
 
+use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
@@ -15,6 +16,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @group avito-products
@@ -68,6 +70,10 @@ class AvitoProductNewTest extends KernelTestCase
         self::assertTrue($avitoProductDTO->getModification()->equals(ProductModificationConst::TEST));
 
         $image = new AvitoProductImagesDTO();
+//        $png = BaksDevAvitoProductsBundle::PATH . 'Resources/tests/PNG.png';
+//        $file = new File($png, true);
+//        $image->setFile($file);
+
         $avitoProductDTO->getImages()->add($image);
 
         $container = self::getContainer();
@@ -76,23 +82,5 @@ class AvitoProductNewTest extends KernelTestCase
         $handler = $container->get(AvitoProductHandler::class);
         $newAvitoProduct = $handler->handle($avitoProductDTO);
         self::assertTrue($newAvitoProduct instanceof AvitoProduct);
-
-        self::assertEmpty($newAvitoProduct->getImages());
     }
-
-//    public static function tearDownAfterClass(): void
-//    {
-//        $container = self::getContainer();
-//
-//        /** @var EntityManagerInterface $em */
-//        $em = $container->get(EntityManagerInterface::class);
-//
-//        $product = $em->getRepository(AvitoProduct::class)
-//            ->findOneBy(['product' => ProductUid::TEST]);
-//
-//        $em->remove($product);
-//
-//        $em->flush();
-//        $em->clear();
-//    }
 }

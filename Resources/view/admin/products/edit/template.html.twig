@@ -15,3 +15,7 @@
 {#    <script nonce='{{ csp_nonce() }}' async data-src='/assets/avito-products/avito.images.min.js?v={{ version }}' class='lazy'></script>#}
 {% endblock %}
 
+{% block javascript %}
+{# скрипт работает только в модальном окне #}
+<script nonce='{{ csp_nonce() }}' async data-src='/assets/avito-products/avito.images.min.js?v={{ version }}' class='lazy'></script>
+{% endblock %}

@@ -8,19 +8,18 @@ use BaksDev\Avito\Products\Type\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
+use BaksDev\Products\Product\Type\Id\ProductUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- *  @group avito-products
- *  @group avito-products-usecase
+ * @group avito-products
+ * @group avito-products-usecase
+ *
  */
-// * @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests::class
+ //* @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests\AvitoProductNewTest::class
 #[When(env: 'test')]
 class AvitoProductImagesNewTest extends KernelTestCase
 {
@@ -38,24 +37,35 @@ class AvitoProductImagesNewTest extends KernelTestCase
         $editDTO = new AvitoProductDTO();
 
         $avitoProduct->getDto($editDTO);
-        /** @var ContainerBagInterface $ContainerBagInterface */
-        $ContainerBagInterface = self::getContainer()->get(ContainerBagInterface::class);
-        dd(BaksDevAvitoProductsBundle::PATH);
-        dd($ContainerBagInterface->get('kernel.project_dir'));
 
         $image = new AvitoProductImagesDTO();
-        $file = new File('/home/kepler.baks.dev/public/assets/img/empty.webp', true);
-
-        dd($file);
+        $jpeg = BaksDevAvitoProductsBundle::PATH . 'Resources/tests/JPEG.jpg';
+        $file = new File($jpeg, true);
         $image->setFile($file);
 
         $editDTO->getImages()->add($image);
 
-//        dd($image);
         $container = self::getContainer();
 
         /** @var AvitoProductHandler $handler */
         $handler = $container->get(AvitoProductHandler::class);
         $editAvitoProduct = $handler->handle($editDTO);
+        self::assertTrue($editAvitoProduct instanceof AvitoProduct);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        $container = self::getContainer();
+
+        /** @var EntityManagerInterface $em */
+        $em = $container->get(EntityManagerInterface::class);
+
+        $product = $em->getRepository(AvitoProduct::class)
+            ->findOneBy(['product' => ProductUid::TEST]);
+
+        $em->remove($product);
+
+        $em->flush();
+        $em->clear();
     }
 }

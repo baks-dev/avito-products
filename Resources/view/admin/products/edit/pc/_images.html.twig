@@ -61,8 +61,11 @@
                             </svg>
                         </button>
 
-{#                        {{ form_widget(image.root, { label: 'Главное',  attr  : { 'class' : 'change-root' } }) }}#}
+                        {{ form_widget(image.root, { label: 'Главное',  attr  : { 'class' : 'change-root' } }) }}
                     </div>
+
+                    {{ form_widget(image.name) }}
+
                 </div>
 
             {% endfor %}

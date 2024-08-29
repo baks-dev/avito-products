@@ -61,7 +61,8 @@ final class EditController extends AbstractController
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
-    ): Response {
+    ): Response
+    {
 
         $editDTO = new AvitoProductDTO();
 
@@ -84,7 +85,7 @@ final class EditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($avitoProduct)
+        if($avitoProduct)
         {
             $avitoProduct->getDto($editDTO);
         }
@@ -105,7 +106,7 @@ final class EditController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 

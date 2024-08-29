@@ -20,140 +20,195 @@
  *  THE SOFTWARE.
  */
 
-function init() {
-
+executeFunc(function init()
+{
     /* кнопка Добавить ФОТО */
     let $addImageButton = document.getElementById('photo_addCollection');
 
     /* Блок для новой коллекции */
     let $blockCollectionPhoto = document.getElementById('photo_collection');
 
-    if ($addImageButton) {
 
-        /* удаление блока из коллекции изображений */
-        let $delItemPhoto = $blockCollectionPhoto.querySelectorAll('.del-item-photo');
+    if($addImageButton === null)
+    {
+        return false;
+    }
 
-        $delItemPhoto.forEach(function (item) {
-            item.addEventListener('click', function () {
-                let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
-                if ($counter > 0) {
-                    item.closest('.item-collection-photo').remove();
-                }
-            });
-        });
 
-        // @TODO убрал чекбокс на root
-        /* изменение чекбокса*/
-        // let $changeRootPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
-        //
-        // $changeRootPhoto.forEach(function (item) {
-        //     if ($changeRootPhoto.length === 1 && item.checked === false) {
-        //         item.checked = true;
-        //     }
-        //
-        //     item.addEventListener('change', function () {
-        //
-        //         let photo_collection = document.getElementById('photo_collection');
-        //
-        //         photo_collection.querySelectorAll('.change-root').forEach(function (rootCheck) {
-        //             rootCheck.checked = false;
-        //         });
-        //
-        //         this.checked = true;
-        //     });
-        // });
+    /* удаление блока из коллекции изображений */
+    let $delItemPhoto = $blockCollectionPhoto.querySelectorAll('.del-item-photo');
 
-        let uploadedFile = $blockCollectionPhoto.querySelectorAll('input[type="file"]');
+    $delItemPhoto.forEach(function(item)
+    {
+        item.addEventListener('click', function()
+        {
 
-        uploadedFile.forEach(function (item) {
+            let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
 
-            item.addEventListener('change', function (e) {
-
-                let newFile = item.files[0];
-                let reader = new FileReader();
-                // let image = item.parentNode.parentNode;
-                let image = item.closest('.image-input');
-
-                reader.onloadend = function () {
-                    image.style.setProperty("background-image", "url(" + reader.result + ")", "important")
-                }
-
-                if (newFile) {
-                    reader.readAsDataURL(newFile);
-                } else {
-                    image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
-                }
-            });
-        });
-
-        /* Добавляем новую коллекцию */
-        $addImageButton.addEventListener('click', function () {
-
-            let $addImageButton = this;
-
-            /* получаем прототип коллекции  */
-            let newPrototype = document.getElementById($addImageButton.dataset.prototype).dataset.prototype;
-            let index = $addImageButton.dataset.index * 1;
-
-            if (index === 6) {
-                return;
+            if($counter > 0)
+            {
+                item.closest('.item-collection-photo').remove();
             }
 
-            /* Замена '__name__' в HTML-коде прототипа число, основанное на том, сколько коллекций */
-            newPrototype = newPrototype.replace(/__images__/g, index);
 
-            /* Вставляем новую коллекцию */
-            let div = document.createElement('div');
-            div.classList.add('item-collection-photo')
-            div.innerHTML = newPrototype;
-            $blockCollectionPhoto.append(div);
+            let photo_collection = document.getElementById('photo_collection');
 
-            /* Удаляем при клике коллекцию СЕКЦИЙ */
-            div.querySelector('.del-item-photo').addEventListener('click', function () {
-                let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
-                this.closest('.item-collection-photo').remove();
-                let index = $addImageButton.dataset.index * 1;
-                $addImageButton.dataset.index = (index - 1).toString()
-            });
 
-            // @TODO убрал чекбокс на root
-            // div.querySelector('.change-root').addEventListener('change', function (selector) {
-            //
-            //     let photo_collection = document.getElementById('photo_collection');
-            //
-            //     photo_collection.querySelectorAll('.change-root').forEach(function (rootChack, i, arr) {
-            //         rootChack.checked = false;
-            //     });
-            //
-            //     this.checked = true;
-            // });
+            let isRoot = false;
 
-            /* Увеличиваем data-index на 1 после вставки новой коллекции */
-            $addImageButton.dataset.index = (index + 1).toString();
-
-            /* загрузка изображения */
-            let inputElement = div.querySelector('input[type="file"]');
-
-            inputElement.addEventListener('change', function (e) {
-
-                let file = inputElement.files[0];
-                let reader = new FileReader();
-                let image = div.querySelector('.image-input');
-
-                reader.onloadend = function () {
-
-                    image.style.setProperty("background-image", "url(" + reader.result + ")", "important")
-                }
-
-                if (file) {
-                    reader.readAsDataURL(file);
-                } else {
-                    image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
+            photo_collection.querySelectorAll('.change-root').forEach(function(rootCheck)
+            {
+                if(rootCheck.checked === true)
+                {
+                    isRoot = true;
                 }
             });
+
+
+            if(isRoot === false)
+            {
+                photo_collection.querySelectorAll('.change-root').forEach(function(rootCheck, i)
+                {
+                    if(i === 0)
+                    {
+                        rootCheck.checked = true;
+                        return true;
+                    }
+                });
+            }
         });
-    }
-}
-init()
+    });
 
+    /* изменение чекбокса*/
+    let $changeRootPhoto = $blockCollectionPhoto.querySelectorAll('.change-root');
+
+    $changeRootPhoto.forEach(function(item)
+    {
+
+
+        if($changeRootPhoto.length === 1 && item.checked === false)
+        {
+            item.checked = true;
+        }
+
+        item.addEventListener('change', function()
+        {
+
+            let photo_collection = document.getElementById('photo_collection');
+
+            photo_collection.querySelectorAll('.change-root').forEach(function(rootCheck)
+            {
+                rootCheck.checked = false;
+            });
+
+            this.checked = true;
+        });
+
+    });
+
+    let uploadedFile = $blockCollectionPhoto.querySelectorAll('input[type="file"]');
+
+    uploadedFile.forEach(function(item)
+    {
+
+        item.addEventListener('change', function(e)
+        {
+
+            let newFile = item.files[0];
+            let reader = new FileReader();
+            // let image = item.parentNode.parentNode;
+            let image = item.closest('.image-input');
+
+            reader.onloadend = function()
+            {
+                image.style.setProperty("background-image", "url(" + reader.result + ")", "important")
+            }
+
+            if(newFile)
+            {
+                reader.readAsDataURL(newFile);
+            } else
+            {
+                image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
+            }
+        });
+    });
+
+    /* Добавляем новую коллекцию */
+    $addImageButton.addEventListener('click', function()
+    {
+
+        let $addImageButton = this;
+
+        /* получаем прототип коллекции  */
+        let newPrototype = document.getElementById($addImageButton.dataset.prototype).dataset.prototype;
+        let index = $addImageButton.dataset.index * 1;
+
+        if(index === 8)
+        {
+            return;
+        }
+
+        /* Замена '__name__' в HTML-коде прототипа число, основанное на том, сколько коллекций */
+        newPrototype = newPrototype.replace(/__images__/g, index);
+
+        /* Вставляем новую коллекцию */
+        let div = document.createElement('div');
+        div.classList.add('item-collection-photo')
+        div.innerHTML = newPrototype;
+        $blockCollectionPhoto.append(div);
+
+        /* Удаляем при клике коллекцию СЕКЦИЙ */
+        div.querySelector('.del-item-photo').addEventListener('click', function()
+        {
+            let $counter = $blockCollectionPhoto.getElementsByClassName('item-collection-photo').length;
+            this.closest('.item-collection-photo').remove();
+            let index = $addImageButton.dataset.index * 1;
+            $addImageButton.dataset.index = (index - 1).toString()
+        });
+
+
+         div.querySelector('.change-root').addEventListener('change', function (selector) {
+
+             let photo_collection = document.getElementById('photo_collection');
+
+             photo_collection.querySelectorAll('.change-root').forEach(function (rootChack, i, arr) {
+                 rootChack.checked = false;
+             });
+
+             this.checked = true;
+         });
+
+        /* Увеличиваем data-index на 1 после вставки новой коллекции */
+        $addImageButton.dataset.index = (index + 1).toString();
+
+        /* загрузка изображения */
+        let inputElement = div.querySelector('input[type="file"]');
+
+        inputElement.addEventListener('change', function(e)
+        {
+
+            let file = inputElement.files[0];
+            let reader = new FileReader();
+            let image = div.querySelector('.image-input');
+
+            reader.onloadend = function()
+            {
+
+                image.style.setProperty("background-image", "url(" + reader.result + ")", "important")
+            }
+
+            if(file)
+            {
+                reader.readAsDataURL(file);
+            } else
+            {
+                image.style.setProperty("background-image", "url(/img/blank.svg)", "important")
+            }
+        });
+    });
+
+    return true;
+
+});
 

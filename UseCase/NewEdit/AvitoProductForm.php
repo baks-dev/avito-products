@@ -61,7 +61,7 @@ final class AvitoProductForm extends AbstractType
         /**
          * Константа ТП
          */
-        $builder->add('offer', HiddenType::class, ['required' => false]);
+        $builder->add('offer', HiddenType::class);
 
         $builder->get('offer')->addModelTransformer(
             new CallbackTransformer(
