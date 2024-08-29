@@ -119,7 +119,7 @@ class AvitoProduct extends EntityState
                 $dto->getImages()->current()->setRoot(true);
             }
 
-            // @TODO костыль для маппера
+            // @TODO добавить детальное описание происходящего
             $this->images = new ArrayCollection();
 
             return parent::setEntity($dto);

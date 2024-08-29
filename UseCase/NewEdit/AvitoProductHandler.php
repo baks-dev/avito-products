@@ -39,15 +39,8 @@ final class AvitoProductHandler extends AbstractHandler
         }
 
         $entity->setEntity($command);
-        dd($entity);
 
         $this->validatorCollection->add($entity);
-
-        /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid())
-        {
-            return $this->validatorCollection->getErrorUniqid();
-        }
 
         /**
          * Загружаем изображения
@@ -64,6 +57,15 @@ final class AvitoProductHandler extends AbstractHandler
                 }
             }
         }
+
+        /** Валидация всех объектов */
+        if ($this->validatorCollection->isInvalid())
+        {
+            return $this->validatorCollection->getErrorUniqid();
+        }
+
+//        dd($entity);
+
 
         $this->entityManager->flush();
 

@@ -50,6 +50,7 @@ class AvitoProductNewTest extends KernelTestCase
         $em->clear();
     }
 
+    // @TODO нужно ли тестировать с создание с нулевыми значениями
     public function testNew(): void
     {
         $avitoProductDTO = new AvitoProductDTO();
@@ -78,4 +79,20 @@ class AvitoProductNewTest extends KernelTestCase
 
         self::assertEmpty($newAvitoProduct->getImages());
     }
+
+//    public static function tearDownAfterClass(): void
+//    {
+//        $container = self::getContainer();
+//
+//        /** @var EntityManagerInterface $em */
+//        $em = $container->get(EntityManagerInterface::class);
+//
+//        $product = $em->getRepository(AvitoProduct::class)
+//            ->findOneBy(['product' => ProductUid::TEST]);
+//
+//        $em->remove($product);
+//
+//        $em->flush();
+//        $em->clear();
+//    }
 }

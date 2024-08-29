@@ -30,7 +30,7 @@ use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Files\Resources\Upload\UploadEntityInterface;
+use BaksDev\Elastic\Api\Index\ElasticGetIndex;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
@@ -55,7 +55,6 @@ use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
-use BaksDev\Elastic\Api\Index\ElasticGetIndex;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\Property\ProductFilterPropertyDTO;
 
 final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvitoImagesInterface
@@ -100,7 +99,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_event.id = product.event'
         );
 
-        // @TODO нужен ли join на активные продукты?
         /** Только активные продукты */
         $dbal
             ->join(
@@ -253,20 +251,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'category_offer_modification.id = product_modification.category_modification'
         );
 
-        /**
-         * @TODO подумать над ее использованием
-         * Уникальная константа
-         */
-        $dbal->addSelect(
-            '
-                CASE
-                    WHEN product_modification.const IS NOT NULL THEN product_modification.const
-                    WHEN product_variation.const IS NOT NULL THEN product_variation.const
-                    WHEN product_offer.const IS NOT NULL THEN product_offer.const
-                    ELSE NULL
-                END AS product_const'
-        );
-
+        // @TODO переделать на COALESCE (везде)
         /**
          * Артикул продукта
          */
@@ -422,7 +407,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'category.id = product_category.category'
         );
 
-        // @TODO нужен ли join на активные разделы?
         /** Только активные разделы */
         $dbal
             ->addSelect('category_info.active as category_active')
@@ -431,8 +415,8 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 CategoryProductInfo::class,
                 'category_info',
                 '
-                category.event = category_info.event AND
-                category_info.active IS TRUE'
+                    category.event = category_info.event AND
+                    category_info.active IS TRUE'
             );
 
         $dbal
