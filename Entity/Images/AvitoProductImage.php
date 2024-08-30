@@ -33,11 +33,11 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// @TODO нужно ли ограничить root по уникальности - root + id?
+// @TODO нужно ли ограничить root по уникальности - id + root + avito?
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-#[ORM\UniqueConstraint(columns: ['avito', 'root'])]
+#[ORM\UniqueConstraint(columns: ['id', 'avito', 'root'])]
 class AvitoProductImage extends EntityState implements UploadEntityInterface
 {
     // @TODO легаси, которое участвует в загрузке

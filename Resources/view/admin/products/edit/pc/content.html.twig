@@ -10,71 +10,64 @@
 
         <div class="modal-content p-3 border-bottom border-5 border-primary">
 
-            <div class="modal-header ">
+            {# Заголовок модального окна #}
+            {{ include('@avito-products/admin/products/edit/pc/_header.html.twig') }}
 
-                <div class="d-flex gap-3">
 
-                    {# Обложка  #}
-                    <div>
-                        {% set image_path = '/assets/img/blank.svg' %}
+            <ul class="nav nav-pills gap-3 mb-3" id="nav-avito-product">
 
-                        {% if product.product_image_ext is defined and product.product_image_ext is not null %}
-                            {% set img_host =  product.product_image_cdn == true  ? CDN_HOST : '' %}
-                            {% set img_dir = product.product_image %}
-                            {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ product.product_image_ext %}
-                            {% set image_path = img_host ~ img_dir ~ img_file %}
-                        {% endif %}
+                <li class="nav-item" role="presentation">
+                    <button class="btn fw-bolder nav-link active"
+                            data-bs-toggle="tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
 
-                        <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px;"
-                             data-bg="{{ image_path }}">
-                        </div>
-                    </div>
+                            id="tab_images-tab"
+                            data-bs-target="#tab_images"
+                            aria-controls="nav-avito-product"
+                    >
+                        <small class="text-uppercase px-3">
+                            Изображения
+                        </small>
+                    </button>
+                </li>
 
-                    {# Название продукта  #}
-                    <div class="d-flex flex-column align-items-start">
+                <li class="nav-item">
+                    <button class="btn fw-bolder nav-link"
+                            data-bs-toggle="tab"
+                            type="button"
+                            role="tab"
+                            aria-selected="true"
 
-                        <h5 class="modal-title d-flex align-items-center gap-3">
+                            id="tab_description-tab"
+                            data-bs-target="#tab_description"
+                            aria-controls="nav-avito-product"
+                    >
+                        <small class="text-uppercase px-3">
+                            Шаблон описания
+                        </small>
+                    </button>
+                </li>
 
-                            {{ product.product_name }}
+            </ul>
 
-                            {# Значение множественного варианта ТП #}
-                            {{ product.product_variation_value|call_twig_func(product.product_variation_reference~'_render')
-                            ~ product.product_modification_value|call_twig_func(product.product_modification_reference~'_render') }}
 
-                            {# Значение торгового предложения #}
-                            {{ product.product_offer_value|call_twig_func(product.product_offer_reference~'_render') }}
+            <div class="tab-content">
 
-                            {# Постфикс торгового предложения #}
-                            {{ product.product_offer_postfix }}
-                            {# Постфикс множественного варианта #}
-                            {{ product.product_variation_postfix }}
-                            {# Постфикс модификации #}
-                            {{ product.product_modification_postfix }}
-
-                            {# Свойства, учавствующие в названии #}
-                            {% for name_property in arr_property | filter(props => props.field_name == true) %}
-                                {{ name_property.field_value|call_twig_func(name_property.field_type) }}
-                            {% endfor %}
-
-                        </h5>
-
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="small">Артикул: {{ product.product_article }}</span>
-
-                            {# Свойства, учавствующие в превью карточки #}
-                            {% for name_property in  arr_property | filter(props => props.field_card is defined and props.field_card == true) %}
-                                {{ name_property.field_value|call_twig_func(name_property.field_type~'_render') }}
-                            {% endfor %}
-                        </div>
-
-                    </div>
+                {# Изображения #}
+                <div class="tab-pane fade show active" id="tab_images" role="tabpanel">
+                    {#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }} #}
+                    {{ include('@avito-products/admin/products/edit/pc/_images.html.twig') }}
                 </div>
 
+                {# Описание #}
+                <div class="tab-pane fade show" id="tab_description" role="tabpanel">
+                    {{ form_row(form.description, {
+                        attr: { class: 'ckeditor'}
+                    }) }}
+                </div>
             </div>
-
-            {# Изображения #}
-            {#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }} #}
-            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig') }}
 
             {# Кнопки формы #}
             <div class="modal-footer ">
@@ -96,7 +89,7 @@
 
         </div>
 
-        {# Прототип #}
+        {# Прототип формы для изображения #}
         <div id="prototype.gallery.image"
              data-prototype="{{ include(_self|replace({ "content.html.twig": "_prototype.image.html.twig" }))|e('html_attr') }}">
         </div>

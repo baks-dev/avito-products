@@ -61,8 +61,7 @@ final class EditController extends AbstractController
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
-    ): Response
-    {
+    ): Response {
 
         $editDTO = new AvitoProductDTO();
 
@@ -85,9 +84,20 @@ final class EditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if($avitoProduct)
+        dump($editDTO);
+
+        if ($avitoProduct)
         {
             $avitoProduct->getDto($editDTO);
+        }
+
+
+
+        if(null === $editDTO->getDescription())
+        {
+            $template = $this->render(module: 'avito-products', file: 'description/description.html.twig');
+
+            $editDTO->setDescription($template->getContent());
         }
 
         $form = $this->createForm(
@@ -104,11 +114,18 @@ final class EditController extends AbstractController
             )]
         );
 
-        $form->handleRequest($request);
+        dump($editDTO);
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        $form->handleRequest($request);
+           dump($request->request);
+            dump($editDTO);
+
+        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
-            $this->refreshTokenForm($form);
+            dump($avitoProduct);
+//            dd($request->request);
+//            $this->refreshTokenForm($form);
+
 
             $handle = $handler->handle($editDTO);
 

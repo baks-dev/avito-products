@@ -2,7 +2,7 @@
 
     <td class="text-nowrap">
         {# Пользовательское меню редактирования #}
-        {{ include(_self|replace({ "card.html.twig": "_usecase.html.twig" })) }}
+        {{ include('@avito-products/admin/products/index/pc/_usecase.html.twig') }}
     </td>
 
     {# Категория  #}
@@ -24,7 +24,7 @@
                data-bs-target="#modal"
                class="pe-3 modal-link disabled"
             >
-                {#                             Обложка#}
+                {# Обложка #}
                 {% set image_path = '/assets/img/blank.svg' %}
 
                 {% if item.product_image_ext is defined and item.product_image_ext is not null %}
@@ -82,66 +82,20 @@
         </div>
     </td>
 
+    <td class="text-center">
+        {# Обложка #}
+        {% set image_path = '/assets/img/blank.svg' %}
 
+        {% if item.avito_product_image_ext is defined and item.avito_product_image_ext is not null %}
+            {% set img_host =  item.avito_product_image_cdn == true  ? CDN_HOST : '' %}
+            {% set img_dir = item.avito_product_image %}
+            {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ item.avito_product_image_ext %}
+            {% set image_path = img_host ~ img_dir ~ img_file %}
+        {% endif %}
 
-        <td class="text-center">
-            {#                             Обложка#}
-            {% set image_path = '/assets/img/blank.svg' %}
-
-            {% if item.avito_product_image_ext is defined and item.avito_product_image_ext is not null %}
-                {% set img_host =  item.avito_product_image_cdn == true  ? CDN_HOST : '' %}
-                {% set img_dir = item.avito_product_image %}
-                {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ item.avito_product_image_ext %}
-                {% set image_path = img_host ~ img_dir ~ img_file %}
-            {% endif %}
-
-            <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px;"
-                 data-bg="{{ image_path }}">
-            </div>        </td>
-
-{#    <td class="text-center">#}
-{#            {{ item.product_parameter_length ?: badge|raw }}#}
-{#        </td>#}
-
-{#    {% set badge = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-danger" viewBox="0 0 16 16">#}
-{#  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>#}
-{#</svg>' %}#}
-
-{#    <td class="text-center">#}
-{#        {{ item.product_parameter_length ?: badge|raw }}#}
-{#    </td>#}
-
-{#    <td class="text-center">#}
-{#        {{ item.product_parameter_width?: badge|raw }}#}
-{#    </td>#}
-
-{#    <td class="text-center">#}
-{#        {{ item.product_parameter_height?: badge|raw }}#}
-{#    </td>#}
-
-{#    <td class="text-center text-nowrap">#}
-
-{#        {% if item.product_parameter_size %}#}
-
-{#            {% if item.product_parameter_size > 1000000 %}#}
-{#                {{ (item.product_parameter_size / 1000000000)|round(3) }} м3#}
-
-{#            {% elseif item.product_parameter_size > 10 %}#}
-{#                {{ (item.product_parameter_size / 1000)|round(1) }} см3#}
-
-{#            {% else %}#}
-{#                {{ item.product_parameter_size|round(1) }} мм3#}
-
-{#            {% endif %}#}
-
-{#        {% else %}#}
-{#            {{ badge|raw }}#}
-{#        {% endif %}#}
-
-{#    </td>#}
-
-{#    <td class="text-center">#}
-{#        {{ item.product_parameter_weight ? (item.product_parameter_weight / 100) : badge|raw }}#}
-{#    </td>#}
+        <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px;"
+             data-bg="{{ image_path }}">
+        </div>
+    </td>
 
 </tr>

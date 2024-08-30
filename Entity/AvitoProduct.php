@@ -27,7 +27,6 @@ namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -35,6 +34,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -71,6 +71,10 @@ class AvitoProduct extends EntityState
     #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
     private Collection $images;
 
+    /** Шаблон описания */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->id = new AvitoProductUid();
@@ -101,6 +105,7 @@ class AvitoProduct extends EntityState
     /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
+
         // Если файлов для загрузки нет - не заполняем и не создаем сущность
         if ($dto->getImages()->isEmpty())
         {
@@ -109,15 +114,17 @@ class AvitoProduct extends EntityState
 
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
-            $filter = $dto->getImages()->filter(function (AvitoProductImagesDTO $DTO) {
-
-                return $DTO->getRoot() === true;
-            });
-
-            if($filter->isEmpty())
-            {
-                $dto->getImages()->current()->setRoot(true);
-            }
+            // @TODO может сделать проверку на то, что хотя бы одно фото root?
+            //
+            //                        $filter = $dto->getImages()->filter(function (AvitoProductImagesDTO $DTO) {
+            //
+            //                            return $DTO->getRoot() === true;
+            //                        });
+            //
+            //                        if($filter->isEmpty())
+            //                        {
+            //                            $dto->getImages()->current()->setRoot(true);
+            //                        }
 
             // @TODO добавить детальное описание происходящего
             $this->images = new ArrayCollection();

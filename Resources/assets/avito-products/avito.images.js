@@ -34,7 +34,6 @@ executeFunc(function init()
         return false;
     }
 
-
     /* удаление блока из коллекции изображений */
     let $delItemPhoto = $blockCollectionPhoto.querySelectorAll('.del-item-photo');
 

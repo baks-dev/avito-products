@@ -26,15 +26,10 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
-use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -42,70 +37,6 @@ final class AvitoProductForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /**
-         * ID продукта.
-         */
-        $builder->add('product', HiddenType::class);
-
-        $builder->get('product')->addModelTransformer(
-            new CallbackTransformer(
-                function ($product) {
-                    return $product instanceof ProductUid ? $product->getValue() : $product;
-                },
-                function ($product) {
-                    return $product ? new ProductUid($product) : null;
-                }
-            )
-        );
-
-        /**
-         * Константа ТП
-         */
-        $builder->add('offer', HiddenType::class);
-
-        $builder->get('offer')->addModelTransformer(
-            new CallbackTransformer(
-                function ($offer) {
-                    return $offer instanceof ProductOfferConst ? $offer->getValue() : $offer;
-                },
-                function ($offer) {
-                    return $offer ? new ProductOfferConst($offer) : null;
-                }
-            )
-        );
-
-        /**
-         * Константа варианта
-         */
-        $builder->add('variation', HiddenType::class, ['required' => false]);
-
-        $builder->get('variation')->addModelTransformer(
-            new CallbackTransformer(
-                function ($variation) {
-                    return $variation instanceof ProductVariationConst ? $variation->getValue() : $variation;
-                },
-                function ($variation) {
-                    return $variation ? new ProductVariationConst($variation) : null;
-                }
-            )
-        );
-
-        /**
-         * Константа модификации варианта
-         */
-        $builder->add('modification', HiddenType::class, ['required' => false]);
-
-        $builder->get('modification')->addModelTransformer(
-            new CallbackTransformer(
-                function ($modification) {
-                    return $modification instanceof ProductModificationConst ? $modification->getValue() : $modification;
-                },
-                function ($modification) {
-                    return $modification ? new ProductModificationConst($modification) : null;
-                }
-            )
-        );
-
         $builder->add('images', CollectionType::class, [
             'entry_type' => AvitoProductsImagesForm::class,
             'entry_options' => [
@@ -118,11 +49,21 @@ final class AvitoProductForm extends AbstractType
             'prototype_name' => '__images__',
         ]);
 
+        $builder->add('description', TextareaType::class, [
+//            'empty_data' => 'qq',
+            'required' => false,
+            'label' => false,
+        ]);
+
         /** Сохранить */
         $builder->add(
             'avito_product',
             SubmitType::class,
-            ['label' => 'Save', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            [
+                'label' => 'Save',
+                'label_html' => true,
+                'attr' => ['class' => 'btn-primary']
+            ]
         );
     }
 
