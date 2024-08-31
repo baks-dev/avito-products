@@ -84,16 +84,13 @@ final class EditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        dump($editDTO);
-
         if ($avitoProduct)
         {
             $avitoProduct->getDto($editDTO);
         }
 
 
-
-        if(null === $editDTO->getDescription())
+        if (null === $editDTO->getDescription())
         {
             $template = $this->render(module: 'avito-products', file: 'description/description.html.twig');
 
@@ -114,18 +111,9 @@ final class EditController extends AbstractController
             )]
         );
 
-        dump($editDTO);
-
-        $form->handleRequest($request);
-           dump($request->request);
-            dump($editDTO);
-
         if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
-            dump($avitoProduct);
-//            dd($request->request);
-//            $this->refreshTokenForm($form);
-
+            $this->refreshTokenForm($form);
 
             $handle = $handler->handle($editDTO);
 
@@ -140,7 +128,6 @@ final class EditController extends AbstractController
         }
 
         $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
-        //        dd($avitoProduct);
 
         return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
     }
