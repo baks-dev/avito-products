@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
