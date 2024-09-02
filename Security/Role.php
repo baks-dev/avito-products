@@ -6,7 +6,7 @@ namespace BaksDev\Avito\Products\Security;
 
 use BaksDev\Menu\Admin\Command\Upgrade\MenuAdminInterface;
 use BaksDev\Menu\Admin\Type\SectionGroup\Group\Collection\MenuAdminSectionGroupCollectionInterface;
-use BaksDev\Menu\Admin\Type\SectionGroup\Group\MenuGroupSettings;
+use BaksDev\Orders\Order\Security\MenuGroupMarketplace;
 use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
@@ -36,7 +36,7 @@ final class Role implements RoleInterface, MenuAdminInterface
      */
     public function getGroupMenu(): MenuAdminSectionGroupCollectionInterface|bool
     {
-        return new MenuGroupSettings();
+        return new MenuGroupMarketplace();
     }
 
     /**
@@ -44,7 +44,7 @@ final class Role implements RoleInterface, MenuAdminInterface
      */
     public function getSortMenu(): int
     {
-        return 461;
+        return 441;
     }
 
     /**

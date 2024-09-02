@@ -134,14 +134,11 @@ final class AvitoProductDTO implements AvitoProductInterface
 
     public function getDescription(): ?string
     {
-//        dd($this->description);
-
         return $this->description;
     }
 
     public function setDescription(?string $description): void
     {
-//        dd($description);
         $this->description = $description;
     }
 }

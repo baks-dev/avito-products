@@ -41,10 +41,11 @@
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('avito-products:admin.products.edit', {
+                    category: item.category_name,
                     product : item.id,
                     offer: item.product_offer_const,
                     variation: item.product_variation_const,
-                    modification: item.product_modification_const
+                    modification: item.product_modification_const,
                 }) }}"
                    class="text-decoration-none text-dark w-100 modal-link"
                    data-bs-toggle="modal"

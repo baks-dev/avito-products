@@ -37,19 +37,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-#[ORM\UniqueConstraint(columns: ['id', 'avito', 'root'])]
+#[ORM\UniqueConstraint(columns: ['name', 'root', 'avito'])]
 class AvitoProductImage extends EntityState implements UploadEntityInterface
 {
     // @TODO легаси, которое участвует в загрузке
     /** Обязательная константа с названием таблицы */
     public const string TABLE = "avito_product_images";
-
-    /** ID */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    #[ORM\Id]
-    #[ORM\Column(type: AvitoProductImageUid::TYPE)]
-    private readonly AvitoProductImageUid $id;
 
     /**
      * Идентификатор продукта Авито
@@ -60,8 +53,16 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     #[ORM\JoinColumn(name: 'avito', referencedColumnName: 'id')]
     private AvitoProduct $avito;
 
+    /** ID */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    #[ORM\Id]
+    #[ORM\Column(type: AvitoProductImageUid::TYPE)]
+    private readonly AvitoProductImageUid $id;
+
     /** Название файла */
     #[Assert\NotBlank]
+    #[ORM\Id]
     #[Assert\Length(max: 100)]
     #[ORM\Column(type: Types::STRING)]
     private string $name;

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin;
 
+use BaksDev\Avito\Board\Mapper\Products\AvitoProductResolver;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
@@ -48,7 +49,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class EditController extends AbstractController
 {
     #[Route(
-        '/admin/avito/product/{product}/{offer}/{variation}/{modification}',
+        '/admin/avito/product/{category}/{product}/{offer}/{variation}/{modification}',
         name: 'admin.products.edit',
         methods: ['GET', 'POST']
     )]
@@ -57,6 +58,7 @@ final class EditController extends AbstractController
         EntityManagerInterface $entityManager,
         AvitoProductHandler $handler,
         OneProductWithAvitoImagesInterface $productWithImages,
+        #[ParamConverter(AvitoProductResolver::class)] $category,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
@@ -89,10 +91,12 @@ final class EditController extends AbstractController
             $avitoProduct->getDto($editDTO);
         }
 
-
         if (null === $editDTO->getDescription())
         {
-            $template = $this->render(module: 'avito-products', file: 'description/description.html.twig');
+            // @TODO добавить название магазина в настройку профиля Авито?
+//            dd($category);
+            $file = sprintf('description/%s.html.twig', $category);
+            $template = $this->render(file: $file);
 
             $editDTO->setDescription($template->getContent());
         }
@@ -103,6 +107,7 @@ final class EditController extends AbstractController
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
+                    'category' => $category,
                     'product' => $editDTO->getProduct(),
                     'offer' => $editDTO->getOffer(),
                     'variation' => $editDTO->getVariation(),
@@ -110,6 +115,8 @@ final class EditController extends AbstractController
                 ]
             )]
         );
+
+        $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {

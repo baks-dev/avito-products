@@ -68,15 +68,11 @@ class AvitoProductNewTest extends KernelTestCase
 
         $avitoProductDTO->setModification(new ProductModificationConst(ProductModificationConst::TEST));
         self::assertTrue($avitoProductDTO->getModification()->equals(ProductModificationConst::TEST));
-        
+
         $avitoProductDTO->setDescription('new_description');
         self::assertSame('new_description', $avitoProductDTO->getDescription());
 
         $image = new AvitoProductImagesDTO();
-//        $png = BaksDevAvitoProductsBundle::PATH . 'Resources/tests/PNG.png';
-//        $file = new File($png, true);
-//        $image->setFile($file);
-
         $avitoProductDTO->getImages()->add($image);
 
         $container = self::getContainer();

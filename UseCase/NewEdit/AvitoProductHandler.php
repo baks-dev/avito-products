@@ -9,6 +9,7 @@ use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\AbstractHandler;
+use Doctrine\Common\Collections\ArrayCollection;
 
 final class AvitoProductHandler extends AbstractHandler
 {
@@ -32,7 +33,10 @@ final class AvitoProductHandler extends AbstractHandler
             $this->entityManager->persist($entity);
         }
 
-        /** Удаляем все предыдущие изображения */
+        /** Удаляем все предыдущие изображения
+         *
+         * @var ArrayCollection<int, AvitoProductImage> $images
+         */
         foreach ($entity->getImages() as $image)
         {
             $this->entityManager->remove($image);
@@ -64,7 +68,6 @@ final class AvitoProductHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-//        dd($entity);
         $this->entityManager->flush();
 
         $this->messageDispatch->dispatch(

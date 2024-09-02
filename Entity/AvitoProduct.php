@@ -106,11 +106,11 @@ class AvitoProduct extends EntityState
     public function setEntity($dto): mixed
     {
 
-        // Если файлов для загрузки нет - не заполняем и не создаем сущность
-        if ($dto->getImages()->isEmpty())
-        {
-            return false;
-        }
+        //        // Если файлов для загрузки нет - не заполняем и не создаем сущность
+        //        if ($dto->getImages()->isEmpty())
+        //        {
+        //            return false;
+        //        }
 
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {

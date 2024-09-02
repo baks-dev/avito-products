@@ -19,12 +19,12 @@ use Symfony\Component\HttpFoundation\File\File;
  * @group avito-products
  * @group avito-products-usecase
  *
- * @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests\AvitoProductEditTest::class
+ * @depends BaksDev\Avito\Products\UseCase\NewEdit\Images\Tests\AvitoProductImagesNewTest::class
  */
 #[When(env: 'test')]
-class AvitoProductImagesNewTest extends KernelTestCase
+class AvitoProductImagesEditTest extends KernelTestCase
 {
-    public function testNew(): void
+    public function testEdit(): void
     {
         $container = self::getContainer();
         $em = $container->get(EntityManagerInterface::class);
@@ -39,19 +39,50 @@ class AvitoProductImagesNewTest extends KernelTestCase
 
         $avitoProduct->getDto($editDTO);
 
-        self::assertEquals('edit_description', $editDTO->getDescription());
+        /** @var AvitoProductImagesDTO $newImage */
+        $newImage = $editDTO->getImages()->current();
 
-        $image = new AvitoProductImagesDTO();
-        $image->setRoot(true);
+        self::assertTrue($newImage->getRoot());
+        self::assertSame($newImage->getExt(), 'jpg');
 
-        $jpeg = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/JPEG.jpg', true);
-        $image->setFile($jpeg);
+        $editDTO->removeImage($newImage);
+        self::assertEmpty($editDTO->getImages());
 
-        $editDTO->addImage($image);
+        $editImagePNG = new AvitoProductImagesDTO();
+        $editImagePNG->setRoot(false);
+
+        $png = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/PNG.png', true);
+        $editImagePNG->setFile($png);
+
+        $editDTO->addImage($editImagePNG);
+
+        $editImageWEBP = new AvitoProductImagesDTO();
+        $editImageWEBP->setRoot(true);
+
+        $webp = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/WEBP.webp', true);
+        $editImageWEBP->setFile($webp);
+
+        $editDTO->addImage($editImageWEBP);
 
         /** @var AvitoProductHandler $handler */
         $handler = $container->get(AvitoProductHandler::class);
         $editAvitoProduct = $handler->handle($editDTO);
         self::assertTrue($editAvitoProduct instanceof AvitoProduct);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        $container = self::getContainer();
+
+        /** @var EntityManagerInterface $em */
+        $em = $container->get(EntityManagerInterface::class);
+
+        $product = $em->getRepository(AvitoProduct::class)
+            ->find(AvitoProductUid::TEST);
+
+        $em->remove($product);
+
+        $em->flush();
+        $em->clear();
     }
 }
