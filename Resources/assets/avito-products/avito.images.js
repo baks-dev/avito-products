@@ -28,7 +28,6 @@ executeFunc(function init()
     /* Блок для новой коллекции */
     let $blockCollectionPhoto = document.getElementById('photo_collection');
 
-
     if($addImageButton === null)
     {
         return false;
@@ -83,7 +82,6 @@ executeFunc(function init()
 
     $changeRootPhoto.forEach(function(item)
     {
-
 
         if($changeRootPhoto.length === 1 && item.checked === false)
         {

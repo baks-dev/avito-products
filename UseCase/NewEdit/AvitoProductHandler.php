@@ -67,6 +67,7 @@ final class AvitoProductHandler extends AbstractHandler
         {
             return $this->validatorCollection->getErrorUniqid();
         }
+//        dd($entity);
 
         $this->entityManager->flush();
 

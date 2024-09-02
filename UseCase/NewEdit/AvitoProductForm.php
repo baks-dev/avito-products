@@ -50,7 +50,6 @@ final class AvitoProductForm extends AbstractType
         ]);
 
         $builder->add('description', TextareaType::class, [
-//            'empty_data' => 'qq',
             'required' => false,
             'label' => false,
         ]);

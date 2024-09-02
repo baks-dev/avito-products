@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
+use BaksDev\Avito\Board\Entity\AvitoBoard;
+use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
@@ -430,6 +432,32 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     category_trans.local = :local'
             );
 
+        // @TODO
+        /** Avito mapper */
+        /**
+         * Категория, для которой создан маппер. Для каждой карточки
+         */
+        $dbal
+            ->addSelect('avito_board.id AS avito_board_mapper_category_id')
+            ->join(
+                'product_category',
+                AvitoBoard::class,
+                'avito_board',
+                'avito_board.id = product_category.category'
+            );
+
+        /**
+         * Название категории в Авито из активного события маппера. Для каждой карточки
+         */
+        $dbal
+            ->addSelect('avito_board_event.avito AS avito_board_avito_category')
+            ->join(
+                'avito_board',
+                AvitoBoardEvent::class,
+                'avito_board_event',
+                'avito_board_event.id = avito_board.event'
+            );
+
         /**
          * Фильтр по свойства продукта
          */
@@ -504,6 +532,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article');
         }
+
+//        dd($dbal
+//            ->where("product_trans.name = 'Triangle TRY88'")
+//            ->fetchAllAssociative());
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

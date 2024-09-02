@@ -2,7 +2,6 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Tests;
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
@@ -16,7 +15,6 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @group avito-products
@@ -52,7 +50,6 @@ class AvitoProductNewTest extends KernelTestCase
         $em->clear();
     }
 
-    // @TODO нужно ли тестировать с создание с нулевыми значениями
     public function testNew(): void
     {
         $avitoProductDTO = new AvitoProductDTO();

@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-#[ORM\UniqueConstraint(columns: ['name', 'root', 'avito'])]
+#[ORM\UniqueConstraint(columns: ['id','name', 'root', 'avito'])]
 class AvitoProductImage extends EntityState implements UploadEntityInterface
 {
     // @TODO легаси, которое участвует в загрузке
