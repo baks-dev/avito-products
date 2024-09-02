@@ -24,9 +24,16 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
+use BaksDev\Avito\Products\Type\AvitoProductType;
+use BaksDev\Avito\Products\Type\AvitoProductUid;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use Symfony\Config\DoctrineConfig;
 
 return static function (DoctrineConfig $doctrine): void {
+
+    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
+    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
 
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
