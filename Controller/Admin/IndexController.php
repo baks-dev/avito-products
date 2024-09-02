@@ -70,13 +70,10 @@ final class IndexController extends AbstractController
         /** Если перезагрузить страницу */
         false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
-
         $products = $allProductsWithAvitoImages
             ->search($search)
             ->filter($filter)
             ->findAll();
-
-//        dd($products);
 
         return $this->render(
             [

@@ -105,6 +105,7 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function addImage(AvitoProductImagesDTO $image): void
     {
 
+        /** Пропускаем, если форма не содержит изображения и изображение изображению не присвоено имя */
         if (null === $image->getFile() && null === $image->getName())
         {
             return;
@@ -118,7 +119,7 @@ final class AvitoProductDTO implements AvitoProductInterface
                 return false;
             }
 
-            return $image->getName() === $current->getName(); //|| null === $image->getFile() && null === $image->getName();
+            return $image->getName() === $current->getName();
         });
 
         if ($filter->isEmpty())

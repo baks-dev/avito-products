@@ -28,7 +28,7 @@ final class Role implements RoleInterface, MenuAdminInterface
     /** Метод возвращает PATH раздела */
     public function getPath(): string
     {
-        return 'avito-products:admin.index';
+        return 'avito-products:admin.products.index';
     }
 
     /**

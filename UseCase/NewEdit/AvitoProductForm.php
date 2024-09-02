@@ -25,18 +25,63 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
+use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
+use BaksDev\Core\Twig\TemplateExtension;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Twig\Environment;
 
 final class AvitoProductForm extends AbstractType
 {
+    public function __construct(
+        private readonly OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
+        private readonly TemplateExtension $templateExtension,
+        private readonly Environment $environment,
+    ) {}
+
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** Рендеринг шаблона, если описание NULL */
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event): void {
+
+                /** @var AvitoProductDTO $data */
+                $data = $event->getData();
+
+                $card = $this->oneProductWithAvitoImages->findBy(
+                    $data->getProduct(),
+                    $data->getOffer(),
+                    $data->getVariation(),
+                    $data->getModification()
+                );
+
+                try
+                {
+                    $template = $this->templateExtension->extends('@avito-products:description/' . $card['category_url'] . '.html.twig');
+                    $render = $this->environment->render($template);
+                }
+                catch (\Exception)
+                {
+                    $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
+                    $render = $this->environment->render($template);
+                }
+
+                if (is_null($data->getDescription()))
+                {
+                    $data->setDescription($render);
+                }
+            }
+        );
+
         $builder->add('images', CollectionType::class, [
             'entry_type' => AvitoProductsImagesForm::class,
             'entry_options' => [
@@ -53,6 +98,7 @@ final class AvitoProductForm extends AbstractType
             'required' => false,
             'label' => false,
         ]);
+
 
         /** Сохранить */
         $builder->add(

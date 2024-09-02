@@ -27,7 +27,6 @@ namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -106,28 +105,8 @@ class AvitoProduct extends EntityState
     /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
-
-        //        // Если файлов для загрузки нет - не заполняем и не создаем сущность
-        //        if ($dto->getImages()->isEmpty())
-        //        {
-        //            return false;
-        //        }
-
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
-            // @TODO может сделать проверку на то, что хотя бы одно фото root или огромный уникальный ключ?
-            //
-//            $filter = $dto->getImages()->filter(function (AvitoProductImagesDTO $DTO) {
-//
-//                return $DTO->getRoot() === true;
-//            });
-//
-//            if ($filter->isEmpty())
-//            {
-//                $dto->getImages()->current()->setRoot(true);
-//            }
-
-            // @TODO добавить детальное описание происходящего
             $this->images = new ArrayCollection();
 
             return parent::setEntity($dto);

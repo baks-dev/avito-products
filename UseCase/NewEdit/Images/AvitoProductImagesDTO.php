@@ -50,6 +50,16 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
     /** Размер файла */
     private ?int $size = null;
 
+    public function getId(): ?AvitoProductImageUid
+    {
+        return $this->id;
+    }
+
+    public function setId(?AvitoProductImageUid $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -101,16 +111,6 @@ final class AvitoProductImagesDTO implements AvitoProductImagesInterface
     public function getFile(): ?File
     {
         return $this->file;
-    }
-
-    public function getId(): ?AvitoProductImageUid
-    {
-        return $this->id;
-    }
-
-    public function setId(?AvitoProductImageUid $id): void
-    {
-        $this->id = $id;
     }
 
     public function setFile(?File $file): void

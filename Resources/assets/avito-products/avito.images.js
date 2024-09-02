@@ -164,17 +164,30 @@ executeFunc(function init()
             $addImageButton.dataset.index = (index - 1).toString()
         });
 
+        let images = photo_collection.querySelectorAll('.change-root');
 
-         div.querySelector('.change-root').addEventListener('change', function (selector) {
+        if(images.length === 1)
+        {
+            let photo_collection = document.getElementById('photo_collection');
 
-             let photo_collection = document.getElementById('photo_collection');
+            photo_collection.querySelectorAll('.change-root').forEach(function(rootChack, i, arr)
+            {
+                rootChack.checked = true;
+            });
+        }
 
-             photo_collection.querySelectorAll('.change-root').forEach(function (rootChack, i, arr) {
-                 rootChack.checked = false;
-             });
+        div.querySelector('.change-root').addEventListener('change', function(selector)
+        {
 
-             this.checked = true;
-         });
+            let photo_collection = document.getElementById('photo_collection');
+
+            photo_collection.querySelectorAll('.change-root').forEach(function(rootChack, i, arr)
+            {
+                rootChack.checked = false;
+            });
+
+            this.checked = true;
+        });
 
         /* Увеличиваем data-index на 1 после вставки новой коллекции */
         $addImageButton.dataset.index = (index + 1).toString();

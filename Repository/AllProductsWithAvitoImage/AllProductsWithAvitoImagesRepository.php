@@ -253,7 +253,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'category_offer_modification.id = product_modification.category_modification'
         );
 
-        // @TODO переделать на COALESCE (везде)
         /**
          * Артикул продукта
          */
@@ -432,10 +431,9 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     category_trans.local = :local'
             );
 
-        // @TODO
         /** Avito mapper */
         /**
-         * Категория, для которой создан маппер. Для каждой карточки
+         * Только те продукты, для которых создан маппер
          */
         $dbal
             ->addSelect('avito_board.id AS avito_board_mapper_category_id')
@@ -532,10 +530,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article');
         }
-
-//        dd($dbal
-//            ->where("product_trans.name = 'Triangle TRY88'")
-//            ->fetchAllAssociative());
 
         return $this->paginator->fetchAllAssociative($dbal);
     }

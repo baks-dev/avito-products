@@ -23,8 +23,12 @@
 
 namespace BaksDev\Avito\Products\Entity\Images;
 
+use BaksDev\Core\Type\UidType\Uid;
+
 interface AvitoProductImagesInterface
 {
+    public function getId(): ?Uid;
+
     public function getName(): ?string;
 
     public function getExt(): ?string;
