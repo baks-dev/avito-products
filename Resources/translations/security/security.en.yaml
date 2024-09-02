@@ -1,0 +1,22 @@
+# Role
+ROLE_AVITO_PRODUCTS:
+  header: 'Avito products Settings'
+  name: 'Avito product Settings'
+  desc: 'Avito product Settings'
+
+# Rules
+ROLE_AVITO_PRODUCTS_INDEX:
+  name: 'View'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_NEW:
+  name: 'Add'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_EDIT:
+  name: 'Edit'
+  desc: ''
+
+ROLE_AVITO_PRODUCTS_DELETE:
+  name: 'Delete'
+  desc: ''

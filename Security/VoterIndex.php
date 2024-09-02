@@ -21,26 +21,27 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+declare(strict_types=1);
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
-use BaksDev\Avito\Products\Type\AvitoProductUid;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
-use Symfony\Config\DoctrineConfig;
+namespace BaksDev\Avito\Products\Security;
 
-return static function (DoctrineConfig $doctrine): void {
+use BaksDev\Users\Profile\Group\Security\RoleInterface;
+use BaksDev\Users\Profile\Group\Security\VoterInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
-    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
+#[AutoconfigureTag('baks.security.voter')]
+final class VoterIndex implements VoterInterface
+{
+    public const string VOTER = 'INDEX';
 
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
+    public static function getVoter(): string
+    {
+        return Role::ROLE.'_'.self::VOTER;
+    }
 
-    $emDefault->mapping('avito-products')
-        ->type('attribute')
-        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Avito\Products\Entity')
-        ->alias('avito-products');
-};
+    public function equals(RoleInterface $role): bool
+    {
+        return $role->getRole() === Role::ROLE;
+    }
+
+}

@@ -44,13 +44,11 @@ class BaksDevAvitoProductsBundle extends AbstractBundle
             ->autowire()
             ->autoconfigure();
 
-
         $services->load(self::NAMESPACE, self::PATH)
             ->exclude([
                 self::PATH.'{Entity,Resources,Type}',
                 self::PATH.'**/*Message.php',
                 self::PATH.'**/*DTO.php',
             ]);
-
     }
 }
