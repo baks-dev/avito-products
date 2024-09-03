@@ -45,7 +45,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_EDIT')]
-final class EditController extends AbstractController
+final class NewEditController extends AbstractController
 {
     #[Route(
         '/admin/avito/product/{product}/{offer}/{variation}/{modification}',
