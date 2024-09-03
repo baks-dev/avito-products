@@ -2,14 +2,10 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Tests;
 
-use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
-use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
-use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -17,7 +13,6 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @group avito-products

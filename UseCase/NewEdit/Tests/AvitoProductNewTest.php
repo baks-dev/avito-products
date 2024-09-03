@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 /**
  * @group avito-products
  * @group avito-products-usecase
+ *
+ * @depends BaksDev\Avito\Products\Controller\Admin\Tests\AvitoProductIndexControllerTest::class
  */
 #[When(env: 'test')]
 class AvitoProductNewTest extends KernelTestCase

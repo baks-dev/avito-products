@@ -18,10 +18,8 @@
 
 namespace BaksDev\Avito\Products\Controller\Admin\Tests;
 
-use BaksDev\Avito\Board\Entity\AvitoBoard;
-use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
-use BaksDev\Avito\Board\Type\Event\AvitoBoardEventUid;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Type\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,9 +30,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
  * @group avito-products
  * @group avito-products-controller
  * @group avito-products-controller-edit
+ *
+ * @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests\AvitoProductEditTest::class
  */
 #[When(env: 'test')]
-final class AvitoProductEditControllerTest extends WebTestCase
+final class AvitoProductNewEditControllerTest extends WebTestCase
 {
     private const string ROLE = 'ROLE_AVITO_PRODUCTS_EDIT';
 
@@ -47,14 +47,25 @@ final class AvitoProductEditControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get(EntityManagerInterface::class);
 
-        $avito = $em->getRepository(AvitoProduct::class)->findOneBy([]);
-        $dto = new AvitoProductDTO();
-        $avito->getDto($dto);
+        /**
+         * Находим продукт по тестовому идентификатору
+         *
+         * @var AvitoProduct $product
+         */
+        $product = $em
+            ->getRepository(AvitoProduct::class)
+            ->find(AvitoProductUid::TEST);
 
-        $product = $dto->getProduct();
-        $offer = $dto->getOffer();
-        $variation = $dto->getVariation() ? '/' . $dto->getVariation() : '';
-        $modification = $dto->getModification() ? '/' . $dto->getModification() : '';
+        self::assertNotNull($product);
+
+        $editDTO = new AvitoProductDTO();
+
+        $product->getDto($editDTO);
+
+        $product = $editDTO->getProduct();
+        $offer = $editDTO->getOffer();
+        $variation = $editDTO->getVariation() ? '/' . $editDTO->getVariation() : '';
+        $modification = $editDTO->getModification() ? '/' . $editDTO->getModification() : '';
 
         self::$url = sprintf("/admin/avito/product/%s/%s%s%s", $product, $offer, $variation, $modification);
 
