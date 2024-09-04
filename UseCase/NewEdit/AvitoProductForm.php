@@ -74,17 +74,22 @@ final class AvitoProductForm extends AbstractType
                 /** @var AvitoProductDTO $dto */
                 $dto = $event->getData();
 
-                $card = $this->oneProductWithAvitoImages->findBy(
+                if(null !== $dto->getDescription())
+                {
+                    return;
+                }
+
+                $product = $this->oneProductWithAvitoImages->findBy(
                     $dto->getProduct(),
                     $dto->getOffer(),
                     $dto->getVariation(),
                     $dto->getModification()
                 );
 
-                /** Проверка существования шаблона в src - если нет, то шаблон из модуля */
+                /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try
                 {
-                    $template = $this->templateExtension->extends('@avito-products:description/' . $card['category_url'] . '.html.twig');
+                    $template = $this->templateExtension->extends('@avito-products:description/' . $product['category_url'] . '.html.twig');
                     $render = $this->environment->render($template);
                 }
                 catch (\Exception)
@@ -97,7 +102,6 @@ final class AvitoProductForm extends AbstractType
                 {
                     $dto->setDescription($render);
                 }
-
             }
         );
 
