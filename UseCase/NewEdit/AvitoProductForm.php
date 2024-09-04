@@ -49,39 +49,6 @@ final class AvitoProductForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** Рендеринг шаблона, если описание NULL */
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void {
-
-                /** @var AvitoProductDTO $data */
-                $data = $event->getData();
-
-                $card = $this->oneProductWithAvitoImages->findBy(
-                    $data->getProduct(),
-                    $data->getOffer(),
-                    $data->getVariation(),
-                    $data->getModification()
-                );
-
-                try
-                {
-                    $template = $this->templateExtension->extends('@avito-products:description/' . $card['category_url'] . '.html.twig');
-                    $render = $this->environment->render($template);
-                }
-                catch (\Exception)
-                {
-                    $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
-                    $render = $this->environment->render($template);
-                }
-
-                if (is_null($data->getDescription()))
-                {
-                    $data->setDescription($render);
-                }
-            }
-        );
-
         $builder->add('images', CollectionType::class, [
             'entry_type' => AvitoProductsImagesForm::class,
             'entry_options' => [
@@ -99,6 +66,40 @@ final class AvitoProductForm extends AbstractType
             'label' => false,
         ]);
 
+        /** Рендеринг шаблона, если описание NULL */
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event): void {
+
+                /** @var AvitoProductDTO $dto */
+                $dto = $event->getData();
+
+                $card = $this->oneProductWithAvitoImages->findBy(
+                    $dto->getProduct(),
+                    $dto->getOffer(),
+                    $dto->getVariation(),
+                    $dto->getModification()
+                );
+
+                /** Проверка существования шаблона в src - если нет, то шаблон из модуля */
+                try
+                {
+                    $template = $this->templateExtension->extends('@avito-products:description/' . $card['category_url'] . '.html.twig');
+                    $render = $this->environment->render($template);
+                }
+                catch (\Exception)
+                {
+                    $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
+                    $render = $this->environment->render($template);
+                }
+
+                if (is_null($dto->getDescription()))
+                {
+                    $dto->setDescription($render);
+                }
+
+            }
+        );
 
         /** Сохранить */
         $builder->add(
