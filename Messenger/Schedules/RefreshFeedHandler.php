@@ -26,7 +26,9 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Messenger\Schedules;
 
 use BaksDev\Avito\Board\Repository\AllProductsWithMapper\AllProductsWithMapperInterface;
+use BaksDev\Core\Cache\AppCacheInterface;
 use BaksDev\Core\Twig\TemplateExtension;
+use DateInterval;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Twig\Environment;
 
@@ -35,6 +37,7 @@ final readonly class RefreshFeedHandler
 {
     public function __construct(
         private AllProductsWithMapperInterface $allProductsWithMapping,
+        private AppCacheInterface $cache,
         private TemplateExtension $templateExtension,
         private Environment $environment,
     ) {}
@@ -45,10 +48,20 @@ final readonly class RefreshFeedHandler
 
         $products = $this->allProductsWithMapping->findAll($profile);
 
+        $cache = $this->cache->init('avito-board');
 
-        $template = $this->templateExtension->extends('@avito-board:public.export.feed');
+        $cachePool = $cache->getItem('feed-' . $profile);
 
-        $this->environment->render($template, [$products, $profile]);
+        if (false === $cachePool->isHit())
+        {
+            $template = $this->templateExtension->extends('@avito-board:public/export/feed/export.html.twig');
 
+            $feed = $this->environment->render($template, [$products]);
+
+            $cachePool->expiresAfter(DateInterval::createFromDateString('1 day'));
+
+            $cachePool->set($feed);
+            $cache->save($cachePool);
+        }
     }
 }

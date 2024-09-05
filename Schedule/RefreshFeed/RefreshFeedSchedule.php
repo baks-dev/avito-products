@@ -47,6 +47,6 @@ final class RefreshFeedSchedule implements ScheduleInterface
      */
     public function getInterval(): DateInterval
     {
-        return DateInterval::createFromDateString('30 minutes');
+        return DateInterval::createFromDateString('10 minutes');
     }
 }
