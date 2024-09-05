@@ -13,6 +13,7 @@
             {# Заголовок модального окна #}
             {{ include('@avito-products/admin/products/edit/pc/_header.html.twig') }}
 
+            {# Табы #}
             <ul class="nav nav-pills gap-3 mb-3 mt-3" id="nav-avito-product">
 
                 <li class="nav-item" role="presentation">
@@ -51,21 +52,23 @@
 
             </ul>
 
-
+            {# Контент табов #}
             <div class="tab-content">
 
                 {# Изображения #}
                 <div class="tab-pane fade show active" id="tab_images" role="tabpanel">
-                    {#            {{ include('@avito-products/admin/products/edit/pc/_images.html.twig', {avitoImages: product.avito_product_images|json_decode} ) }} #}
                     {{ include('@avito-products/admin/products/edit/pc/_images.html.twig') }}
                 </div>
 
                 {# Описание #}
-                <div class="tab-pane fade show" id="tab_description" role="tabpanel">
-                    {{ form_row(form.description, {
-                        attr: { class: 'ckeditor'}
-                    }) }}
+                <div class="tab-pane fade show " id="tab_description" role="tabpanel">
+                    {#                    {{ form_row(form.description, { #}
+                    {#                        attr: { class: 'ckeditor'} #}
+                    {#                    }) }} #}
+
+                    {{ form_row(form.description) }}
                 </div>
+
             </div>
 
             {# Кнопки формы #}

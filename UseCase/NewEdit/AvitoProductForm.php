@@ -46,7 +46,6 @@ final class AvitoProductForm extends AbstractType
         private readonly Environment $environment,
     ) {}
 
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('images', CollectionType::class, [

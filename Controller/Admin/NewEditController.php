@@ -108,7 +108,6 @@ final class NewEditController extends AbstractController
         if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
-            dd($request->request);
 
             $handle = $handler->handle($editDTO);
 
@@ -122,6 +121,7 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
+        /** Информация для хидера продукта */
         $productHeader = $productWithImages->findBy(
             $editDTO->getProduct(),
             $editDTO->getOffer(),
