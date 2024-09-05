@@ -427,7 +427,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 		"
         );
 
-        /* Флаг загрузки файла CDN */
+        /** Расширение изображения */
         $dbal->addSelect('
 			CASE
 			   WHEN product_offer_variation_image.name IS NOT NULL 
@@ -443,7 +443,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 			END AS product_image_ext
 		');
 
-        /* Флаг загрузки файла CDN */
+        /** Флаг загрузки файла CDN */
         $dbal->addSelect('
 			CASE
 			   WHEN product_offer_variation_image.name IS NOT NULL 
@@ -460,7 +460,6 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 		');
 
         /* Наличие продукта */
-
         $dbal->addSelect(
             '
 			CASE
