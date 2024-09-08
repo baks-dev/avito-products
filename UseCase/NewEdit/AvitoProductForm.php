@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Core\Twig\TemplateExtension;
+use Exception;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -66,16 +67,16 @@ final class AvitoProductForm extends AbstractType
 
                 try
                 {
-                    $template = $this->templateExtension->extends('@avito-products:description/' . $card['category_url'] . '.html.twig');
+                    $template = $this->templateExtension->extends('@avito-products:description/'.$card['category_url'].'.html.twig');
                     $render = $this->environment->render($template);
                 }
-                catch (\Exception)
+                catch(Exception)
                 {
                     $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
                     $render = $this->environment->render($template);
                 }
 
-                if (is_null($data->getDescription()))
+                if(is_null($data->getDescription()))
                 {
                     $data->setDescription($render);
                 }
