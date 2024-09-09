@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Core\Twig\TemplateExtension;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -41,6 +42,7 @@ use Twig\Environment;
 final class AvitoProductForm extends AbstractType
 {
     public function __construct(
+        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
         private readonly OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         private readonly TemplateExtension $templateExtension,
         private readonly Environment $environment,
@@ -85,10 +87,14 @@ final class AvitoProductForm extends AbstractType
                     $dto->getModification()
                 );
 
+                $userProfile = $this->userProfileTokenStorage->getUserCurrent();
+
                 /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try
                 {
-                    $template = $this->templateExtension->extends('@avito-products:description/' . $product['category_url'] . '.html.twig');
+                    $path = sprintf('@avito-products:description/%s/%s.html.twig', $userProfile, $product['category_url']);
+//                    dd($path);
+                    $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
                 catch (\Exception)

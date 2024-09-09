@@ -5,5 +5,6 @@
 {# скрипт будет работать в модальном окне #}
 {% block javascript %}
 <script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/ckeditor/classic.min.js?v={{ version }}" class='lazy'></script>
+
 <script nonce='{{ csp_nonce() }}' async data-src='/assets/avito-products/avito.images.min.js?v={{ version }}' class='lazy'></script>
 {% endblock %}
