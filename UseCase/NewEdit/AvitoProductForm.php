@@ -93,7 +93,7 @@ final class AvitoProductForm extends AbstractType
                 try
                 {
                     $path = sprintf('@avito-products:description/%s/%s.html.twig', $userProfile, $product['category_url']);
-//                    dd($path);
+
                     $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
