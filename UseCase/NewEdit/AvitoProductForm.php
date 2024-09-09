@@ -81,12 +81,12 @@ final class AvitoProductForm extends AbstractType
                     return;
                 }
 
-                $product = $this->oneProductWithAvitoImages->findBy(
-                    $dto->getProduct(),
-                    $dto->getOffer(),
-                    $dto->getVariation(),
-                    $dto->getModification()
-                );
+                $product = $this->oneProductWithAvitoImages
+                    ->forProduct($dto->getProduct())
+                    ->forOfferConst($dto->getOffer())
+                    ->forVariationConst($dto->getVariation())
+                    ->forModificationConst($dto->getModification())
+                    ->find();
 
                 $userProfile = $this->userProfileTokenStorage->getProfile();
 
@@ -98,13 +98,13 @@ final class AvitoProductForm extends AbstractType
                     $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
-                catch (Exception)
+                catch(Exception)
                 {
                     $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
                     $render = $this->environment->render($template);
                 }
 
-                if (is_null($dto->getDescription()))
+                if(is_null($dto->getDescription()))
                 {
                     $dto->setDescription($render);
                 }
