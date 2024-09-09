@@ -74,9 +74,9 @@ final class NewEditController extends AbstractController
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
          *
-         * @var AvitoProduct|null $productCard
+         * @var AvitoProduct|null $avitoProduct
          */
-        $productCard = $entityManager->getRepository(AvitoProduct::class)
+        $avitoProduct = $entityManager->getRepository(AvitoProduct::class)
             ->findOneBy([
                 'product' => $product,
                 'offer' => $offer,
@@ -84,9 +84,9 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($productCard)
+        if ($avitoProduct)
         {
-            $productCard->getDto($editDTO);
+            $avitoProduct->getDto($editDTO);
         }
 
         $form = $this->createForm(
@@ -121,14 +121,8 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        /** Информация для хидера продукта */
-        $productHeader = $productWithImages->findBy(
-            $editDTO->getProduct(),
-            $editDTO->getOffer(),
-            $editDTO->getVariation(),
-            $editDTO->getModification()
-        );
+        $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
 
-        return $this->render(['form' => $form->createView(), 'product' => $productHeader]);
+        return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
     }
 }
