@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Core\Twig\TemplateExtension;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Exception;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -42,47 +43,14 @@ use Twig\Environment;
 final class AvitoProductForm extends AbstractType
 {
     public function __construct(
+        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
         private readonly OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         private readonly TemplateExtension $templateExtension,
         private readonly Environment $environment,
     ) {}
 
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** Рендеринг шаблона, если описание NULL */
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void {
-
-                /** @var AvitoProductDTO $data */
-                $data = $event->getData();
-
-                $card = $this->oneProductWithAvitoImages->findBy(
-                    $data->getProduct(),
-                    $data->getOffer(),
-                    $data->getVariation(),
-                    $data->getModification()
-                );
-
-                try
-                {
-                    $template = $this->templateExtension->extends('@avito-products:description/'.$card['category_url'].'.html.twig');
-                    $render = $this->environment->render($template);
-                }
-                catch(Exception)
-                {
-                    $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
-                    $render = $this->environment->render($template);
-                }
-
-                if(is_null($data->getDescription()))
-                {
-                    $data->setDescription($render);
-                }
-            }
-        );
-
         $builder->add('images', CollectionType::class, [
             'entry_type' => AvitoProductsImagesForm::class,
             'entry_options' => [
@@ -100,6 +68,48 @@ final class AvitoProductForm extends AbstractType
             'label' => false,
         ]);
 
+        /** Рендеринг шаблона, если описание NULL */
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function (FormEvent $event): void {
+
+                /** @var AvitoProductDTO $dto */
+                $dto = $event->getData();
+
+                if(null !== $dto->getDescription())
+                {
+                    return;
+                }
+
+                $product = $this->oneProductWithAvitoImages->findBy(
+                    $dto->getProduct(),
+                    $dto->getOffer(),
+                    $dto->getVariation(),
+                    $dto->getModification()
+                );
+
+                $userProfile = $this->userProfileTokenStorage->getUserCurrent();
+
+                /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
+                try
+                {
+                    $path = sprintf('@avito-products:description/%s/%s.html.twig', $userProfile, $product['category_url']);
+
+                    $template = $this->templateExtension->extends($path);
+                    $render = $this->environment->render($template);
+                }
+                catch (Exception)
+                {
+                    $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
+                    $render = $this->environment->render($template);
+                }
+
+                if (is_null($dto->getDescription()))
+                {
+                    $dto->setDescription($render);
+                }
+            }
+        );
 
         /** Сохранить */
         $builder->add(
