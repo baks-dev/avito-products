@@ -88,7 +88,7 @@ final class AvitoProductForm extends AbstractType
                     $dto->getModification()
                 );
 
-                $userProfile = $this->userProfileTokenStorage->getUserCurrent();
+                $userProfile = $this->userProfileTokenStorage->getProfile();
 
                 /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try
