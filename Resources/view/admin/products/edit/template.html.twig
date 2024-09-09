@@ -1,4 +1,3 @@
-{% trans_default_domain 'avito-products.admin' %}
 
 {# ---- ШАБЛОН ------------------------------------------------------------ #}
 {% extends Template('/admin/base.html.twig') %}
@@ -13,10 +12,4 @@
 
     {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
-{% endblock %}
-
-{# скрипт будет работать в отдельной вкладке #}
-{% block javascript %}
-{#<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/ckeditor/ckeditor.min.js?v={{ version }}" class='lazy'></script>#}
-{#<script nonce='{{ csp_nonce() }}' async  data-src="/assets/plugins/ckeditor/classic.min.js?v={{ version }}" class='lazy'></script>#}
 {% endblock %}
