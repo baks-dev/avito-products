@@ -27,7 +27,6 @@ namespace BaksDev\Avito\Products\Messenger\DeleteAvitoProduct;
 
 use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
 use BaksDev\Avito\Products\Repository\AllAvitoProducts\AllAvitoProductsInterface;
-use BaksDev\Avito\Products\Repository\AllAvitoProducts\AllAvitoProductsRepository;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Products\Product\Messenger\ProductMessage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -36,7 +35,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class DeleteAvitoProductHandler
 {
     public function __construct(
-        private AllAvitoProductsRepository $allAvitoProducts,
+        private AllAvitoProductsInterface $allAvitoProducts,
         private MessageDispatchInterface $messageDispatch,
     ) {}
 

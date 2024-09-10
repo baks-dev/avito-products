@@ -29,7 +29,6 @@ use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAv
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Core\Twig\TemplateExtension;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
-use Exception;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -81,14 +80,14 @@ final class AvitoProductForm extends AbstractType
                     return;
                 }
 
-                $product = $this->oneProductWithAvitoImages
-                    ->forProduct($dto->getProduct())
-                    ->forOfferConst($dto->getOffer())
-                    ->forVariationConst($dto->getVariation())
-                    ->forModificationConst($dto->getModification())
-                    ->find();
+                $product = $this->oneProductWithAvitoImages->findBy(
+                    $dto->getProduct(),
+                    $dto->getOffer(),
+                    $dto->getVariation(),
+                    $dto->getModification()
+                );
 
-                $userProfile = $this->userProfileTokenStorage->getProfile();
+                $userProfile = $this->userProfileTokenStorage->getUserCurrent();
 
                 /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try
@@ -98,13 +97,13 @@ final class AvitoProductForm extends AbstractType
                     $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
-                catch(Exception)
+                catch (\Exception)
                 {
                     $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
                     $render = $this->environment->render($template);
                 }
 
-                if(is_null($dto->getDescription()))
+                if (is_null($dto->getDescription()))
                 {
                     $dto->setDescription($render);
                 }
