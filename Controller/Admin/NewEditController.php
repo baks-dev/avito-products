@@ -84,7 +84,7 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if($avitoProduct)
+        if ($avitoProduct)
         {
             $avitoProduct->getDto($editDTO);
         }
@@ -105,7 +105,7 @@ final class NewEditController extends AbstractController
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 
@@ -121,12 +121,7 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        $avitoProduct = $productWithImages
-            ->forProduct($product)
-            ->forOfferConst($offer)
-            ->forVariationConst($variation)
-            ->forModificationConst($modification)
-            ->find();
+        $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
 
         return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
     }

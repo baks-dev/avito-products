@@ -21,26 +21,15 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
+namespace BaksDev\Avito\Products\Repository\AvitoProducts;
 
 use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
-use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 
-interface OneProductWithAvitoImagesInterface
+interface AvitoProductsInterface
 {
-    /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
-     *
-     * @param ProductOfferConst $offer - значение торгового предложения
-     * @param ProductVariationConst|null $variation - значение множественного варианта ТП
-     * @param ProductModificationConst|null $modification - значение модификации множественного варианта ТП
-     */
-    public function findBy(
-        ProductUid $product,
-        ProductOfferConst $offer,
-        ?ProductVariationConst $variation = null,
-        ?ProductModificationConst $modification = null,
-    ): array|bool;
+    public function findAllByProduct(ProductUid $product): array;
+
+    public function productExist(array $avitoProduct): bool;
+
+    public function findProductExist(array $avitoProduct): array;
 }

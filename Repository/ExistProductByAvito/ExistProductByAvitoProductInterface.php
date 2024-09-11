@@ -21,26 +21,30 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
+namespace BaksDev\Avito\Products\Repository\ExistProductByAvito;
 
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
+use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 
-interface OneProductWithAvitoImagesInterface
+interface ExistProductByAvitoProductInterface
 {
+    public function product(Product|ProductUid|string $product): self;
+
+    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self;
+
+    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self;
+
+    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self;
+
     /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
-     *
-     * @param ProductOfferConst $offer - значение торгового предложения
-     * @param ProductVariationConst|null $variation - значение множественного варианта ТП
-     * @param ProductModificationConst|null $modification - значение модификации множественного варианта ТП
+     * @return true - если по данным карточки продукта Авито продукт НАЙДЕН
+     * @return false - если по данным карточки продукта Авито продукт НЕ НАЙДЕН
      */
-    public function findBy(
-        ProductUid $product,
-        ProductOfferConst $offer,
-        ?ProductVariationConst $variation = null,
-        ?ProductModificationConst $modification = null,
-    ): array|bool;
+    public function execute(): bool;
 }
