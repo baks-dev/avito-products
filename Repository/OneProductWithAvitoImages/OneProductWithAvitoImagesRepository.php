@@ -64,23 +64,112 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 
 final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoImagesInterface
 {
+    private ProductUid|false $product = false;
+
+    private ProductOfferConst|false $offer = false;
+
+    private ProductVariationConst|false $variation = false;
+
+    private ProductModificationConst|false $modification = false;
+
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
     ) {}
 
+    public function product(Product|ProductUid|string $product): self
+    {
+        if ($product instanceof Product)
+        {
+            $product = $product->getId();
+        }
+
+        if (is_string($product))
+        {
+            $product = new ProductUid($product);
+        }
+
+        $this->product = $product;
+
+        return $this;
+    }
+
+    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self
+    {
+        if (is_null($offer))
+        {
+            return $this;
+        }
+
+        if ($offer instanceof ProductOffer)
+        {
+            $offer = $offer->getConst();
+        }
+
+        if (is_string($offer))
+        {
+            $offer = new ProductOfferConst($offer);
+        }
+
+        $this->offer = $offer;
+
+        return $this;
+    }
+
+    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self
+    {
+        if (is_null($variation))
+        {
+            return $this;
+        }
+
+        if ($variation instanceof ProductVariation)
+        {
+            $variation = $variation->getConst();
+        }
+
+        if (is_string($variation))
+        {
+            $variation = new ProductVariationConst($variation);
+        }
+
+        $this->variation = $variation;
+
+        return $this;
+    }
+
+    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self
+    {
+        if (is_null($modification))
+        {
+            return $this;
+        }
+
+        if ($modification instanceof ProductModification)
+        {
+            $modification = $modification->getConst();
+        }
+
+        if (is_string($modification))
+        {
+            $modification = new ProductModificationConst($modification);
+        }
+
+        $this->modification = $modification;
+
+        return $this;
+    }
+
     /**
      * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
-     *
-     * @param ProductOfferConst $offer - значение торгового предложения
-     * @param ProductVariationConst|null $variation - значение множественного варианта ТП
-     * @param ProductModificationConst|null $modification - значение модификации множественного варианта ТП
      */
-    public function findBy(
-        ProductUid $product,
-        ProductOfferConst $offer,
-        ?ProductVariationConst $variation = null,
-        ?ProductModificationConst $modification = null,
-    ): array|bool {
+    public function execute(): array|bool
+    {
+
+        if ($this->product === false)
+        {
+            throw new \InvalidArgumentException('Invalid Argument product');
+        }
 
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -91,12 +180,10 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addSelect('product.event')
             ->from(Product::class, 'product')
             ->where('product.id = :product')
-            ->setParameter('product', $product, ProductUid::TYPE);
+            ->setParameter('product', $this->product, ProductUid::TYPE);
 
         $dbal
             ->addSelect('product_active.active')
-//            ->addSelect('product_active.active_from')
-//            ->addSelect('product_active.active_to')
             ->leftJoin(
                 'product',
                 ProductActive::class,
@@ -136,8 +223,10 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             )
             ->addGroupBy('product_info.article');
 
-        /* Торговое предложение */
-        if ($offer)
+        /**
+         * Торговое предложение
+         */
+        if (false !== $this->offer)
         {
             $dbal
                 ->join(
@@ -148,7 +237,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                         product_offer.event = product.event AND 
                         product_offer.const = :product_offer_const'
                 )
-                ->setParameter('product_offer_const', $offer);
+                ->setParameter('product_offer_const', $this->offer, ProductOfferConst::TYPE);
         }
         else
         {
@@ -211,8 +300,10 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addGroupBy('product_offer_quantity.quantity')
             ->addGroupBy('product_offer_quantity.reserve');
 
-        /* Множественные варианты торгового предложения */
-        if ($variation)
+        /**
+         * Множественные варианты торгового предложения
+         */
+        if (false !== $this->variation)
         {
             $dbal
                 ->join(
@@ -223,7 +314,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                         product_offer_variation.offer = product_offer.id AND 
                         product_offer_variation.const = :product_variation_const'
                 )
-                ->setParameter('product_variation_const', $variation);
+                ->setParameter('product_variation_const', $this->variation, ProductVariationConst::TYPE);
         }
         else
         {
@@ -286,8 +377,10 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addGroupBy('product_variation_quantity.quantity')
             ->addGroupBy('product_variation_quantity.reserve');
 
-        /* Модификация множественного варианта торгового предложения */
-        if ($modification)
+        /**
+         * Модификация множественного варианта торгового предложения
+         */
+        if (false !== $this->modification)
         {
             $dbal
                 ->join(
@@ -297,7 +390,8 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                     '   
                         product_offer_modification.variation = product_offer_variation.id AND 
                         product_offer_modification.const = :product_modification_const'
-                )->setParameter('product_modification_const', $modification);
+                )
+                ->setParameter('product_modification_const', $this->modification, ProductModificationConst::TYPE);
         }
         else
         {
@@ -577,8 +671,15 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 
         $dbal->allGroupByExclude();
 
-        return $dbal
+        $result = $dbal
             ->enableCache('avito-products')
             ->fetchAssociative();
+
+        if (empty($result))
+        {
+            return false;
+        }
+
+        return $result;
     }
 }
