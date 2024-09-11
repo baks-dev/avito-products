@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,40 +23,62 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Messenger\DeleteAvitoProduct;
+namespace BaksDev\Avito\Products\Messenger\ExistProductForDeleteAvitoProduct;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Repository\AvitoProducts\AvitoProductsInterface;
+use BaksDev\Avito\Products\Repository\AllAvitoProducts\AllAvitoProductsInterface;
+use BaksDev\Avito\Products\Repository\ExistProductByAvito\ExistProductByAvitoProductInterface;
+use BaksDev\Avito\Products\UseCase\Delete\AvitoProductDeleteDTO;
+use BaksDev\Avito\Products\UseCase\Delete\AvitoProductDeleteHandler;
 use BaksDev\Products\Product\Messenger\ProductMessage;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class DeleteAvitoProductHandler
+final readonly class ExistProductForDeleteAvitoProduct
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private AvitoProductsInterface $avitoProductsRepository,
+        private AvitoProductDeleteHandler $deleteHandler,
+        private AllAvitoProductsInterface $avitoProductsRepository,
+        private ExistProductByAvitoProductInterface $existProductByAvitoProduct,
     ) {}
 
     /** Удаляем Авито продукт */
     public function __invoke(ProductMessage $message): void
     {
-        /** Находим все карточки продуктов Авито */
-        $avitoProducts = $this->avitoProductsRepository->findAllByProduct($message->getId());
+        /** Находим все карточки продуктов Авито по продукту */
+        $avitoProducts = $this->avitoProductsRepository
+            ->product($message->getId())
+            ->execute();
 
+        if (false === $avitoProducts)
+        {
+            return;
+        }
+
+        /**
+         * @var array{
+         *     id: string,
+         *     product: string,
+         *     offer: string|null,
+         *     variation: string|null,
+         *     modification: string|null } $avitoProduct
+         */
         foreach ($avitoProducts as $avitoProduct)
         {
             /** Если по данным карточки продукта Авито продукт НЕ НАЙДЕН - удаляем соответствующую карточку Авито и все ее связи */
-            if (false === $this->avitoProductsRepository->productExist($avitoProduct))
-            {
-                $avitoRepo = $this->entityManager->getRepository(AvitoProduct::class);
-                $avito = $avitoRepo->find($avitoProduct['id']);
+            $exist = $this->existProductByAvitoProduct
+                ->product($avitoProduct['product'])
+                ->offerConst($avitoProduct['offer'])
+                ->variationConst($avitoProduct['variation'])
+                ->modificationConst($avitoProduct['modification'])
+                ->execute();
 
-                $this->entityManager->remove($avito);
+            if (false === $exist)
+            {
+                $dto = new AvitoProductDeleteDTO();
+                $dto->setId($avitoProduct['id']);
+
+                $this->deleteHandler->handle($dto);
             }
         }
-
-        $this->entityManager->flush();
     }
 }

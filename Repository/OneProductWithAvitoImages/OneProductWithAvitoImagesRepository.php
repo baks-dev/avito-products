@@ -61,111 +61,26 @@ use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
-use InvalidArgumentException;
 
 final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoImagesInterface
 {
-    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
-
-    /**
-     * ID продукта
-     */
-    private ProductUid|false $product = false;
-
-    /**
-     * Постоянный уникальный идентификатор ТП
-     */
-    private ProductOfferConst|null|false $offerConst = false;
-
-    /**
-     * Постоянный уникальный идентификатор варианта
-     */
-    private ProductVariationConst|null|false $variationConst = false;
-
-    /**
-     * Постоянный уникальный идентификатор модификации
-     */
-    private ProductModificationConst|null|false $modificationConst = false;
-
-
-    public function forProduct(Product|ProductUid|string $product): self
-    {
-        if(is_string($product))
-        {
-            $product = new ProductUid($product);
-        }
-
-        if($product instanceof Product)
-        {
-            $product = $product->getId();
-        }
-
-        $this->product = $product;
-
-        return $this;
-    }
-
-    public function forOfferConst(ProductOfferConst|string|null $offerConst): self
-    {
-        if(empty($offerConst))
-        {
-            $offerConst = null;
-        }
-
-        if(is_string($offerConst))
-        {
-            $offerConst = new ProductOfferConst($offerConst);
-        }
-
-        $this->offerConst = $offerConst;
-
-        return $this;
-    }
-
-    public function forVariationConst(ProductVariationConst|string|null $variationConst): self
-    {
-        if(empty($variationConst))
-        {
-            $variationConst = null;
-        }
-
-        if(is_string($variationConst))
-        {
-            $variationConst = new ProductVariationConst($variationConst);
-        }
-
-        $this->variationConst = $variationConst;
-
-        return $this;
-    }
-
-    public function forModificationConst(ProductModificationConst|string|null $modificationConst): self
-    {
-        if(empty($modificationConst))
-        {
-            $modificationConst = null;
-        }
-
-        if(is_string($modificationConst))
-        {
-            $modificationConst = new ProductModificationConst($modificationConst);
-        }
-
-        $this->modificationConst = $modificationConst;
-
-        return $this;
-    }
-
+    public function __construct(
+        private readonly DBALQueryBuilder $DBALQueryBuilder,
+    ) {}
 
     /**
      * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
+     *
+     * @param ProductOfferConst $offer - значение торгового предложения
+     * @param ProductVariationConst|null $variation - значение множественного варианта ТП
+     * @param ProductModificationConst|null $modification - значение модификации множественного варианта ТП
      */
-    public function find(): array|bool
-    {
-        if($this->product === false)
-        {
-            throw new InvalidArgumentException('Invalid Argument product');
-        }
+    public function findBy(
+        ProductUid $product,
+        ProductOfferConst $offer,
+        ?ProductVariationConst $variation = null,
+        ?ProductModificationConst $modification = null,
+    ): array|bool {
 
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -176,12 +91,12 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addSelect('product.event')
             ->from(Product::class, 'product')
             ->where('product.id = :product')
-            ->setParameter('product', $this->product, ProductUid::TYPE);
+            ->setParameter('product', $product, ProductUid::TYPE);
 
         $dbal
             ->addSelect('product_active.active')
-            //            ->addSelect('product_active.active_from')
-            //            ->addSelect('product_active.active_to')
+//            ->addSelect('product_active.active_from')
+//            ->addSelect('product_active.active_to')
             ->leftJoin(
                 'product',
                 ProductActive::class,
@@ -222,7 +137,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addGroupBy('product_info.article');
 
         /* Торговое предложение */
-        if($this->offerConst)
+        if ($offer)
         {
             $dbal
                 ->join(
@@ -233,11 +148,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                         product_offer.event = product.event AND 
                         product_offer.const = :product_offer_const'
                 )
-                ->setParameter(
-                    'product_offer_const',
-                    $this->offerConst,
-                    ProductOfferConst::TYPE
-                );
+                ->setParameter('product_offer_const', $offer);
         }
         else
         {
@@ -301,7 +212,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addGroupBy('product_offer_quantity.reserve');
 
         /* Множественные варианты торгового предложения */
-        if($this->variationConst)
+        if ($variation)
         {
             $dbal
                 ->join(
@@ -312,11 +223,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                         product_offer_variation.offer = product_offer.id AND 
                         product_offer_variation.const = :product_variation_const'
                 )
-                ->setParameter(
-                    'product_variation_const',
-                    $this->variationConst,
-                    ProductVariationConst::TYPE
-                );
+                ->setParameter('product_variation_const', $variation);
         }
         else
         {
@@ -380,7 +287,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             ->addGroupBy('product_variation_quantity.reserve');
 
         /* Модификация множественного варианта торгового предложения */
-        if($this->modificationConst)
+        if ($modification)
         {
             $dbal
                 ->join(
@@ -390,12 +297,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                     '   
                         product_offer_modification.variation = product_offer_variation.id AND 
                         product_offer_modification.const = :product_modification_const'
-                )
-                ->setParameter(
-                    'product_modification_const',
-                    $this->modificationConst,
-                    ProductModificationConst::TYPE
-                );
+                )->setParameter('product_modification_const', $modification);
         }
         else
         {
@@ -512,13 +414,13 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             "
 			CASE
 			   WHEN product_offer_variation_image.name IS NOT NULL 
-			   THEN CONCAT ( '/upload/".$dbal->table(ProductVariationImage::class)."' , '/', product_offer_variation_image.name)
+			   THEN CONCAT ( '/upload/" . $dbal->table(ProductVariationImage::class) . "' , '/', product_offer_variation_image.name)
 					
 			   WHEN product_offer_images.name IS NOT NULL 
-			   THEN CONCAT ( '/upload/".$dbal->table(ProductOfferImage::class)."' , '/', product_offer_images.name)
+			   THEN CONCAT ( '/upload/" . $dbal->table(ProductOfferImage::class) . "' , '/', product_offer_images.name)
 					
 			   WHEN product_photo.name IS NOT NULL 
-			   THEN CONCAT ( '/upload/".$dbal->table(ProductPhoto::class)."' , '/', product_photo.name)
+			   THEN CONCAT ( '/upload/" . $dbal->table(ProductPhoto::class) . "' , '/', product_photo.name)
 					
 			   ELSE NULL
 			END AS product_image
