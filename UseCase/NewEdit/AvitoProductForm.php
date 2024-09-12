@@ -29,6 +29,7 @@ use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAv
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
 use BaksDev\Core\Twig\TemplateExtension;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use Exception;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -42,8 +43,8 @@ use Twig\Environment;
 final class AvitoProductForm extends AbstractType
 {
     public function __construct(
-        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
         private readonly OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
+        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
         private readonly TemplateExtension $templateExtension,
         private readonly Environment $environment,
     ) {}
@@ -80,14 +81,20 @@ final class AvitoProductForm extends AbstractType
                     return;
                 }
 
-                $product = $this->oneProductWithAvitoImages->findBy(
-                    $dto->getProduct(),
-                    $dto->getOffer(),
-                    $dto->getVariation(),
-                    $dto->getModification()
-                );
+                $product = $this->oneProductWithAvitoImages
+                        ->product($dto->getProduct())
+                        ->offerConst($dto->getOffer())
+                        ->variationConst($dto->getVariation())
+                        ->modificationConst($dto->getModification())
+                        ->execute();
 
-                $userProfile = $this->userProfileTokenStorage->getProfile();
+                if(false === $product)
+                {
+                    throw new Exception('Продукт не найден ');
+                }
+
+                /** Получаем ID текущего профиля пользователя для составления пути для шаблона */
+                $userProfile = $this->userProfileTokenStorage->getProfileCurrent();
 
                 /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try
@@ -97,7 +104,7 @@ final class AvitoProductForm extends AbstractType
                     $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
-                catch (\Exception)
+                catch (Exception)
                 {
                     $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
                     $render = $this->environment->render($template);
