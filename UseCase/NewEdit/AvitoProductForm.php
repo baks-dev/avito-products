@@ -44,7 +44,6 @@ final class AvitoProductForm extends AbstractType
 {
     public function __construct(
         private readonly OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
-        private readonly UserProfileTokenStorageInterface $userProfileTokenStorage,
         private readonly TemplateExtension $templateExtension,
         private readonly Environment $environment,
     ) {}
@@ -81,20 +80,7 @@ final class AvitoProductForm extends AbstractType
                     return;
                 }
 
-                $product = $this->oneProductWithAvitoImages
-                        ->product($dto->getProduct())
-                        ->offerConst($dto->getOffer())
-                        ->variationConst($dto->getVariation())
-                        ->modificationConst($dto->getModification())
-                        ->execute();
 
-                if(false === $product)
-                {
-                    throw new Exception('Продукт не найден ');
-                }
-
-                /** Получаем ID текущего профиля пользователя для составления пути для шаблона */
-                $userProfile = $this->userProfileTokenStorage->getProfileCurrent();
 
                 /** Проверка существования шаблона в src - если нет, то дефолтный шаблон из модуля */
                 try

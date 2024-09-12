@@ -137,7 +137,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
          * ТОРГОВОЕ ПРЕДЛОЖЕНИЕ
          */
         $dbal
-            ->addSelect('product_offer.id as product_offer_id')
             ->addSelect('product_offer.value as product_offer_value')
             ->addSelect('product_offer.const as product_offer_const')
             ->addSelect('product_offer.postfix as product_offer_postfix')
@@ -332,12 +331,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ) AS product_image_cdn'
         );
 
-
-
         /** Продукт Авито */
-        $dbal
-            ->addSelect('avito_product.id as avito_product_id')
-            ->leftJoin(
             'product_modification',
             AvitoProduct::class,
             'avito_product',
@@ -347,7 +341,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 (avito_product.variation IS NULL OR avito_product.variation = product_variation.const) AND 
                 (avito_product.modification IS NULL OR avito_product.modification = product_modification.const)
             '
-        );
+        )
 
         /** Изображения Авито */
         $dbal->leftJoin(
@@ -386,7 +380,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 			   ELSE NULL
 			END AS avito_product_image_cdn
 		');
-
 
         /**
          * Категория
