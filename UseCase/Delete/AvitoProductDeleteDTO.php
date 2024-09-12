@@ -21,21 +21,33 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
+declare(strict_types=1);
 
-use BaksDev\Products\Product\Entity\Product;
-use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
-use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+namespace BaksDev\Avito\Products\UseCase\Delete;
 
-interface OneProductWithAvitoImagesInterface
+use BaksDev\Avito\Products\Entity\AvitoProductInterface;
+use BaksDev\Avito\Products\Type\AvitoProductUid;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/** @see AvitoProduct */
+final class AvitoProductDeleteDTO implements AvitoProductInterface
 {
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private AvitoProductUid $id;
 
+    public function getId(): AvitoProductUid
+    {
+        return $this->id;
+    }
 
+    public function setId(AvitoProductUid|string $id): void
+    {
+        if (is_string($id))
+        {
+            $id = new AvitoProductUid($id);
+        }
 
-
-    /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
-     */
+        $this->id = $id;
+    }
 }

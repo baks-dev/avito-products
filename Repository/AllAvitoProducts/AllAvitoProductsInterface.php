@@ -21,21 +21,17 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
+namespace BaksDev\Avito\Products\Repository\AllAvitoProducts;
 
 use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Id\ProductUid;
-use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
-use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
-use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 
-interface OneProductWithAvitoImagesInterface
+interface AllAvitoProductsInterface
 {
-
-
-
+    public function product(Product|ProductUid|string $product): self;
 
     /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
+     * Возвращает массив с данными карточек продукта Авито
      */
+    public function execute(): array|false;
 }

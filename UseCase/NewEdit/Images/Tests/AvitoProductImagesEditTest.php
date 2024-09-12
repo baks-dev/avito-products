@@ -67,20 +67,4 @@ class AvitoProductImagesEditTest extends KernelTestCase
         $editAvitoProduct = $handler->handle($editDTO);
         self::assertTrue($editAvitoProduct instanceof AvitoProduct);
     }
-
-    public static function tearDownAfterClass(): void
-    {
-        $container = self::getContainer();
-
-        /** @var EntityManagerInterface $em */
-        $em = $container->get(EntityManagerInterface::class);
-
-        $product = $em->getRepository(AvitoProduct::class)
-            ->find(AvitoProductUid::TEST);
-
-        $em->remove($product);
-
-        $em->flush();
-        $em->clear();
-    }
 }

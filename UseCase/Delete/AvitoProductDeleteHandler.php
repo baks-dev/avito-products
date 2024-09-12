@@ -23,26 +23,44 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Repository\AllAvitoProducts;
+namespace BaksDev\Avito\Products\UseCase\Delete;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Core\Doctrine\DBALQueryBuilder;
-use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
+use BaksDev\Core\Entity\AbstractHandler;
 
-final class AllAvitoProductsRepository implements AllAvitoProductsInterface
+final class AvitoProductDeleteHandler extends AbstractHandler
 {
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-    ) {}
-
+    public function handle(AvitoProductDeleteDTO $command): AvitoProduct|string|null
     {
-        $dbal = $this->DBALQueryBuilder
+        /** Валидация DTO */
+        $this->validatorCollection->add($command);
 
+        /** @var AvitoProduct|null $entity */
+        $entity = $this->entityManager->getRepository(AvitoProduct::class)
+            ->find($command->getId());
 
-        $dbal
+        if (is_null($entity))
+        {
+            return null;
+        }
 
+        /** Валидация всех объектов */
+        if ($this->validatorCollection->isInvalid())
+        {
+            return $this->validatorCollection->getErrorUniqid();
+        }
 
+        $this->entityManager->remove($entity);
 
+        $this->entityManager->flush();
 
+        /** Отправляем сообщение в шину */
+        $this->messageDispatch->dispatch(
+            message: new AvitoProductMessage($entity->getId()),
+            transport: 'avito-products'
+        );
+
+        return $entity;
     }
 }

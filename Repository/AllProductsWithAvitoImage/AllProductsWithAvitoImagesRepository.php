@@ -332,7 +332,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
         /** Продукт Авито */
-        $dbal->leftJoin(
             'product_modification',
             AvitoProduct::class,
             'avito_product',
@@ -342,7 +341,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 (avito_product.variation IS NULL OR avito_product.variation = product_variation.const) AND 
                 (avito_product.modification IS NULL OR avito_product.modification = product_modification.const)
             '
-        );
+        )
 
         /** Изображения Авито */
         $dbal->leftJoin(
