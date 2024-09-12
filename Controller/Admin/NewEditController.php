@@ -38,6 +38,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -56,16 +57,16 @@ final class NewEditController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         AvitoProductHandler $handler,
-        OneProductWithAvitoImagesInterface $productWithImages,
+        OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
     ): Response {
 
-        $editDTO = new AvitoProductDTO();
+        $dto = new AvitoProductDTO();
 
-        $editDTO
+        $dto
             ->setProduct($product)
             ->setOffer($offer)
             ->setVariation($variation)
@@ -74,9 +75,9 @@ final class NewEditController extends AbstractController
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
          *
-         * @var AvitoProduct|null $avitoProduct
+         * @var AvitoProduct|null $avitoProductCard
          */
-        $avitoProduct = $entityManager->getRepository(AvitoProduct::class)
+        $avitoProductCard = $entityManager->getRepository(AvitoProduct::class)
             ->findOneBy([
                 'product' => $product,
                 'offer' => $offer,
@@ -84,21 +85,21 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($avitoProduct)
+        if ($avitoProductCard)
         {
-            $avitoProduct->getDto($editDTO);
+            $avitoProductCard->getDto($dto);
         }
 
         $form = $this->createForm(
             AvitoProductForm::class,
-            $editDTO,
+            $dto,
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
-                    'product' => $editDTO->getProduct(),
-                    'offer' => $editDTO->getOffer(),
-                    'variation' => $editDTO->getVariation(),
-                    'modification' => $editDTO->getModification()
+                    'product' => $dto->getProduct(),
+                    'offer' => $dto->getOffer(),
+                    'variation' => $dto->getVariation(),
+                    'modification' => $dto->getModification()
                 ]
             )]
         );
@@ -109,7 +110,7 @@ final class NewEditController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $handle = $handler->handle($editDTO);
+            $handle = $handler->handle($dto);
 
             $this->addFlash(
                 'page.edit',
@@ -121,8 +122,18 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
+        $avitoProductHeader = $oneProductWithAvitoImages
+                ->product($dto->getProduct())
+                ->offerConst($dto->getOffer())
+                ->variationConst($dto->getVariation())
+                ->modificationConst($dto->getModification())
+                ->execute();
 
-        return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
+        if(false === $product)
+        {
+            throw new Exception('Продукт не найден ');
+        }
+
+        return $this->render(['form' => $form->createView(), 'product' => $avitoProductHeader]);
     }
 }

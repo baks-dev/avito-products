@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin;
 
-use BaksDev\Avito\Products\Repository\AllAvitoProducts\AvitoProductsRepository;
 use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
