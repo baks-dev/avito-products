@@ -38,6 +38,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -56,13 +57,16 @@ final class NewEditController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         AvitoProductHandler $handler,
+        OneProductWithAvitoImagesInterface $oneProductWithAvivprtoImages,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
     ): Response {
 
+        $dto = new AvitoProductDTO();
 
+        $dto
             ->setProduct($product)
             ->setOffer($offer)
             ->setVariation($variation)
@@ -71,7 +75,9 @@ final class NewEditController extends AbstractController
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
          *
+         * @var AvitoProduct|null $avitoProductCard
          */
+        $avitoProductCard = $entityManager->getRepository(AvitoProduct::class)
             ->findOneBy([
                 'product' => $product,
                 'offer' => $offer,
@@ -79,24 +85,32 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
+        if ($avitoProductCard)
         {
+            $avitoProductCard->getDto($dto);
         }
 
         $form = $this->createForm(
             AvitoProductForm::class,
+            $dto,
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
+                    'product' => $dto->getProduct(),
+                    'offer' => $dto->getOffer(),
+                    'variation' => $dto->getVariation(),
+                    'modification' => $dto->getModification()
                 ]
             )]
         );
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 
+            $handle = $handler->handle($dto);
 
             $this->addFlash(
                 'page.edit',
@@ -108,6 +122,18 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
+        $avitoProductHeader = $oneProductWithAvitoImages
+                ->product($dto->getProduct())
+                ->offerConst($dto->getOffer())
+                ->variationConst($dto->getVariation())
+                ->modificationConst($dto->getModification())
+                ->execute();
 
+        if(false === $product)
+        {
+            throw new Exception('Продукт не найден ');
+        }
+
+        return $this->render(['form' => $form->createView(), 'product' => $avitoProductHeader]);
     }
 }

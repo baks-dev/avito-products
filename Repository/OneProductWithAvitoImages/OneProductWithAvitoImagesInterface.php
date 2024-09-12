@@ -23,6 +23,9 @@
 
 namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
 
+use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
+use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -31,11 +34,16 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductM
 
 interface OneProductWithAvitoImagesInterface
 {
+    public function product(Product|ProductUid|string $product): self;
 
+    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self;
 
+    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self;
 
+    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self;
 
     /**
      * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
      */
+    public function execute(): array|bool;
 }

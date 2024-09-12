@@ -46,7 +46,9 @@ final readonly class RefreshFeedHandler
     {
         $profile = $message->getProfile();
 
-        $products = $this->allProductsWithMapping->findAll($profile);
+        $products = $this->allProductsWithMapping
+            ->profile($profile)
+            ->execute();
 
         $cache = $this->cache->init('avito-board');
 
