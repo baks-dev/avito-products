@@ -56,16 +56,13 @@ final class NewEditController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         AvitoProductHandler $handler,
-        OneProductWithAvitoImagesInterface $productWithImages,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
     ): Response {
 
-        $editDTO = new AvitoProductDTO();
 
-        $editDTO
             ->setProduct($product)
             ->setOffer($offer)
             ->setVariation($variation)
@@ -74,9 +71,7 @@ final class NewEditController extends AbstractController
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
          *
-         * @var AvitoProduct|null $avitoProduct
          */
-        $avitoProduct = $entityManager->getRepository(AvitoProduct::class)
             ->findOneBy([
                 'product' => $product,
                 'offer' => $offer,
@@ -84,32 +79,24 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($avitoProduct)
         {
-            $avitoProduct->getDto($editDTO);
         }
 
         $form = $this->createForm(
             AvitoProductForm::class,
-            $editDTO,
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
-                    'product' => $editDTO->getProduct(),
-                    'offer' => $editDTO->getOffer(),
-                    'variation' => $editDTO->getVariation(),
-                    'modification' => $editDTO->getModification()
                 ]
             )]
         );
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 
-            $handle = $handler->handle($editDTO);
 
             $this->addFlash(
                 'page.edit',
@@ -121,8 +108,6 @@ final class NewEditController extends AbstractController
             return $this->redirectToReferer();
         }
 
-        $avitoProduct = $productWithImages->findBy($product, $offer, $variation, $modification);
 
-        return $this->render(['form' => $form->createView(), 'product' => $avitoProduct]);
     }
 }

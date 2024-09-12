@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin;
 
-use BaksDev\Avito\Products\Repository\AllAvitoProducts\AvitoProductsRepository;
-use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
@@ -45,7 +43,6 @@ final class IndexController extends AbstractController
     #[Route('/admin/avito/products/{page<\d+>}', name: 'admin.products.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        AllProductsWithAvitoImagesInterface $allProductsWithAvitoImages,
         int $page = 0,
     ): Response {
 
