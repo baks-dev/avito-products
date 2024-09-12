@@ -28,21 +28,63 @@ namespace BaksDev\Avito\Products\Repository\AllAvitoProducts;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Products\Product\Entity\Product;
+use BaksDev\Products\Product\Type\Id\ProductUid;
 
 final class AllAvitoProductsRepository implements AllAvitoProductsInterface
 {
+    private ProductUid|false $product = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
     ) {}
 
+    public function product(Product|ProductUid|string $product): self
+    {
+        if ($product instanceof Product)
+        {
+            $product = $product->getId();
+        }
+
+        if (is_string($product))
+        {
+            $product = new ProductUid($product);
+        }
+
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * Возвращает массив с данными карточек продукта Авито
+     */
+    public function execute(): array|false
     {
         $dbal = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class);
 
+        $dbal->from(AvitoProduct::class, 'avito_product');
 
-        $dbal
+        if ($this->product !== false)
+        {
+            $dbal
+                ->where('avito_product.product = :product')
+                ->setParameter('product', $this->product, ProductUid::TYPE);
+        }
 
+        $dbal->addSelect('avito_product.id as id');
+        $dbal->addSelect('avito_product.product as product');
+        $dbal->addSelect('avito_product.offer as offer');
+        $dbal->addSelect('avito_product.variation as variation');
+        $dbal->addSelect('avito_product.modification as modification');
 
+        $result = $dbal->fetchAllAssociative();
 
+        if (empty($result))
+        {
+            return false;
+        }
 
+        return $result;
     }
 }
