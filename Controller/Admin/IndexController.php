@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin;
 
+use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
+use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterForm;
 use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
@@ -60,24 +62,33 @@ final class IndexController extends AbstractController
         /**
          * Фильтр продукции по ТП
          */
-        $filter = new ProductFilterDTO($request);
-        $filterForm = $this->createForm(ProductFilterForm::class, $filter, [
+        $ProductFilterDTO = new ProductFilterDTO($request);
+        $ProductFilterForm = $this->createForm(ProductFilterForm::class, $ProductFilterDTO, [
             'action' => $this->generateUrl('avito-products:admin.products.index'),
         ]);
 
-        $filterForm->handleRequest($request);
+        $ProductFilterForm->handleRequest($request);
+
+
+        $AvitoProductsFilterDTO = new AvitoProductsFilterDTO();
+        $AvitoProductsFilterForm = $this->createForm(AvitoProductsFilterForm::class, $AvitoProductsFilterDTO, [
+            'action' => $this->generateUrl('avito-products:admin.products.index'),
+        ]);
+        $AvitoProductsFilterForm->handleRequest($request);
 
         /** Если перезагрузить страницу */
-        false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
+        //false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
         $products = $allProductsWithAvitoImages
             ->search($search)
-            ->filter($filter)
+            ->filter($ProductFilterDTO)
+            ->filterAvitoProducts($AvitoProductsFilterDTO)
             ->findAll();
 
         return $this->render(
             [
-                'filter' => $filterForm->createView(),
+                'filter' => $ProductFilterForm->createView(),
+                'avito' => $AvitoProductsFilterForm->createView(),
                 'search' => $searchForm->createView(),
                 'query' => $products,
             ]

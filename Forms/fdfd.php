@@ -21,20 +21,11 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
+declare(strict_types=1);
 
-use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
-use BaksDev\Core\Form\Search\SearchDTO;
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+namespace BaksDev\Avito\Products\Forms;
 
-interface AllProductsWithAvitoImagesInterface
+final class fdfd
 {
-    public function search(SearchDTO $search): self;
 
-    public function filter(ProductFilterDTO $filter): self;
-
-    public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self;
-
-    public function findAll(): PaginatorInterface;
 }

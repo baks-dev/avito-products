@@ -21,20 +21,27 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
+declare(strict_types=1);
 
-use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
-use BaksDev\Core\Form\Search\SearchDTO;
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+namespace BaksDev\Avito\Products\Forms\AvitoFilter;
 
-interface AllProductsWithAvitoImagesInterface
+/** @see AvitoProductsFilter */
+final class AvitoProductsFilterDTO
 {
-    public function search(SearchDTO $search): self;
+    /** Флаг  */
+    private null|bool $exists = null;
 
-    public function filter(ProductFilterDTO $filter): self;
+    /**
+     * Exists
+     */
+    public function getExists(): ?bool
+    {
+        return $this->exists;
+    }
 
-    public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self;
-
-    public function findAll(): PaginatorInterface;
+    public function setExists(?bool $exists): self
+    {
+        $this->exists = $exists;
+        return $this;
+    }
 }

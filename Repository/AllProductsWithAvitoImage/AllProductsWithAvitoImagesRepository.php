@@ -29,6 +29,7 @@ use BaksDev\Avito\Board\Entity\AvitoBoard;
 use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
@@ -63,6 +64,8 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 {
     private ?ProductFilterDTO $filter = null;
 
+    private ?AvitoProductsFilterDTO $avitoProductsFilter = null;
+
     private ?SearchDTO $search = null;
 
     public function __construct(
@@ -80,6 +83,12 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
     public function filter(ProductFilterDTO $filter): self
     {
         $this->filter = $filter;
+        return $this;
+    }
+
+    public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self
+    {
+        $this->avitoProductsFilter = $avitoProductsFilter;
         return $this;
     }
 
@@ -150,7 +159,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
 
         /** ФИЛЬТР по торговому предложения */
-        if ($this->filter?->getOffer())
+        if($this->filter?->getOffer())
         {
             $dbal->andWhere('product_offer.value = :offer');
             $dbal->setParameter('offer', $this->filter->getOffer());
@@ -190,7 +199,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
         /** ФИЛЬТР по множественным вариантам */
-        if ($this->filter?->getVariation())
+        if($this->filter?->getVariation())
         {
             $dbal->andWhere('product_variation.value = :variation');
             $dbal->setParameter('variation', $this->filter->getVariation());
@@ -231,7 +240,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
         /** ФИЛЬТР по модификациям множественного варианта */
-        if ($this->filter?->getModification())
+        if($this->filter?->getModification())
         {
             $dbal->andWhere('product_modification.value = :modification');
             $dbal->setParameter('modification', $this->filter->getModification());
@@ -302,11 +311,11 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             "
 			CASE
 			   WHEN product_variation_image.name IS NOT NULL THEN
-					CONCAT ( '/upload/" . ProductVariationImage::TABLE . "' , '/', product_variation_image.name)
+					CONCAT ( '/upload/".ProductVariationImage::TABLE."' , '/', product_variation_image.name)
 			   WHEN product_offer_images.name IS NOT NULL THEN
-					CONCAT ( '/upload/" . ProductOfferImage::TABLE . "' , '/', product_offer_images.name)
+					CONCAT ( '/upload/".ProductOfferImage::TABLE."' , '/', product_offer_images.name)
 			   WHEN product_photo.name IS NOT NULL THEN
-					CONCAT ( '/upload/" . ProductPhoto::TABLE . "' , '/', product_photo.name)
+					CONCAT ( '/upload/".ProductPhoto::TABLE."' , '/', product_photo.name)
 			   ELSE NULL
 			END AS product_image
 		"
@@ -333,21 +342,20 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
 
-
         /** Продукт Авито */
         $dbal
             ->addSelect('avito_product.id as avito_product_id')
             ->leftJoin(
-            'product_modification',
-            AvitoProduct::class,
-            'avito_product',
-            '
+                'product_modification',
+                AvitoProduct::class,
+                'avito_product',
+                '
                 avito_product.product = product.id AND 
                 (avito_product.offer IS NULL OR avito_product.offer = product_offer.const) AND 
                 (avito_product.variation IS NULL OR avito_product.variation = product_variation.const) AND 
                 (avito_product.modification IS NULL OR avito_product.modification = product_modification.const)
             '
-        );
+            );
 
         /** Изображения Авито */
         $dbal->leftJoin(
@@ -363,7 +371,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             "
             CASE
                 WHEN avito_product_images.name IS NOT NULL THEN
-                    CONCAT ( '/upload/" . $dbal->table(AvitoProductImage::class) . "' , '/', avito_product_images.name)
+                    CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name)
                 ELSE NULL 
             END as avito_product_image
             "
@@ -401,7 +409,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     product_category.root = true'
             );
 
-        if ($this->filter?->getCategory())
+        if($this->filter?->getCategory())
         {
             $dbal->andWhere('product_category.category = :category');
             $dbal->setParameter('category', $this->filter->getCategory(), CategoryProductUid::TYPE);
@@ -465,38 +473,52 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         /**
          * Фильтр по свойства продукта
          */
-        if ($this->filter?->getProperty())
+        if($this->filter?->getProperty())
         {
             /** @var ProductFilterPropertyDTO $property */
-            foreach ($this->filter->getProperty() as $property)
+            foreach($this->filter->getProperty() as $property)
             {
-                if ($property->getValue())
+                if($property->getValue())
                 {
                     $dbal->join(
                         'product',
                         ProductProperty::class,
-                        'product_property_' . $property->getType(),
-                        'product_property_' . $property->getType() . '.event = product.event AND
-                        product_property_' . $property->getType() . '.field = :' . $property->getType() . '_const AND
-                        product_property_' . $property->getType() . '.value = :' . $property->getType() . '_value'
+                        'product_property_'.$property->getType(),
+                        'product_property_'.$property->getType().'.event = product.event AND
+                        product_property_'.$property->getType().'.field = :'.$property->getType().'_const AND
+                        product_property_'.$property->getType().'.value = :'.$property->getType().'_value'
                     );
 
-                    $dbal->setParameter($property->getType() . '_const', $property->getConst());
-                    $dbal->setParameter($property->getType() . '_value', $property->getValue());
+                    $dbal->setParameter($property->getType().'_const', $property->getConst());
+                    $dbal->setParameter($property->getType().'_value', $property->getValue());
                 }
             }
         }
 
-        if ($this->search?->getQuery())
+
+        if($this->avitoProductsFilter->getExists() !== null)
+        {
+            if($this->avitoProductsFilter->getExists() === true)
+            {
+                $dbal->andWhere('avito_product_images.name IS NOT NULL');
+            }
+            else
+            {
+                $dbal->andWhere('avito_product_images.name IS NULL');
+            }
+        }
+
+
+        if($this->search?->getQuery())
         {
             /** Поиск по модификации */
             $result = $this->elasticGetIndex ? $this->elasticGetIndex->handle(ProductModification::class, $this->search->getQuery(), 1) : false;
 
-            if ($result)
+            if($result)
             {
                 $counter = $result['hits']['total']['value'];
 
-                if ($counter)
+                if($counter)
                 {
                     /** Идентификаторы */
                     $data = array_column($result['hits']['hits'], "_source");
@@ -513,7 +535,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
                 $counter = $result['hits']['total']['value'];
 
-                if ($counter)
+                if($counter)
                 {
                     /** Идентификаторы */
                     $data = array_column($result['hits']['hits'], "_source");
@@ -539,4 +561,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         return $this->paginator->fetchAllAssociative($dbal);
     }
+
+
 }

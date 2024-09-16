@@ -1,4 +1,3 @@
-<?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
@@ -21,20 +20,22 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
-
-use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
-use BaksDev\Core\Form\Search\SearchDTO;
-use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
-
-interface AllProductsWithAvitoImagesInterface
+executeFunc(function avitoProductsFunction()
 {
-    public function search(SearchDTO $search): self;
+    if(typeof formDebounce !== 'function')
+    {
+        return false;
+    }
 
-    public function filter(ProductFilterDTO $filter): self;
+    const form = document.forms.avito_products_filter_form;
 
-    public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self;
+    if(typeof form === 'undefined')
+    {
+        return false;
+    }
 
-    public function findAll(): PaginatorInterface;
-}
+    form.addEventListener('change', formDebounce(() => { form.submit(); }, 300));
+
+    return true;
+})
+
