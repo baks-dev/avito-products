@@ -53,7 +53,6 @@ final class AvitoProductsFilterForm extends AbstractType
                 'С фото' => true,
                 'Без фото' => false,
             ],
-
         ]);
 
         $builder->addEventListener(
