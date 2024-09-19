@@ -62,7 +62,8 @@ final class NewEditController extends AbstractController
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
-    ): Response {
+    ): Response
+    {
 
         $dto = new AvitoProductDTO();
 
@@ -85,7 +86,7 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($avitoProductCard)
+        if($avitoProductCard)
         {
             $avitoProductCard->getDto($dto);
         }
@@ -106,7 +107,7 @@ final class NewEditController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 
@@ -123,11 +124,11 @@ final class NewEditController extends AbstractController
         }
 
         $avitoProductHeader = $oneProductWithAvitoImages
-                ->product($dto->getProduct())
-                ->offerConst($dto->getOffer())
-                ->variationConst($dto->getVariation())
-                ->modificationConst($dto->getModification())
-                ->execute();
+            ->product($dto->getProduct())
+            ->offerConst($dto->getOffer())
+            ->variationConst($dto->getVariation())
+            ->modificationConst($dto->getModification())
+            ->execute();
 
         if(false === $product)
         {

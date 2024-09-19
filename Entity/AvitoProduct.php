@@ -68,6 +68,7 @@ class AvitoProduct extends EntityState
     private ?ProductModificationConst $modification = null;
 
     /** Коллекция "живых" изображений продукта */
+    #[ORM\OrderBy(['root' => 'DESC'])]
     #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
     private Collection $images;
 
@@ -107,7 +108,7 @@ class AvitoProduct extends EntityState
     {
         if ($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
-            $this->images = new ArrayCollection();
+            //$this->images = new ArrayCollection();
 
             return parent::setEntity($dto);
         }

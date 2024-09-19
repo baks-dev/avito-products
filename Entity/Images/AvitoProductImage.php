@@ -36,11 +36,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product_images')]
 #[ORM\Index(columns: ['root'])]
-#[ORM\UniqueConstraint(columns: ['id','name', 'root', 'avito'])]
 class AvitoProductImage extends EntityState implements UploadEntityInterface
 {
-    /** Обязательная константа с названием таблицы для загрузки и рендеринга в шаблоне*/
-    public const string TABLE = "avito_product_images";
+    /** ID */
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    #[ORM\Id]
+    #[ORM\Column(type: AvitoProductImageUid::TYPE)]
+    private readonly AvitoProductImageUid $id;
 
     /**
      * Идентификатор продукта Авито
@@ -51,16 +54,8 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     #[ORM\JoinColumn(name: 'avito', referencedColumnName: 'id')]
     private AvitoProduct $avito;
 
-    /** ID */
-    #[Assert\NotBlank]
-    #[Assert\Uuid]
-    #[ORM\Id]
-    #[ORM\Column(type: AvitoProductImageUid::TYPE)]
-    private readonly AvitoProductImageUid $id;
-
     /** Название файла */
     #[Assert\NotBlank]
-    #[ORM\Id]
     #[Assert\Length(max: 100)]
     #[ORM\Column(type: Types::STRING)]
     private string $name;
@@ -73,7 +68,7 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
 
     /** Размер файла */
     #[Assert\NotBlank]
-    #[Assert\Range(max: 10485760)] // (1024 * 1024)*10
+    #[Assert\Range(max: 10485760)] // (1024 * 1024) *10
     #[ORM\Column(type: Types::INTEGER)]
     private int $size = 0;
 
@@ -87,13 +82,13 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
 
     public function __construct(AvitoProduct $avito)
     {
-        $this->id = new AvitoProductImageUid();
+        $this->id = clone(new AvitoProductImageUid());
         $this->avito = $avito;
     }
 
     public function __toString(): string
     {
-        return (string)$this->avito;
+        return (string) $this->avito;
     }
 
     /**
@@ -115,7 +110,7 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
 
     public function updCdn(?string $ext = null): void
     {
-        if ($ext)
+        if($ext)
         {
             $this->ext = $ext;
         }
@@ -142,7 +137,7 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if ($dto instanceof AvitoProductImagesDTO)
+        if($dto instanceof AvitoProductImagesDTO)
         {
             return parent::getDto($dto);
         }
@@ -153,12 +148,12 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
     public function setEntity($dto): mixed
     {
         // Если размер файла нулевой - не заполняем сущность
-        if (empty($dto->file) && empty($dto->getName()))
+        if(empty($dto->file) && empty($dto->getName()))
         {
             return false;
         }
 
-        if ($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
+        if($dto instanceof AvitoProductImagesDTO || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

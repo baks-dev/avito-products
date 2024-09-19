@@ -27,21 +27,14 @@ final class AvitoProductHandler extends AbstractHandler
                 'modification' => $command->getModification()
             ]);
 
-        if (null === $entity)
+        if(null === $entity)
         {
             $entity = new AvitoProduct();
             $this->entityManager->persist($entity);
         }
 
-        /** Удаляем все предыдущие изображения
-         *
-         * @var ArrayCollection<int, AvitoProductImage> $images
-         */
-        foreach ($entity->getImages() as $image)
-        {
-            $this->entityManager->remove($image);
-        }
-
+        /** Передаем в статическую сущность EntityManager */
+        $entity->setEntityManager($this->entityManager);
         $entity->setEntity($command);
 
         $this->validatorCollection->add($entity);
@@ -50,12 +43,12 @@ final class AvitoProductHandler extends AbstractHandler
          * Загружаем изображения
          * @var AvitoProductImage $image
          */
-        foreach ($entity->getImages() as $image)
+        foreach($entity->getImages() as $image)
         {
             /** @var AvitoProductImagesDTO $avitoImagesDTO */
-            if ($avitoImagesDTO = $image->getEntityDto())
+            if($avitoImagesDTO = $image->getEntityDto())
             {
-                if (null !== $avitoImagesDTO->getFile())
+                if(null !== $avitoImagesDTO->getFile())
                 {
                     $this->imageUpload->upload($avitoImagesDTO->getFile(), $image);
                 }
@@ -63,7 +56,7 @@ final class AvitoProductHandler extends AbstractHandler
         }
 
         /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid())
+        if($this->validatorCollection->isInvalid())
         {
             return $this->validatorCollection->getErrorUniqid();
         }
