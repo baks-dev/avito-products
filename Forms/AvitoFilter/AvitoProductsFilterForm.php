@@ -66,6 +66,12 @@ final class AvitoProductsFilterForm extends AbstractType
                     $this->session = $this->request->getSession();
                 }
 
+                if($this->session && $this->session->get('statusCode') === 307)
+                {
+                    $this->session->remove($this->sessionKey);
+                    $this->session = false;
+                }
+
                 if($this->session)
                 {
                     if(time() - $this->session->getMetadataBag()->getLastUsed() > 300)

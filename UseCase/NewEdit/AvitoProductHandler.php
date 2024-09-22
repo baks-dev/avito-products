@@ -15,29 +15,20 @@ final class AvitoProductHandler extends AbstractHandler
 {
     public function handle(AvitoProductDTO $command): string|AvitoProduct
     {
-        /** Валидация DTO */
-        $this->validatorCollection->add($command);
+        /** Добавляем command для валидации и гидрации */
+        $this->setCommand($command);
 
-        /** @var AvitoProduct|null $entity */
-        $entity = $this->entityManager->getRepository(AvitoProduct::class)
-            ->findOneBy([
-                'product' => $command->getProduct(),
-                'offer' => $command->getOffer(),
-                'variation' => $command->getVariation(),
-                'modification' => $command->getModification()
-            ]);
-
-        if(null === $entity)
-        {
-            $entity = new AvitoProduct();
-            $this->entityManager->persist($entity);
-        }
-
-        /** Передаем в статическую сущность EntityManager */
-        $entity->setEntityManager($this->entityManager);
-        $entity->setEntity($command);
-
-        $this->validatorCollection->add($entity);
+        /** @var AvitoProduct $entity */
+        $entity = $this
+            ->prePersistOrUpdate(
+                AvitoProduct::class,
+                [
+                    'product' => $command->getProduct(),
+                    'offer' => $command->getOffer(),
+                    'variation' => $command->getVariation(),
+                    'modification' => $command->getModification()
+                ]
+            );
 
         /**
          * Загружаем изображения
@@ -61,7 +52,7 @@ final class AvitoProductHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->flush();
+        $this->flush();
 
         $this->messageDispatch->dispatch(
             message: new AvitoProductMessage($entity->getId()),

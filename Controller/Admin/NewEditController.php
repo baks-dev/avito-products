@@ -62,8 +62,7 @@ final class NewEditController extends AbstractController
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
-    ): Response
-    {
+    ): Response {
 
         $dto = new AvitoProductDTO();
 
@@ -120,7 +119,7 @@ final class NewEditController extends AbstractController
                 $handle
             );
 
-            return $this->redirectToReferer();
+            return $this->redirectToRoute('avito-products:admin.products.index');
         }
 
         $avitoProductHeader = $oneProductWithAvitoImages
