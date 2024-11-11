@@ -21,8 +21,15 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-namespace BaksDev\Avito\Products\Schedule\RefreshFeed;
+use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
+use Symfony\Config\TwigConfig;
 
-final class RefreshFeedScheduleMessage {}
+return static function (TwigConfig $twig) {
+
+    $twig->path(
+        BaksDevAvitoProductsBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), //.'Resources/view',
+        'avito-products'
+    );
+};

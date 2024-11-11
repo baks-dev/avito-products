@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2023.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,23 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use Symfony\Config\FrameworkConfig;
+use BaksDev\Avito\Products\Type\AvitoProductType;
+use BaksDev\Avito\Products\Type\AvitoProductUid;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
+use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
+use Symfony\Config\DoctrineConfig;
 
-return static function (FrameworkConfig $config) {
+return static function (DoctrineConfig $doctrine): void {
 
-    $config
-        ->translator()
-        ->paths([BaksDevAvitoProductsBundle::PATH.'Resources/translations/']);
+    $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
+    $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);
+
+    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
+
+    $emDefault->mapping('avito-products')
+        ->type('attribute')
+        ->dir(BaksDevAvitoProductsBundle::PATH.'Entity')
+        ->isBundle(false)
+        ->prefix(BaksDevAvitoProductsBundle::NAMESPACE.'\\Entity')
+        ->alias('avito-products');
 };

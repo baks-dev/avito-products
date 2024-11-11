@@ -26,8 +26,14 @@
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
 
                 {# Фильтр по продукции #}
-                <div class="w-100">
+                <div class="w-100 d-flex align-items-center align-content-end gap-2">
+
                     {% include Template('@products-product/filter/'~baks_settings.device~'/filter.html.twig') %}
+
+                    {{ form_start(avito) }}
+                    {{ form_widget(avito.exists, { attr: { style: 'width: 100px;' } }) }}
+                    {{ form_end(avito) }}
+
                 </div>
 
             </div>
@@ -42,18 +48,7 @@
                 <tr>
                     <th>#</th>
                     <th class="text-center">Категория</th>
-                    <th class="ps-5 align-middle w-100">
-
-                        <div class="d-flex">
-                            <div class="ms-0">
-                                Изображение
-                            </div>
-                            <div class="ms-3">
-                                Продукция
-                            </div>
-                        </div>
-
-                    </th>
+                    <th class="ps-5 align-middle w-100">Продукция</th>
                     <th class="text-center text-nowrap">Фото для Авито</th>
                 </tr>
 

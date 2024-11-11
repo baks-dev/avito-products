@@ -82,15 +82,15 @@ final class AvitoProductForm extends AbstractType
                 }
 
                 $product = $this->oneProductWithAvitoImages
-                        ->product($dto->getProduct())
-                        ->offerConst($dto->getOffer())
-                        ->variationConst($dto->getVariation())
-                        ->modificationConst($dto->getModification())
-                        ->execute();
+                    ->product($dto->getProduct())
+                    ->offerConst($dto->getOffer())
+                    ->variationConst($dto->getVariation())
+                    ->modificationConst($dto->getModification())
+                    ->execute();
 
                 if(false === $product)
                 {
-                    throw new Exception('Продукт не найден ');
+                    throw new Exception('Продукт не найден');
                 }
 
                 /** Получаем ID текущего профиля пользователя для составления пути для шаблона */
@@ -104,13 +104,13 @@ final class AvitoProductForm extends AbstractType
                     $template = $this->templateExtension->extends($path);
                     $render = $this->environment->render($template);
                 }
-                catch (Exception)
+                catch(Exception)
                 {
                     $template = $this->templateExtension->extends('@avito-products:description/default.html.twig');
                     $render = $this->environment->render($template);
                 }
 
-                if (is_null($dto->getDescription()))
+                if(is_null($dto->getDescription()))
                 {
                     $dto->setDescription($render);
                 }

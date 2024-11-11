@@ -23,35 +23,25 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Schedule\RefreshFeed;
+namespace BaksDev\Avito\Products\Forms\AvitoFilter;
 
-use BaksDev\Avito\Products\Messenger\Schedules\RefreshFeedMessage;
-use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllUserProfilesByTokenRepository;
-use BaksDev\Core\Messenger\MessageDispatchInterface;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
-#[AsMessageHandler]
-final readonly class RefreshFeedScheduleHandler
+/** @see AvitoProductsFilter */
+final class AvitoProductsFilterDTO
 {
-    public function __construct(
-        private MessageDispatchInterface $messageDispatch,
-        private AllUserProfilesByTokenRepository $allProfilesByToken,
-    ) {}
+    /** Флаг  */
+    private null|bool $exists = null;
 
-    public function __invoke(RefreshFeedScheduleMessage $message): void
+    /**
+     * Exists
+     */
+    public function getExists(): ?bool
     {
-        /** Получаем активные токены авторизации профилей */
-        $profiles = $this->allProfilesByToken->findProfilesByActiveToken();
+        return $this->exists;
+    }
 
-        if ($profiles->valid())
-        {
-            foreach ($profiles as $profile)
-            {
-                $this->messageDispatch->dispatch(
-                    message: new RefreshFeedMessage($profile),
-                    transport: (string)$profile,
-                );
-            }
-        }
+    public function setExists(?bool $exists): self
+    {
+        $this->exists = $exists;
+        return $this;
     }
 }

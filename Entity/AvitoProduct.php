@@ -68,6 +68,7 @@ class AvitoProduct extends EntityState
     private ?ProductModificationConst $modification = null;
 
     /** Коллекция "живых" изображений продукта */
+    #[ORM\OrderBy(['root' => 'DESC'])]
     #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
     private Collection $images;
 
@@ -83,7 +84,7 @@ class AvitoProduct extends EntityState
 
     public function __toString(): string
     {
-        return (string)$this->id;
+        return (string) $this->id;
     }
 
     public function getId(): AvitoProductUid
@@ -94,7 +95,7 @@ class AvitoProduct extends EntityState
     /** Гидрирует переданную DTO, вызывая ее сеттеры */
     public function getDto($dto): mixed
     {
-        if ($dto instanceof AvitoProductInterface)
+        if($dto instanceof AvitoProductInterface)
         {
             return parent::getDto($dto);
         }
@@ -105,16 +106,15 @@ class AvitoProduct extends EntityState
     /** Гидрирует сущность переданной DTO */
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof AvitoProductInterface || $dto instanceof self)
+        if($dto instanceof AvitoProductInterface || $dto instanceof self)
         {
-            $this->images = new ArrayCollection();
-
             return parent::setEntity($dto);
         }
 
         throw new InvalidArgumentException(sprintf('Class %s interface error', $dto::class));
     }
 
+    /** Метод возвращает коллекцию изображений для сжатия в формат WEBP */
     public function getImages(): Collection
     {
         return $this->images;

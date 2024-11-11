@@ -24,12 +24,11 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use Symfony\Config\TwigConfig;
+use Symfony\Config\FrameworkConfig;
 
-return static function (TwigConfig $twig) {
+return static function (FrameworkConfig $config) {
 
-    $twig->path(
-        BaksDevAvitoProductsBundle::PATH.'Resources/view',
-        'avito-products'
-    );
+    $config
+        ->translator()
+        ->paths([BaksDevAvitoProductsBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'translations', ''])]); // .'Resources/translations/']);
 };

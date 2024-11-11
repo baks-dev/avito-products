@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2023.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,19 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
+use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-namespace BaksDev\Avito\Products\Schedule\RefreshFeed;
+return function (RoutingConfigurator $routes) {
 
-use BaksDev\Core\Schedule\ScheduleInterface;
-use DateInterval;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+    $MODULE = BaksDevAvitoProductsBundle::PATH;
 
-/**
- * Проверяем новые заказы Yandex Market каждые 5 минут
- */
-#[AutoconfigureTag('baks.schedule')]
-final class RefreshFeedSchedule implements ScheduleInterface
-{
-    /** Возвращает класс сообщение */
-    public function getMessage(): object
-    {
-        return new RefreshFeedScheduleMessage();
-    }
-
-    /**
-     * Интервал повтора
-     * @see https://www.php.net/manual/en/dateinterval.createfromdatestring.php
-     */
-    public function getInterval(): DateInterval
-    {
-        return DateInterval::createFromDateString('30 minutes');
-    }
-}
+    $routes->import(
+        $MODULE.'Controller',
+        'attribute',
+        false,
+        $MODULE.implode(DIRECTORY_SEPARATOR, ['Controller', '**', '*Test.php'])
+    )
+        ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
+        ->namePrefix('avito-products:');
+};

@@ -11,6 +11,9 @@ use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
@@ -42,8 +45,32 @@ class AvitoProductImagesNewTest extends KernelTestCase
         $image = new AvitoProductImagesDTO();
         $image->setRoot(true);
 
-        $jpeg = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/JPEG.jpg', true);
-        $image->setFile($jpeg);
+        $fileSystem = $container->get(Filesystem::class);
+
+        /** @var ContainerBagInterface $containerBag */
+        $containerBag = $container->get(ContainerBagInterface::class);
+
+        /** Создаем путь к тестовой директории */
+        $testUploadDir = implode(DIRECTORY_SEPARATOR, [$containerBag->get('kernel.project_dir'), 'public', 'upload', 'tests']);
+
+        /** Проверяем существование директории для тестовых картинок */
+        if (false === is_dir($testUploadDir))
+        {
+            $fileSystem->mkdir($testUploadDir);
+        }
+
+        /** Файл из пакета для копирования в тестовую директорию */
+        $jpegFrom = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/JPEG.jpg', true);
+
+        /** Файл для записи в тестовой директории */
+        $jpegTo = new File($testUploadDir . '/JPEG.jpg', false);
+
+        /** Копируем файл из пакета для копирования в тестовую директорию */
+        $fileSystem->copy($jpegFrom->getPathname(), $jpegTo->getPathname());
+
+        self::assertTrue(is_file($jpegTo->getPathname()), 'Не удалось создать файл в тестовой директории по пути:' . $jpegTo->getPathname());
+
+        $image->setFile($jpegTo);
 
         $editDTO->addImage($image);
 

@@ -57,7 +57,7 @@ final class NewEditController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         AvitoProductHandler $handler,
-        OneProductWithAvitoImagesInterface $oneProductWithAvivprtoImages,
+        OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
@@ -85,7 +85,7 @@ final class NewEditController extends AbstractController
                 'modification' => $modification,
             ]);
 
-        if ($avitoProductCard)
+        if($avitoProductCard)
         {
             $avitoProductCard->getDto($dto);
         }
@@ -106,7 +106,7 @@ final class NewEditController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
+        if($form->isSubmitted() && $form->isValid() && $form->has('avito_product'))
         {
             $this->refreshTokenForm($form);
 
@@ -119,15 +119,15 @@ final class NewEditController extends AbstractController
                 $handle
             );
 
-            return $this->redirectToReferer();
+            return $this->redirectToRoute('avito-products:admin.products.index');
         }
 
         $avitoProductHeader = $oneProductWithAvitoImages
-                ->product($dto->getProduct())
-                ->offerConst($dto->getOffer())
-                ->variationConst($dto->getVariation())
-                ->modificationConst($dto->getModification())
-                ->execute();
+            ->product($dto->getProduct())
+            ->offerConst($dto->getOffer())
+            ->variationConst($dto->getVariation())
+            ->modificationConst($dto->getModification())
+            ->execute();
 
         if(false === $product)
         {

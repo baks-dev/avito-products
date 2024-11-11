@@ -15,47 +15,31 @@ final class AvitoProductHandler extends AbstractHandler
 {
     public function handle(AvitoProductDTO $command): string|AvitoProduct
     {
-        /** Валидация DTO */
-        $this->validatorCollection->add($command);
+        /** Добавляем command для валидации и гидрации */
+        $this->setCommand($command);
 
-        /** @var AvitoProduct|null $entity */
-        $entity = $this->entityManager->getRepository(AvitoProduct::class)
-            ->findOneBy([
-                'product' => $command->getProduct(),
-                'offer' => $command->getOffer(),
-                'variation' => $command->getVariation(),
-                'modification' => $command->getModification()
-            ]);
-
-        if (null === $entity)
-        {
-            $entity = new AvitoProduct();
-            $this->entityManager->persist($entity);
-        }
-
-        /** Удаляем все предыдущие изображения
-         *
-         * @var ArrayCollection<int, AvitoProductImage> $images
-         */
-        foreach ($entity->getImages() as $image)
-        {
-            $this->entityManager->remove($image);
-        }
-
-        $entity->setEntity($command);
-
-        $this->validatorCollection->add($entity);
+        /** @var AvitoProduct $entity */
+        $entity = $this
+            ->prePersistOrUpdate(
+                AvitoProduct::class,
+                [
+                    'product' => $command->getProduct(),
+                    'offer' => $command->getOffer(),
+                    'variation' => $command->getVariation(),
+                    'modification' => $command->getModification()
+                ]
+            );
 
         /**
          * Загружаем изображения
          * @var AvitoProductImage $image
          */
-        foreach ($entity->getImages() as $image)
+        foreach($entity->getImages() as $image)
         {
             /** @var AvitoProductImagesDTO $avitoImagesDTO */
-            if ($avitoImagesDTO = $image->getEntityDto())
+            if($avitoImagesDTO = $image->getEntityDto())
             {
-                if (null !== $avitoImagesDTO->getFile())
+                if(null !== $avitoImagesDTO->getFile())
                 {
                     $this->imageUpload->upload($avitoImagesDTO->getFile(), $image);
                 }
@@ -63,12 +47,12 @@ final class AvitoProductHandler extends AbstractHandler
         }
 
         /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid())
+        if($this->validatorCollection->isInvalid())
         {
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->flush();
+        $this->flush();
 
         $this->messageDispatch->dispatch(
             message: new AvitoProductMessage($entity->getId()),

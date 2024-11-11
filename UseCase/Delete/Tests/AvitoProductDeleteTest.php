@@ -9,6 +9,8 @@ use BaksDev\Avito\Products\UseCase\Delete\AvitoProductDeleteHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @group avito-products
@@ -54,8 +56,23 @@ class AvitoProductDeleteTest extends KernelTestCase
         {
             $em->remove($product);
 
-            $em->flush();
-            $em->clear();
+        }
+
+        $em->flush();
+        $em->clear();
+
+        $fileSystem = $container->get(Filesystem::class);
+
+        /** @var ContainerBagInterface $containerBag */
+        $containerBag = $container->get(ContainerBagInterface::class);
+
+        /** Создаем путь к тестовой директории */
+        $testUploadDir = implode(DIRECTORY_SEPARATOR, [$containerBag->get('kernel.project_dir'), 'public', 'upload', 'tests']);
+
+        /** Проверяем существование директории для тестовых картинок*/
+        if (true === is_dir($testUploadDir))
+        {
+            $fileSystem->remove($testUploadDir);
         }
     }
 }

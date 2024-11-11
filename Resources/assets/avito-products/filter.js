@@ -1,4 +1,3 @@
-<?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
  *
@@ -21,27 +20,22 @@
  *  THE SOFTWARE.
  */
 
-declare(strict_types=1);
-
-namespace BaksDev\Avito\Products\Messenger\Schedules;
-
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-
-final class RefreshFeedMessage
+executeFunc(function avitoProductsFunction()
 {
-    /**
-     * Идентификатор
-     */
-    private UserProfileUid $profile;
-
-    public function __construct(UserProfileUid $profile)
+    if(typeof formDebounce !== 'function')
     {
-        $this->profile = $profile;
+        return false;
     }
 
-    public function getProfile(): UserProfileUid
+    const form = document.forms.avito_products_filter_form;
+
+    if(typeof form === 'undefined')
     {
-        return $this->profile;
+        return false;
     }
 
-}
+    form.addEventListener('change', formDebounce(() => { form.submit(); }, 300));
+
+    return true;
+})
+
