@@ -121,7 +121,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     product_active.active IS TRUE'
             );
 
-        /** Название категории */
+        /** Название продукта */
         $dbal
             ->addSelect('product_trans.name AS product_name')
             ->leftJoin(
@@ -557,6 +557,8 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 ->addSearchLike('product_offer.article')
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article');
+
+            dd($dbal->fetchAllAssociative());
         }
 
         return $this->paginator->fetchAllAssociative($dbal);

@@ -62,33 +62,32 @@ final class IndexController extends AbstractController
         /**
          * Фильтр продукции по ТП
          */
-        $ProductFilterDTO = new ProductFilterDTO($request);
-        $ProductFilterForm = $this->createForm(ProductFilterForm::class, $ProductFilterDTO, [
+        $productFilterDTO = new ProductFilterDTO($request);
+        $productFilterForm = $this->createForm(ProductFilterForm::class, $productFilterDTO, [
             'action' => $this->generateUrl('avito-products:admin.products.index'),
         ]);
 
-        $ProductFilterForm->handleRequest($request);
+        $productFilterForm->handleRequest($request);
 
-
-        $AvitoProductsFilterDTO = new AvitoProductsFilterDTO();
-        $AvitoProductsFilterForm = $this->createForm(AvitoProductsFilterForm::class, $AvitoProductsFilterDTO, [
+        $avitoProductsFilterDTO = new AvitoProductsFilterDTO();
+        $avitoProductsFilterForm = $this->createForm(AvitoProductsFilterForm::class, $avitoProductsFilterDTO, [
             'action' => $this->generateUrl('avito-products:admin.products.index'),
         ]);
-        $AvitoProductsFilterForm->handleRequest($request);
+        $avitoProductsFilterForm->handleRequest($request);
 
         /** Если перезагрузить страницу */
         //false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
         $products = $allProductsWithAvitoImages
             ->search($search)
-            ->filter($ProductFilterDTO)
-            ->filterAvitoProducts($AvitoProductsFilterDTO)
+            ->filter($productFilterDTO)
+            ->filterAvitoProducts($avitoProductsFilterDTO)
             ->findAll();
 
         return $this->render(
             [
-                'filter' => $ProductFilterForm->createView(),
-                'avito' => $AvitoProductsFilterForm->createView(),
+                'filter' => $productFilterForm->createView(),
+                'avito' => $avitoProductsFilterForm->createView(),
                 'search' => $searchForm->createView(),
                 'query' => $products,
             ]

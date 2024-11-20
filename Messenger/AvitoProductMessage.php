@@ -9,7 +9,7 @@ use BaksDev\Avito\Products\Type\AvitoProductUid;
 final class AvitoProductMessage
 {
     /**
-     * Идентификатор
+     * Внутренний (системный) идентификатор продукта Avito
      */
     private AvitoProductUid $id;
 
