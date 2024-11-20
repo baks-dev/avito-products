@@ -52,7 +52,7 @@ class AvitoProductDeleteTest extends KernelTestCase
         $product = $em->getRepository(AvitoProduct::class)
             ->find(AvitoProductUid::TEST);
 
-        if ($product)
+        if($product)
         {
             $em->remove($product);
 
@@ -70,7 +70,7 @@ class AvitoProductDeleteTest extends KernelTestCase
         $testUploadDir = implode(DIRECTORY_SEPARATOR, [$containerBag->get('kernel.project_dir'), 'public', 'upload', 'tests']);
 
         /** Проверяем существование директории для тестовых картинок*/
-        if (true === is_dir($testUploadDir))
+        if(true === is_dir($testUploadDir))
         {
             $fileSystem->remove($testUploadDir);
         }

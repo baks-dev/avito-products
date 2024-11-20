@@ -43,7 +43,7 @@ final class AvitoProductDeleteDTO implements AvitoProductInterface
 
     public function setId(AvitoProductUid|string $id): void
     {
-        if (is_string($id))
+        if(is_string($id))
         {
             $id = new AvitoProductUid($id);
         }

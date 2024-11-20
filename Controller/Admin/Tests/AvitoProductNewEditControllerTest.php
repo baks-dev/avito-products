@@ -64,8 +64,8 @@ final class AvitoProductNewEditControllerTest extends WebTestCase
 
         $product = $editDTO->getProduct();
         $offer = $editDTO->getOffer();
-        $variation = $editDTO->getVariation() ? '/' . $editDTO->getVariation() : '';
-        $modification = $editDTO->getModification() ? '/' . $editDTO->getModification() : '';
+        $variation = $editDTO->getVariation() ? '/'.$editDTO->getVariation() : '';
+        $modification = $editDTO->getModification() ? '/'.$editDTO->getModification() : '';
 
         self::$url = sprintf("/admin/avito/product/%s/%s%s%s", $product, $offer, $variation, $modification);
 
@@ -78,7 +78,7 @@ final class AvitoProductNewEditControllerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
 
-        foreach (TestUserAccount::getDevice() as $device)
+        foreach(TestUserAccount::getDevice() as $device)
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
 
@@ -100,7 +100,7 @@ final class AvitoProductNewEditControllerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
 
-        foreach (TestUserAccount::getDevice() as $device)
+        foreach(TestUserAccount::getDevice() as $device)
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
             $usr = TestUserAccount::getAdmin();
@@ -121,7 +121,7 @@ final class AvitoProductNewEditControllerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
 
-        foreach (TestUserAccount::getDevice() as $device)
+        foreach(TestUserAccount::getDevice() as $device)
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
 
@@ -142,7 +142,7 @@ final class AvitoProductNewEditControllerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
 
-        foreach (TestUserAccount::getDevice() as $device)
+        foreach(TestUserAccount::getDevice() as $device)
         {
             $client->setServerParameter('HTTP_USER_AGENT', $device);
 

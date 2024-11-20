@@ -23,10 +23,9 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use BaksDev\Avito\Board\BaksDevAvitoBoardBundle;
 use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
 
-return static function (ContainerConfigurator $configurator) {
+return static function(ContainerConfigurator $configurator) {
 
     $services = $configurator->services()
         ->defaults()

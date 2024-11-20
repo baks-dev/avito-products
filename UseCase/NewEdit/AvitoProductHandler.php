@@ -9,7 +9,6 @@ use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Core\Entity\AbstractHandler;
-use Doctrine\Common\Collections\ArrayCollection;
 
 final class AvitoProductHandler extends AbstractHandler
 {

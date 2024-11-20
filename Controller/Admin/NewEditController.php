@@ -62,7 +62,8 @@ final class NewEditController extends AbstractController
         #[ParamConverter(ProductOfferConst::class)] $offer,
         #[ParamConverter(ProductVariationConst::class)] $variation = null,
         #[ParamConverter(ProductModificationConst::class)] $modification = null,
-    ): Response {
+    ): Response
+    {
 
         $dto = new AvitoProductDTO();
 

@@ -17,7 +17,6 @@ $ composer require baks-dev/avito-products
 $ php bin/phpunit --group=avito-products
 ```
 
-
 ## Лицензия ![License](https://img.shields.io/badge/MIT-green)
 
 The MIT License (MIT). Обратитесь к [Файлу лицензии](LICENSE.md) за дополнительной информацией.

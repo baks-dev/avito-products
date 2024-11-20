@@ -30,7 +30,7 @@ use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use Symfony\Config\DoctrineConfig;
 
-return static function (DoctrineConfig $doctrine): void {
+return static function(DoctrineConfig $doctrine): void {
 
     $doctrine->dbal()->type(AvitoProductUid::TYPE)->class(AvitoProductType::class);
     $doctrine->dbal()->type(AvitoProductImageUid::TYPE)->class(AvitoProductImageType::class);

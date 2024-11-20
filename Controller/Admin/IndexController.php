@@ -48,7 +48,8 @@ final class IndexController extends AbstractController
         Request $request,
         AllProductsWithAvitoImagesInterface $allProductsWithAvitoImages,
         int $page = 0,
-    ): Response {
+    ): Response
+    {
 
         // Поиск
         $search = new SearchDTO();

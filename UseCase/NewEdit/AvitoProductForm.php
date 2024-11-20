@@ -71,7 +71,7 @@ final class AvitoProductForm extends AbstractType
         /** Рендеринг шаблона, если описание NULL */
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event): void {
+            function(FormEvent $event): void {
 
                 /** @var AvitoProductDTO $dto */
                 $dto = $event->getData();
