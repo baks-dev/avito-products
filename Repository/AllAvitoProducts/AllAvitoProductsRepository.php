@@ -40,12 +40,12 @@ final class AllAvitoProductsRepository implements AllAvitoProductsInterface
 
     public function product(Product|ProductUid|string $product): self
     {
-        if ($product instanceof Product)
+        if($product instanceof Product)
         {
             $product = $product->getId();
         }
 
-        if (is_string($product))
+        if(is_string($product))
         {
             $product = new ProductUid($product);
         }
@@ -65,7 +65,7 @@ final class AllAvitoProductsRepository implements AllAvitoProductsInterface
 
         $dbal->from(AvitoProduct::class, 'avito_product');
 
-        if ($this->product !== false)
+        if($this->product !== false)
         {
             $dbal
                 ->where('avito_product.product = :product')
@@ -80,7 +80,7 @@ final class AllAvitoProductsRepository implements AllAvitoProductsInterface
 
         $result = $dbal->fetchAllAssociative();
 
-        if (empty($result))
+        if(empty($result))
         {
             return false;
         }

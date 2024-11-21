@@ -35,7 +35,7 @@ class AvitoProductNewTest extends KernelTestCase
         $avitoProduct = $em->getRepository(AvitoProduct::class)
             ->find(AvitoProductUid::TEST);
 
-        if ($avitoProduct)
+        if($avitoProduct)
         {
             $em->remove($avitoProduct);
         }
@@ -43,7 +43,7 @@ class AvitoProductNewTest extends KernelTestCase
         $avitoProductImages = $em->getRepository(AvitoProductImage::class)
             ->findBy(['avito' => AvitoProductUid::TEST]);
 
-        foreach ($avitoProductImages as $image)
+        foreach($avitoProductImages as $image)
         {
             $em->remove($image);
         }

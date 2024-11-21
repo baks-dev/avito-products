@@ -19,9 +19,37 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
-namespace BaksDev\Avito\Products\Entity;
+namespace BaksDev\Avito\Products\Repository\AllProductsIdentifierByAvitoMapper;
 
-/** @see AvitoProductDTO */
-interface AvitoProductInterface { }
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+
+interface AllProductsWithAvitoMapperInterface
+{
+    /** Для фильтрации по артикулу или его части */
+    public function byArticle(string $article): self;
+
+    public function profile(UserProfile|UserProfileUid|string $profile): self;
+
+    /**
+     * Метод получает продукт для которого есть маппер Авито
+     *
+     * @return \Generator<int, array{
+     *      id: string,
+     *      event: string,
+     *      product_offer_const: string,
+     *      product_variation_const: string,
+     *      product_modification_const: string,
+     *      product_article: string,
+     *      category_active: bool,
+     *      product_category: string,
+     *      product_price: int,
+     *      product_currency: string,
+     *      product_quantity: int
+     *  }>| false
+     */
+    public function findAll(): \Generator|false;
+}

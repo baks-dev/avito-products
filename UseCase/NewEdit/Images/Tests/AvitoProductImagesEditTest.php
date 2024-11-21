@@ -58,7 +58,7 @@ class AvitoProductImagesEditTest extends KernelTestCase
         $testUploadDir = implode(DIRECTORY_SEPARATOR, [$containerBag->get('kernel.project_dir'), 'public', 'upload', 'tests']);
 
         /** Проверяем существование директории для тестовых картинок */
-        if (false === is_dir($testUploadDir))
+        if(false === is_dir($testUploadDir))
         {
             $fileSystem->mkdir($testUploadDir);
         }
@@ -70,15 +70,15 @@ class AvitoProductImagesEditTest extends KernelTestCase
         $editImagePNG->setRoot(false);
 
         /** Файл из пакета для копирования в тестовую директорию */
-        $pngFrom = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/PNG.png', true);
+        $pngFrom = new File(BaksDevAvitoProductsBundle::PATH.'Resources/tests/PNG.png', true);
 
         /** Файл для записи в тестовой директории */
-        $pngTo = new File($testUploadDir . '/PNG.png', false);
+        $pngTo = new File($testUploadDir.'/PNG.png', false);
 
         /** Копируем файл из пакета для копирования в тестовую директорию */
         $fileSystem->copy($pngFrom->getPathname(), $pngTo->getPathname());
 
-        self::assertTrue(is_file($pngTo->getPathname()), 'Не удалось создать файл в тестовой директории по пути:' . $pngTo->getPathname());
+        self::assertTrue(is_file($pngTo->getPathname()), 'Не удалось создать файл в тестовой директории по пути:'.$pngTo->getPathname());
 
         $editImagePNG->setFile($pngTo);
 
@@ -91,15 +91,15 @@ class AvitoProductImagesEditTest extends KernelTestCase
         $editImageWEBP->setRoot(true);
 
         /** Файл из пакета для копирования в тестовую директорию */
-        $webpFrom = new File(BaksDevAvitoProductsBundle::PATH . 'Resources/tests/WEBP.webp', true);
+        $webpFrom = new File(BaksDevAvitoProductsBundle::PATH.'Resources/tests/WEBP.webp', true);
 
         /** Файл для записи в тестовой директории */
-        $webpTo = new File($testUploadDir . '/WEBP.webp', false);
+        $webpTo = new File($testUploadDir.'/WEBP.webp', false);
 
         /** Копируем файл из пакета для копирования в тестовую директорию */
         $fileSystem->copy($webpFrom->getPathname(), $webpTo->getPathname());
 
-        self::assertTrue(is_file($webpTo->getPathname()), 'Не удалось создать файл в тестовой директории по пути:' . $webpTo->getPathname());
+        self::assertTrue(is_file($webpTo->getPathname()), 'Не удалось создать файл в тестовой директории по пути:'.$webpTo->getPathname());
 
         $editImagePNG->setFile($webpTo);
 

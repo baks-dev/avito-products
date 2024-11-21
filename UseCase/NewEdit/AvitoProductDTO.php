@@ -127,15 +127,15 @@ final class AvitoProductDTO implements AvitoProductInterface
     {
 
         /** Пропускаем, если форма не содержит изображения и изображение изображению не присвоено имя */
-        if (null === $image->getFile() && null === $image->getName())
+        if(null === $image->getFile() && null === $image->getName())
         {
             return;
         }
 
         /** Пропускаем, если форма не содержит изображения, либо изображение уже есть в коллекции */
-        $filter = $this->images->filter(function (AvitoProductImagesDTO $current) use ($image) {
+        $filter = $this->images->filter(function(AvitoProductImagesDTO $current) use ($image) {
 
-            if (null !== $image->getFile())
+            if(null !== $image->getFile())
             {
                 return false;
             }
@@ -143,7 +143,7 @@ final class AvitoProductDTO implements AvitoProductInterface
             return $image->getName() === $current->getName();
         });
 
-        if ($filter->isEmpty())
+        if($filter->isEmpty())
         {
             $this->images->add($image);
         }

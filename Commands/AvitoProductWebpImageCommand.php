@@ -29,7 +29,6 @@ use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Files\Resources\Messenger\Request\Images\CDNUploadImage;
 use BaksDev\Files\Resources\Messenger\Request\Images\CDNUploadImageMessage;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -48,7 +47,8 @@ class AvitoProductWebpImageCommand extends Command
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly MessageDispatchInterface $messageDispatch,
-    ) {
+    )
+    {
         parent::__construct();
     }
 

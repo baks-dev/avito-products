@@ -52,12 +52,12 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
 
     public function product(Product|ProductUid|string $product): self
     {
-        if ($product instanceof Product)
+        if($product instanceof Product)
         {
             $product = $product->getId();
         }
 
-        if (is_string($product))
+        if(is_string($product))
         {
             $product = new ProductUid($product);
         }
@@ -69,17 +69,17 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
 
     public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self
     {
-        if (is_null($offer))
+        if(is_null($offer))
         {
             return $this;
         }
 
-        if ($offer instanceof ProductOffer)
+        if($offer instanceof ProductOffer)
         {
             $offer = $offer->getConst();
         }
 
-        if (is_string($offer))
+        if(is_string($offer))
         {
             $offer = new ProductOfferConst($offer);
         }
@@ -91,17 +91,17 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
 
     public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self
     {
-        if (is_null($variation))
+        if(is_null($variation))
         {
             return $this;
         }
 
-        if ($variation instanceof ProductVariation)
+        if($variation instanceof ProductVariation)
         {
             $variation = $variation->getConst();
         }
 
-        if (is_string($variation))
+        if(is_string($variation))
         {
             $variation = new ProductVariationConst($variation);
         }
@@ -113,17 +113,17 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
 
     public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self
     {
-        if (is_null($modification))
+        if(is_null($modification))
         {
             return $this;
         }
 
-        if ($modification instanceof ProductModification)
+        if($modification instanceof ProductModification)
         {
             $modification = $modification->getConst();
         }
 
-        if (is_string($modification))
+        if(is_string($modification))
         {
             $modification = new ProductModificationConst($modification);
         }
@@ -139,7 +139,7 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
      */
     public function execute(): bool
     {
-        if ($this->product === false)
+        if($this->product === false)
         {
             throw new InvalidArgumentException('Invalid Argument product');
         }
@@ -156,7 +156,7 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
         /**
          * ТОРГОВОЕ ПРЕДЛОЖЕНИЕ
          */
-        if (false !== $this->offer)
+        if(false !== $this->offer)
         {
             $dbal
                 ->join(
@@ -173,7 +173,7 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
             /**
              * ВАРИАНТЫ торгового предложения
              */
-            if (false !== $this->variation)
+            if(false !== $this->variation)
             {
                 $dbal
                     ->join(
@@ -190,7 +190,7 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
                 /**
                  * МОДИФИКАЦИИ множественного варианта
                  */
-                if (false !== $this->modification)
+                if(false !== $this->modification)
                 {
                     $dbal
                         ->join(

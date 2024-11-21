@@ -49,7 +49,7 @@ final readonly class ExistProductForDeleteAvitoProduct
             ->product($message->getId())
             ->execute();
 
-        if (false === $avitoProducts)
+        if(false === $avitoProducts)
         {
             return;
         }
@@ -62,7 +62,7 @@ final readonly class ExistProductForDeleteAvitoProduct
          *     variation: string|null,
          *     modification: string|null } $avitoProduct
          */
-        foreach ($avitoProducts as $avitoProduct)
+        foreach($avitoProducts as $avitoProduct)
         {
             /** Если по данным карточки продукта Авито продукт НЕ НАЙДЕН - удаляем соответствующую карточку Авито и все ее связи */
             $exist = $this->existProductByAvitoProduct
@@ -72,7 +72,7 @@ final readonly class ExistProductForDeleteAvitoProduct
                 ->modificationConst($avitoProduct['modification'])
                 ->execute();
 
-            if (false === $exist)
+            if(false === $exist)
             {
                 $dto = new AvitoProductDeleteDTO();
                 $dto->setId($avitoProduct['id']);

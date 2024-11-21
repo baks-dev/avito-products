@@ -40,13 +40,13 @@ final class AvitoProductDeleteHandler extends AbstractHandler
         $entity = $this->entityManager->getRepository(AvitoProduct::class)
             ->find($command->getId());
 
-        if (is_null($entity))
+        if(is_null($entity))
         {
             return null;
         }
 
         /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid())
+        if($this->validatorCollection->isInvalid())
         {
             return $this->validatorCollection->getErrorUniqid();
         }
