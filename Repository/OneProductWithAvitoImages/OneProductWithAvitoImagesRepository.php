@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,14 +42,11 @@ use BaksDev\Products\Product\Entity\Active\ProductActive;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
-use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Quantity\ProductOfferQuantity;
 use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
-use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Price\ProductModificationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Quantity\ProductModificationQuantity;
-use BaksDev\Products\Product\Entity\Offers\Variation\Price\ProductVariationPrice;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Offers\Variation\Quantity\ProductVariationQuantity;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
@@ -202,16 +199,13 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             );
 
         /* Базовая Цена товара */
-        $dbal->leftJoin(
-            'product',
-            ProductPrice::class,
-            'product_price',
-            'product_price.event = product.event'
-        )
-            ->addGroupBy('product_price.price')
-            ->addGroupBy('product_price.currency')
-            ->addGroupBy('product_price.quantity')
-            ->addGroupBy('product_price.reserve');
+        $dbal
+            ->leftJoin(
+                'product',
+                ProductPrice::class,
+                'product_price',
+                'product_price.event = product.event'
+            );
 
         /* Базовый артикул продукта */
         $dbal
@@ -221,12 +215,18 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                 ProductInfo::class,
                 'product_info',
                 'product_info.product = product.id '
-            )
-            ->addGroupBy('product_info.article');
+            );
 
         /**
          * Торговое предложение
          */
+
+        $dbal
+            ->addSelect('product_offer.id as product_offer_uid')
+            ->addSelect('product_offer.const as product_offer_const')
+            ->addSelect('product_offer.value as product_offer_value')
+            ->addSelect('product_offer.postfix as product_offer_postfix');
+
         if(false !== $this->offer)
         {
             $dbal
@@ -250,24 +250,6 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                     'product_offer.event = product.event'
                 );
         }
-
-        $dbal
-            ->addSelect('product_offer.id as product_offer_uid')
-            ->addSelect('product_offer.const as product_offer_const')
-            ->addSelect('product_offer.value as product_offer_value')
-            ->addSelect('product_offer.postfix as product_offer_postfix')
-            ->addGroupBy('product_offer.article');
-
-        /* Цена торгового предположения */
-        $dbal
-            ->leftJoin(
-                'product_offer',
-                ProductOfferPrice::class,
-                'product_offer_price',
-                'product_offer_price.offer = product_offer.id'
-            )
-            ->addGroupBy('product_offer_price.price')
-            ->addGroupBy('product_offer_price.currency');
 
         /* Получаем тип торгового предложения */
         $dbal
@@ -297,23 +279,27 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                 ProductOfferQuantity::class,
                 'product_offer_quantity',
                 'product_offer_quantity.offer = product_offer.id'
-            )
-            ->addGroupBy('product_offer_quantity.quantity')
-            ->addGroupBy('product_offer_quantity.reserve');
+            );
 
         /**
          * Множественные варианты торгового предложения
          */
+        $dbal
+            ->addSelect('product_variation.id as product_variation_uid')
+            ->addSelect('product_variation.const as product_variation_const')
+            ->addSelect('product_variation.value as product_variation_value')
+            ->addSelect('product_variation.postfix as product_variation_postfix');
+
         if(false !== $this->variation)
         {
             $dbal
                 ->join(
                     'product_offer',
                     ProductVariation::class,
-                    'product_offer_variation',
+                    'product_variation',
                     '
-                        product_offer_variation.offer = product_offer.id AND 
-                        product_offer_variation.const = :product_variation_const'
+                        product_variation.offer = product_offer.id AND 
+                        product_variation.const = :product_variation_const'
                 )
                 ->setParameter('product_variation_const', $this->variation, ProductVariationConst::TYPE);
         }
@@ -323,37 +309,20 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                 ->leftJoin(
                     'product_offer',
                     ProductVariation::class,
-                    'product_offer_variation',
-                    'product_offer_variation.offer = product_offer.id'
+                    'product_variation',
+                    'product_variation.offer = product_offer.id'
                 );
         }
 
-        $dbal
-            ->addSelect('product_offer_variation.id as product_variation_uid')
-            ->addSelect('product_offer_variation.const as product_variation_const')
-            ->addSelect('product_offer_variation.value as product_variation_value')
-            ->addSelect('product_offer_variation.postfix as product_variation_postfix')
-            ->addGroupBy('product_offer_variation.article');
-
-        /* Цена множественного варианта */
-        $dbal
-            ->leftJoin(
-                'product_offer_variation',
-                ProductVariationPrice::class,
-                'product_variation_price',
-                'product_variation_price.variation = product_offer_variation.id'
-            )
-            ->addGroupBy('product_variation_price.price')
-            ->addGroupBy('product_variation_price.currency');
 
         /* Получаем тип множественного варианта */
         $dbal
             ->addSelect('category_offer_variation.reference as product_variation_reference')
             ->leftJoin(
-                'product_offer_variation',
+                'product_variation',
                 CategoryProductVariation::class,
                 'category_offer_variation',
-                'category_offer_variation.id = product_offer_variation.category_variation'
+                'category_offer_variation.id = product_variation.category_variation'
             );
 
         /* Получаем название множественного варианта */
@@ -373,24 +342,29 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
                 'category_offer_variation',
                 ProductVariationQuantity::class,
                 'product_variation_quantity',
-                'product_variation_quantity.variation = product_offer_variation.id'
-            )
-            ->addGroupBy('product_variation_quantity.quantity')
-            ->addGroupBy('product_variation_quantity.reserve');
+                'product_variation_quantity.variation = product_variation.id'
+            );
 
         /**
          * Модификация множественного варианта торгового предложения
          */
+
+        $dbal
+            ->addSelect('product_modification.id as product_modification_uid')
+            ->addSelect('product_modification.const as product_modification_conts')
+            ->addSelect('product_modification.value as product_modification_value')
+            ->addSelect('product_modification.postfix as product_modification_postfix');
+
         if(false !== $this->modification)
         {
             $dbal
                 ->join(
-                    'product_offer_variation',
+                    'product_variation',
                     ProductModification::class,
-                    'product_offer_modification',
+                    'product_modification',
                     '   
-                        product_offer_modification.variation = product_offer_variation.id AND 
-                        product_offer_modification.const = :product_modification_const'
+                        product_modification.variation = product_variation.id AND 
+                        product_modification.const = :product_modification_const'
                 )
                 ->setParameter('product_modification_const', $this->modification, ProductModificationConst::TYPE);
         }
@@ -398,38 +372,22 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         {
             $dbal
                 ->leftJoin(
-                    'product_offer_variation',
+                    'product_variation',
                     ProductModification::class,
-                    'product_offer_modification',
-                    'product_offer_modification.variation = product_offer_variation.id'
+                    'product_modification',
+                    'product_modification.variation = product_variation.id'
                 );
         }
 
-        $dbal
-            ->addSelect('product_offer_modification.id as product_modification_uid')
-            ->addSelect('product_offer_modification.const as product_modification_conts')
-            ->addSelect('product_offer_modification.value as product_modification_value')
-            ->addSelect('product_offer_modification.postfix as product_modification_postfix')
-            ->addGroupBy('product_offer_modification.article');
-
-        /* Цена модификации множественного варианта */
-        $dbal->leftJoin(
-            'product_offer_modification',
-            ProductModificationPrice::class,
-            'product_modification_price',
-            'product_modification_price.modification = product_offer_modification.id'
-        )
-            ->addGroupBy('product_modification_price.price')
-            ->addGroupBy('product_modification_price.currency');
 
         /* Получаем тип модификации множественного варианта */
         $dbal
             ->addSelect('category_offer_modification.reference as product_modification_reference')
             ->leftJoin(
-                'product_offer_modification',
+                'product_modification',
                 CategoryProductModification::class,
                 'category_offer_modification',
-                'category_offer_modification.id = product_offer_modification.category_modification'
+                'category_offer_modification.id = product_modification.category_modification'
             );
 
         /* Получаем название типа модификации */
@@ -444,72 +402,57 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
             );
 
         /* Наличие и резерв модификации множественного варианта */
-        $dbal->leftJoin(
-            'category_offer_modification',
-            ProductModificationQuantity::class,
-            'product_modification_quantity',
-            'product_modification_quantity.modification = product_offer_modification.id'
-        )
-            ->addGroupBy('product_modification_quantity.quantity')
-            ->addGroupBy('product_modification_quantity.reserve');
+        $dbal
+            ->leftJoin(
+                'category_offer_modification',
+                ProductModificationQuantity::class,
+                'product_modification_quantity',
+                'product_modification_quantity.modification = product_modification.id'
+            );
+
 
         /* Артикул продукта */
-        $dbal->addSelect(
-            '
-			CASE
-			   WHEN product_offer_modification.article IS NOT NULL 
-			   THEN product_offer_modification.article
-			   
-			   WHEN product_offer_variation.article IS NOT NULL 
-			   THEN product_offer_variation.article
-			   
-			   WHEN product_offer.article IS NOT NULL 
-			   THEN product_offer.article
-			   
-			   WHEN product_info.article IS NOT NULL 
-			   THEN product_info.article
-			   
-			   ELSE NULL
-			END AS product_article
-		'
-        );
+        $dbal
+            ->addSelect('
+                COALESCE(
+                    product_modification.article,
+                    product_variation.article,
+                    product_offer.article,
+                    product_info.article
+                ) AS product_article
+        ');
+
 
         /* Фото продукта */
-        $dbal->leftJoin(
-            'product',
-            ProductPhoto::class,
-            'product_photo',
-            'product_photo.event = product.event AND product_photo.root = true'
-        );
+        $dbal
+            ->leftJoin(
+                'product',
+                ProductPhoto::class,
+                'product_photo',
+                'product_photo.event = product.event AND product_photo.root = true'
+            );
 
-        $dbal->leftJoin(
-            'product_offer',
-            ProductVariationImage::class,
-            'product_offer_variation_image',
-            'product_offer_variation_image.variation = product_offer_variation.id AND product_offer_variation_image.root = true'
-        )
-            ->addGroupBy('product_offer_variation_image.name')
-            ->addGroupBy('product_offer_variation_image.ext')
-            ->addGroupBy('product_offer_variation_image.cdn')
-            ->addGroupBy('product_offer_images.name')
-            ->addGroupBy('product_offer_images.ext')
-            ->addGroupBy('product_offer_images.cdn')
-            ->addGroupBy('product_photo.name')
-            ->addGroupBy('product_photo.ext')
-            ->addGroupBy('product_photo.cdn');
+        $dbal
+            ->leftJoin(
+                'product_offer',
+                ProductVariationImage::class,
+                'product_variation_image',
+                'product_variation_image.variation = product_variation.id AND product_variation_image.root = true'
+            );
 
-        $dbal->leftJoin(
-            'product_offer',
-            ProductOfferImage::class,
-            'product_offer_images',
-            'product_offer_images.offer = product_offer.id AND product_offer_images.root = true'
-        );
+        $dbal
+            ->leftJoin(
+                'product_offer',
+                ProductOfferImage::class,
+                'product_offer_images',
+                'product_offer_images.offer = product_offer.id AND product_offer_images.root = true'
+            );
 
         $dbal->addSelect(
             "
 			CASE
-			   WHEN product_offer_variation_image.name IS NOT NULL 
-			   THEN CONCAT ( '/upload/".$dbal->table(ProductVariationImage::class)."' , '/', product_offer_variation_image.name)
+			   WHEN product_variation_image.name IS NOT NULL 
+			   THEN CONCAT ( '/upload/".$dbal->table(ProductVariationImage::class)."' , '/', product_variation_image.name)
 					
 			   WHEN product_offer_images.name IS NOT NULL 
 			   THEN CONCAT ( '/upload/".$dbal->table(ProductOfferImage::class)."' , '/', product_offer_images.name)
@@ -525,8 +468,8 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         /** Расширение изображения */
         $dbal->addSelect('
 			CASE
-			   WHEN product_offer_variation_image.name IS NOT NULL 
-			   THEN product_offer_variation_image.ext
+			   WHEN product_variation_image.name IS NOT NULL 
+			   THEN product_variation_image.ext
 					
 			   WHEN product_offer_images.name IS NOT NULL 
 			   THEN product_offer_images.ext
@@ -541,8 +484,8 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         /** Флаг загрузки файла CDN */
         $dbal->addSelect('
 			CASE
-			   WHEN product_offer_variation_image.name IS NOT NULL 
-			   THEN product_offer_variation_image.cdn
+			   WHEN product_variation_image.name IS NOT NULL 
+			   THEN product_variation_image.cdn
 					
 			   WHEN product_offer_images.name IS NOT NULL 
 			   THEN product_offer_images.cdn
@@ -662,12 +605,11 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
 
         $dbal->addSelect(
             '
-                CASE
-                    WHEN product_offer_modification.id IS NOT NULL THEN product_offer_modification.id
-                    WHEN product_offer_variation.const IS NOT NULL THEN product_offer_variation.const
-                    WHEN product_offer.const IS NOT NULL THEN product_offer.const
-                    ELSE NULL
-                END AS avito_product_const'
+                COALESCE(
+                    product_modification.const,
+                    product_variation.const,
+                    product_offer.const
+                ) AS avito_product_const'
         );
 
         $dbal->allGroupByExclude();

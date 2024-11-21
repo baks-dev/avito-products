@@ -19,7 +19,6 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 declare(strict_types=1);
@@ -173,13 +172,12 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
             );
 
         /** Основной артикул товара */
-        $dbal
-            ->join(
-                'product',
-                ProductInfo::class,
-                'product_info',
-                'product_info.product = product.id',
-            );
+        $dbal->join(
+            'product',
+            ProductInfo::class,
+            'product_info',
+            'product_info.product = product.id',
+        );
 
         /** Offer */
         if($this->offerConst instanceof ProductOfferConst)
@@ -192,7 +190,12 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                     '
                         product_offer.event = product.event AND
                         product_offer.const = :offerConst',
-                )->setParameter('offerConst', $this->offerConst, ProductOfferConst::TYPE);
+                )
+                ->setParameter(
+                    'offerConst',
+                    $this->offerConst,
+                    ProductOfferConst::TYPE
+                );
         }
         else
         {
@@ -217,7 +220,11 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                             product_variation.offer = product_offer.id AND
                             product_variation.const = :variationConst',
                 )
-                ->setParameter('variationConst', $this->variationConst, ProductVariationConst::TYPE);
+                ->setParameter(
+                    'variationConst',
+                    $this->variationConst,
+                    ProductVariationConst::TYPE
+                );
         }
         else
         {
@@ -242,7 +249,11 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                         product_modification.variation = product_variation.id AND 
                         product_modification.const = :modificationConst',
                 )
-                ->setParameter('modificationConst', $this->modificationConst, ProductModificationConst::TYPE);
+                ->setParameter(
+                    'modificationConst',
+                    $this->modificationConst,
+                    ProductModificationConst::TYPE
+                );
         }
         else
         {
@@ -258,12 +269,13 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
         /**
          * Базовая Цена товара
          */
-        $dbal->leftJoin(
-            'product',
-            ProductPrice::class,
-            'product_price',
-            'product_price.event = product.event'
-        )
+        $dbal
+            ->leftJoin(
+                'product',
+                ProductPrice::class,
+                'product_price',
+                'product_price.event = product.event'
+            )
             ->addGroupBy('product_price.reserve');
 
         /**
@@ -300,29 +312,32 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
          * Наличие продукта
          */
         /** Наличие и резерв торгового предложения */
-        $dbal->leftJoin(
-            'product_offer',
-            ProductOfferQuantity::class,
-            'product_offer_quantity',
-            'product_offer_quantity.offer = product_offer.id'
-        )
+        $dbal
+            ->leftJoin(
+                'product_offer',
+                ProductOfferQuantity::class,
+                'product_offer_quantity',
+                'product_offer_quantity.offer = product_offer.id'
+            )
             ->addGroupBy('product_offer_quantity.reserve');
 
         /** Наличие и резерв множественного варианта */
-        $dbal->leftJoin(
-            'product_variation',
-            ProductVariationQuantity::class,
-            'product_variation_quantity',
-            'product_variation_quantity.variation = product_variation.id'
-        )
+        $dbal
+            ->leftJoin(
+                'product_variation',
+                ProductVariationQuantity::class,
+                'product_variation_quantity',
+                'product_variation_quantity.variation = product_variation.id'
+            )
             ->addGroupBy('product_variation_quantity.reserve');
 
-        $dbal->leftJoin(
-            'product_modification',
-            ProductModificationQuantity::class,
-            'product_modification_quantity',
-            'product_modification_quantity.modification = product_modification.id'
-        )
+        $dbal
+            ->leftJoin(
+                'product_modification',
+                ProductModificationQuantity::class,
+                'product_modification_quantity',
+                'product_modification_quantity.modification = product_modification.id'
+            )
             ->addGroupBy('product_modification_quantity.reserve');
 
         $dbal->addSelect(
@@ -347,24 +362,15 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
         /**
          * Артикул продукта
          */
-        $dbal->addSelect(
-            "
-					CASE
-					   WHEN product_modification.article IS NOT NULL 
-					   THEN product_modification.article
-					   
-					   WHEN product_variation.article IS NOT NULL 
-					   THEN product_variation.article
-					   
-					   WHEN product_offer.article IS NOT NULL 
-					   THEN product_offer.article
-					   
-					   WHEN product_info.article IS NOT NULL 
-					   THEN product_info.article
-					   
-					   ELSE NULL
-					END AS product_article"
-        );
+        $dbal->addSelect('
+                COALESCE(
+                    product_modification.article,
+                    product_variation.article,
+                    product_offer.article,
+                    product_info.article
+                ) AS product_article
+            ');
+
 
         $dbal->allGroupByExclude();
 

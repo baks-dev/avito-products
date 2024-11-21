@@ -23,9 +23,9 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Messenger\GetCreatedOrderForUpdateAvitoProductStock;
+namespace BaksDev\Avito\Products\Messenger\Orders;
 
-use BaksDev\Avito\Products\Messenger\UpdateAvitoProductStock\UpdateAvitoProductStockMessage;
+use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
 use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllUserProfilesByActiveTokenInterface;
 use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
@@ -37,7 +37,7 @@ use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductI
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class GetCreatedOrderForUpdateAvitoProductStockHandler
+final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
 {
     public function __construct(
         private MessageDispatchInterface $messageDispatch,
@@ -47,7 +47,7 @@ final readonly class GetCreatedOrderForUpdateAvitoProductStockHandler
     ) {}
 
     /**
-     * При поступлении нового заказа и изменении остатков на товар - обновляем остатки товара в объявлении на Авито
+     * При изменении статуса заказа - обновляем остатки товара в объявлении на Авито
      */
     public function __invoke(OrderMessage $message): void
     {

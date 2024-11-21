@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Messenger\UpdateAvitoProductStock;
+namespace BaksDev\Avito\Products\Messenger\ProductStocks;
 
 use BaksDev\Avito\Board\Api\GetIdByArticleRequest;
 use BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\UpdateAvitoProductStockRequest;

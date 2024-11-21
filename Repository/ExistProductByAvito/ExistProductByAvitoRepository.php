@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -153,59 +153,70 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
             ->where('product.id = :product')
             ->setParameter('product', $this->product, ProductUid::TYPE);
 
-        /**
-         * ТОРГОВОЕ ПРЕДЛОЖЕНИЕ
-         */
-        if(false !== $this->offer)
+
+        if(false === $this->offer)
         {
-            $dbal
-                ->join(
-                    'product',
-                    ProductOffer::class,
-                    'product_offer',
-                    '
+            return $dbal->fetchExist();
+        }
+
+        /**
+         * ТОРГОВОЕ предложение
+         */
+        $dbal
+            ->join(
+                'product',
+                ProductOffer::class,
+                'product_offer',
+                '
                         product_offer.event = product.event AND
                         product_offer.const = :offer'
-                );
+            );
 
-            $dbal->setParameter('offer', $this->offer, ProductOfferConst::TYPE);
+        $dbal->setParameter('offer', $this->offer, ProductOfferConst::TYPE);
 
-            /**
-             * ВАРИАНТЫ торгового предложения
-             */
-            if(false !== $this->variation)
-            {
-                $dbal
-                    ->join(
-                        'product_offer',
-                        ProductVariation::class,
-                        'product_variation',
-                        '
+
+        if(false === $this->variation)
+        {
+            return $dbal->fetchExist();
+        }
+
+        /**
+         * ВАРИАНТЫ торгового предложения
+         */
+
+        $dbal
+            ->join(
+                'product_offer',
+                ProductVariation::class,
+                'product_variation',
+                '
                             product_variation.offer = product_offer.id AND
                             product_variation.const = :variation'
-                    );
+            );
 
-                $dbal->setParameter('variation', $this->variation, ProductVariationConst::TYPE);
+        $dbal->setParameter('variation', $this->variation, ProductVariationConst::TYPE);
 
-                /**
-                 * МОДИФИКАЦИИ множественного варианта
-                 */
-                if(false !== $this->modification)
-                {
-                    $dbal
-                        ->join(
-                            'product_variation',
-                            ProductModification::class,
-                            'product_modification',
-                            '
+
+        if(false === $this->modification)
+        {
+            return $dbal->fetchExist();
+        }
+
+
+        /**
+         * МОДИФИКАЦИИ множественного варианта торгового предложения
+         */
+        $dbal
+            ->join(
+                'product_variation',
+                ProductModification::class,
+                'product_modification',
+                '
                                 product_modification.variation = product_variation.id AND
                                 product_modification.const = :modification                        '
-                        );
+            );
 
-                    $dbal->setParameter('modification', $this->modification, ProductModificationConst::TYPE);
-                }
-            }
-        }
+        $dbal->setParameter('modification', $this->modification, ProductModificationConst::TYPE);
 
         return $dbal->fetchExist();
     }
