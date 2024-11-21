@@ -24,7 +24,7 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Avito\Products\BaksDevAvitoProductsBundle;
-use BaksDev\Avito\Products\Type\AvitoProductType;
+use BaksDev\Avito\Products\Type\Id\AvitoProductType;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageType;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
