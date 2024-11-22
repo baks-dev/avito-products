@@ -19,12 +19,12 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
- *
  */
 
 namespace BaksDev\Avito\Products\Commands;
 
-use BaksDev\Avito\Products\Messenger\UpdateAvitoProductStock\UpdateAvitoProductStockMessage;
+
+use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
 use BaksDev\Avito\Products\Repository\AllProductsIdentifierByAvitoMapper\AllProductsWithAvitoMapperInterface;
 use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllUserProfilesByActiveTokenInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
