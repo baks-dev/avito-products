@@ -152,7 +152,7 @@ class UpdateAvitoProductStocksCommand extends Command
                 $product['product_modification_const']);
 
             $this->messageDispatch->dispatch($updateAvitoProductStockMessage);
-            $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $avitoProducts['article']));
+            $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $product['product_article']));
         }
     }
 }

@@ -60,7 +60,7 @@ final readonly class UpdateAvitoProductStockHandler
             ->forOfferConst($message->getOfferConst())
             ->forVariationConst($message->getVariationConst())
             ->forModificationConst($message->getModificationConst())
-            ->findAll();
+            ->find();
 
         $article = $product['product_article'];
 
@@ -80,7 +80,7 @@ final readonly class UpdateAvitoProductStockHandler
         }
 
         /** Задержка перед выполнением запроса на обновление остатков - максимальное количество запросов в минуту: 500 */
-        usleep(100000);
+        usleep(500000);
 
         $updateStock = $this->updateAvitoProductStockRequest
             ->profile($message->getProfile())

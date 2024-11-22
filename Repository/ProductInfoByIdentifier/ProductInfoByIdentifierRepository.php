@@ -144,7 +144,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
      *     'product_article': string
      * }| false
      */
-    public function findAll(): array|false
+    public function find(): array|false
     {
         if($this->product === false)
         {
@@ -378,7 +378,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
         //        dd($dbal->fetchAllAssociative());
         //        dd($dbal->analyze());
 
-        $result = $dbal->fetchAllAssociative();
+        $result = $dbal->fetchAssociative();
 
         return empty($result) ? false : $result;
     }

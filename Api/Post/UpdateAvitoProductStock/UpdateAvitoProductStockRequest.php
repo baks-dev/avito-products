@@ -32,6 +32,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 #[Autoconfigure(public: true)]
 final class UpdateAvitoProductStockRequest extends AvitoApi
 {
+    private const bool STOP_SALES = false;
+
     private int|false $itemId = false;
 
     private int|false $quantity = false;
@@ -79,7 +81,7 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         /** Обрываем в тестовой среде */
         if(false === $this->isExecuteEnvironment())
         {
-            return true;
+            //return true;
         }
 
         if(false === $this->itemId)
@@ -103,11 +105,11 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
                 '/stock-management/1/stocks',
                 [
                     "json" => [
-                        "stocks" => [
+                        "stocks" => [[
                             'external_id' => $this->externalId,
                             'item_id' => $this->itemId,
-                            'quantity' => $this->quantity,
-                        ]
+                            'quantity' => self::STOP_SALES === true ? 0 : max($this->quantity, 0),
+                        ]]
                     ]
                 ],
             );
@@ -126,11 +128,23 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
             return false;
         }
 
-        if(false === $result['stock']['success'])
+        if(false === isset($result['stocks']))
         {
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
-                [__FILE__.':'.__LINE__]
+                [__FILE__.':'.__LINE__, $result]
+            );
+
+            return false;
+        }
+
+        $stocks = current($result['stocks']);
+
+        if(false === $stocks['success'])
+        {
+            $this->logger->critical(
+                sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
+                [__FILE__.':'.__LINE__, $result]
             );
 
             return false;
