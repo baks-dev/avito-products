@@ -28,7 +28,6 @@ namespace BaksDev\Avito\Products\Messenger\ProductStocks;
 use BaksDev\Avito\Board\Api\GetIdByArticleRequest;
 use BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\UpdateAvitoProductStockRequest;
 use BaksDev\Avito\Products\Repository\ProductInfoByIdentifier\ProductInfoByIdentifierInterface;
-use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -62,6 +61,12 @@ final readonly class UpdateAvitoProductStockHandler
             ->forModificationConst($message->getModificationConst())
             ->find();
 
+        /** Не обновляем остатки продукции без цены */
+        if(empty($product['product_price']))
+        {
+            return;
+        }
+
         $article = $product['product_article'];
 
         /** Получаем идентификатор объявления по артикулу */
@@ -89,19 +94,27 @@ final readonly class UpdateAvitoProductStockHandler
             ->quantity($product['product_quantity'])
             ->put();
 
-        /** Если код ошибки не 200 - выполняем отложенный запрос по времени */
-        if(false === $updateStock)
+        if(false !== $updateStock)
         {
-            $this->logger->critical(
-                sprintf('avito-products: Не удалось обновить остатки товара с артикулом %s', $article),
+            $this->logger->info(
+                sprintf('%s: Обновили остаток товара => %s', $article, $product['product_quantity']),
                 [__FILE__.':'.__LINE__]
             );
 
-            $this->messageDispatch->dispatch(
-                message: $message,
-                stamps: [new MessageDelay('1 minutes')], // повторение через 1 минуту
-                transport: 'avito-products'
-            );
+            return;
         }
+
+
+        $this->logger->critical(
+            sprintf('avito-products: Не удалось обновить остатки товара с артикулом %s', $article),
+            [__FILE__.':'.__LINE__]
+        );
+
+        /*$this->messageDispatch->dispatch(
+            message: $message,
+            stamps: [new MessageDelay('1 minutes')], // повторение через 1 минуту
+            transport: 'avito-products'
+        );*/
+
     }
 }

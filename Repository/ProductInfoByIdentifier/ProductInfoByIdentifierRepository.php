@@ -266,6 +266,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 );
         }
 
+
         /**
          * Базовая Цена товара
          */
@@ -308,9 +309,26 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
             'product_modification_price.modification = product_modification.id'
         );
 
+
+        /* Стоимость продукта */
+
+        $dbal->addSelect('
+			COALESCE(
+                NULLIF(product_modification_price.price, 0), 
+                NULLIF(product_variation_price.price, 0), 
+                NULLIF(product_offer_price.price, 0), 
+                NULLIF(product_price.price, 0),
+                0
+            ) AS product_price
+		');
+
+
+
         /**
          * Наличие продукта
          */
+
+
         /** Наличие и резерв торгового предложения */
         $dbal
             ->leftJoin(

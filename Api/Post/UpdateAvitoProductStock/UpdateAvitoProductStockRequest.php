@@ -81,7 +81,7 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         /** Обрываем в тестовой среде */
         if(false === $this->isExecuteEnvironment())
         {
-            //return true;
+            return true;
         }
 
         if(false === $this->itemId)
