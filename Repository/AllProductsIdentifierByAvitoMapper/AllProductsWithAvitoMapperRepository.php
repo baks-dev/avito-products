@@ -55,6 +55,7 @@ use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
+use Generator;
 use InvalidArgumentException;
 
 final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvitoMapperInterface
@@ -95,7 +96,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
     /**
      * Метод получает продукт для которого есть маппер Авито
      *
-     * @return \Generator<int, array{
+     * @return Generator<int, array{
      *      id: string,
      *      event: string,
      *      product_offer_const: string,
@@ -109,7 +110,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
      *      product_quantity: int
      *  }>| false
      */
-    public function findAll(): \Generator|false
+    public function findAll(): Generator|false
     {
         if($this->profile === false)
         {
@@ -222,24 +223,14 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
         /**
          * Артикул продукта
          */
-        $dbal->addSelect(
-            "
-					CASE
-					   WHEN product_modification.article IS NOT NULL
-					   THEN product_modification.article
-					   
-					   WHEN product_variation.article IS NOT NULL
-					   THEN product_variation.article
-					   
-					   WHEN product_offer.article IS NOT NULL
-					   THEN product_offer.article
-					   
-					   WHEN product_info.article IS NOT NULL
-					   THEN product_info.article
-					   
-					   ELSE NULL
-					END AS product_article"
-        );
+        $dbal->addSelect('
+            COALESCE(
+                product_modification.article, 
+                product_variation.article, 
+                product_offer.article, 
+                product_info.article
+            ) AS product_article
+		');
 
         /**
          * Категория

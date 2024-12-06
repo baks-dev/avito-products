@@ -39,8 +39,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /** Обновляет остатки продукции в объявлениях на Avito */
 #[AsCommand(
-    name: 'baks:avito-products:stocks:update',
-    description: 'Обновляет остатки продукции в объявлениях на Avito'
+    name: 'baks:avito-products:update:stocks',
+    description: 'Обновляет остатки продукции в объявлениях на Avito',
+    aliases: ['baks:avito:update:stocks']
 )]
 class UpdateAvitoProductStocksCommand extends Command
 {
