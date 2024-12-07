@@ -556,7 +556,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article');
 
-            dd($dbal->fetchAllAssociative());
         }
 
         return $this->paginator->fetchAllAssociative($dbal);
