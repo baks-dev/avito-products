@@ -333,7 +333,21 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 			END AS product_price'
         );
 
+        /* Предыдущая стоимость продукта */
+
+        $dbal->addSelect("
+			COALESCE(
+                NULLIF(product_modification_price.old, 0),
+                NULLIF(product_variation_price.old, 0),
+                NULLIF(product_offer_price.old, 0),
+                NULLIF(product_price.old, 0),
+                0
+            ) AS product_old_price
+		");
+
+
         /** Наличие продукта */
+
         /**
          * Наличие и резерв торгового предложения
          */
