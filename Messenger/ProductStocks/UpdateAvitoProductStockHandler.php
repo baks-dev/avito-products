@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,25 +28,20 @@ namespace BaksDev\Avito\Products\Messenger\ProductStocks;
 use BaksDev\Avito\Board\Api\GetIdByArticleRequest;
 use BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\UpdateAvitoProductStockRequest;
 use BaksDev\Avito\Products\Repository\ProductInfoByIdentifier\ProductInfoByIdentifierInterface;
-use BaksDev\Core\Messenger\MessageDispatchInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 final readonly class UpdateAvitoProductStockHandler
 {
-    private LoggerInterface $logger;
 
     public function __construct(
-        LoggerInterface $avitoProductsLogger,
-        private MessageDispatchInterface $messageDispatch,
+        #[Target('avitoProductsLogger')] private LoggerInterface $logger,
         private ProductInfoByIdentifierInterface $productInfoByIdentifier,
         private GetIdByArticleRequest $getIdByArticleRequest,
-        private UpdateAvitoProductStockRequest $updateAvitoProductStockRequest
-    )
-    {
-        $this->logger = $avitoProductsLogger;
-    }
+        private UpdateAvitoProductStockRequest $updateAvitoProductStockRequest,
+    ) {}
 
     /**
      * Метод отправляет запрос Avito API на обновление остатков у объявления
