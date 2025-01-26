@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,11 @@ interface ProductInfoByIdentifierInterface
 {
     public function forProduct(Product|ProductUid|string $product): self;
 
-    public function forOfferConst(ProductOfferConst|string|null $offerConst): self;
+    public function forOfferConst(ProductOfferConst|string|null|false $offerConst): self;
 
-    public function forVariationConst(ProductVariationConst|string|null $variationConst): self;
+    public function forVariationConst(ProductVariationConst|string|null|false $variationConst): self;
 
-    public function forModificationConst(ProductModificationConst|string|null $modificationConst): self;
+    public function forModificationConst(ProductModificationConst|string|null|false $modificationConst): self;
 
     /**
      * Метод возвращает информацию о продукте по его уникальным идентификаторам:

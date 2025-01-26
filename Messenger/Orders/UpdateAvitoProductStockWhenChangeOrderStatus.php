@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,9 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
+use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -93,9 +96,10 @@ final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
                 $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
                     $profile,
                     $productIdentifier['id'],
-                    $productIdentifier['offer_const'],
-                    $productIdentifier['variation_const'],
-                    $productIdentifier['modification_const']);
+                    isset($productIdentifier['offer_const']) ? new ProductOfferConst($productIdentifier['offer_const']) : false,
+                    isset($productIdentifier['variation_const']) ? new ProductVariationConst($productIdentifier['variation_const']) : false,
+                    isset($productIdentifier['modification_const']) ? new ProductModificationConst($productIdentifier['modification_const']) : false
+                );
 
                 $this->messageDispatch->dispatch(
                     message: $updateAvitoProductStockMessage,
