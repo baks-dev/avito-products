@@ -81,24 +81,24 @@ final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
             foreach($editOrderDTO->getProduct() as $product)
             {
                 /** Получаем идентификаторы продуктов, на которые поступил заказ  */
-                $productIdentifier = $this->currentProductIdentifier
+                $CurrentProductIdentifier = $this->currentProductIdentifier
                     ->forEvent($product->getProduct())
                     ->forOffer($product->getOffer())
                     ->forVariation($product->getVariation())
                     ->forModification($product->getModification())
                     ->find();
 
-                if($productIdentifier === false)
+                if($CurrentProductIdentifier === false)
                 {
                     continue;
                 }
 
                 $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
                     $profile,
-                    $productIdentifier['id'],
-                    isset($productIdentifier['offer_const']) ? new ProductOfferConst($productIdentifier['offer_const']) : false,
-                    isset($productIdentifier['variation_const']) ? new ProductVariationConst($productIdentifier['variation_const']) : false,
-                    isset($productIdentifier['modification_const']) ? new ProductModificationConst($productIdentifier['modification_const']) : false
+                    $CurrentProductIdentifier->getProduct(),
+                    $CurrentProductIdentifier->getOfferConst(),
+                    $CurrentProductIdentifier->getVariationConst(),
+                    $CurrentProductIdentifier->getModificationConst(),
                 );
 
                 $this->messageDispatch->dispatch(
