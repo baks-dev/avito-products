@@ -65,7 +65,7 @@ final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
         /** Получаем активное событие заказа */
         $orderEvent = $this->currentOrderEvent
             ->forOrder($message->getId())
-            ->execute();
+            ->find();
 
         if($orderEvent === false)
         {
