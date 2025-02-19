@@ -39,8 +39,11 @@ use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
-final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
+/**
+ * Обновляем остатки Авито при изменении статусов заказов
+ */
+#[AsMessageHandler(priority: 90)]
+final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
 {
     public function __construct(
         private MessageDispatchInterface $messageDispatch,
@@ -49,9 +52,7 @@ final readonly class UpdateAvitoProductStockWhenChangeOrderStatus
         private CurrentProductIdentifierInterface $currentProductIdentifier,
     ) {}
 
-    /**
-     * При изменении статуса заказа - обновляем остатки товара в объявлении на Авито
-     */
+
     public function __invoke(OrderMessage $message): void
     {
         /** Получаем все активные профили, у которых активный токен Авито */
