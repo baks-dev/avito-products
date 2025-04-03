@@ -34,6 +34,7 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
@@ -89,7 +90,7 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                     ->forModification($product->getModification())
                     ->find();
 
-                if($CurrentProductIdentifier === false)
+                if(false === ($CurrentProductIdentifier instanceof CurrentProductIdentifierResult))
                 {
                     continue;
                 }
