@@ -161,7 +161,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
     /**
      * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
      */
-    public function execute(): array|bool
+    public function find(): array|bool
     {
 
         if($this->product === false)

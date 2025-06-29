@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
@@ -76,10 +77,15 @@ class AvitoProduct extends EntityState
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /** Идентификатор профиля */
+    #[ORM\OneToOne(targetEntity: AvitoProductProfile::class, mappedBy: 'avito', cascade: ['all'])]
+    private AvitoProductProfile $profile;
+
     public function __construct()
     {
         $this->id = new AvitoProductUid();
         $this->images = new ArrayCollection();
+        $this->profile = new AvitoProductProfile($this);
     }
 
     public function __toString(): string

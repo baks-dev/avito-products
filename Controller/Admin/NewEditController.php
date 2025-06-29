@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Controller\Admin;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Repository\AvitoProductProfile\AvitoProductProfileInterface;
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductForm;
@@ -39,6 +40,7 @@ use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -48,6 +50,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_EDIT')]
 final class NewEditController extends AbstractController
 {
+    /**
+     * @throws JsonException
+     */
     #[Route(
         '/admin/avito/product/{product}/{offer}/{variation}/{modification}',
         name: 'admin.products.edit',
@@ -55,52 +60,54 @@ final class NewEditController extends AbstractController
     )]
     public function index(
         Request $request,
-        EntityManagerInterface $entityManager,
+        AvitoProductProfileInterface $AvitoProductProfileInterface,
         AvitoProductHandler $handler,
         OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         #[ParamConverter(ProductUid::class)] $product,
-        #[ParamConverter(ProductOfferConst::class)] $offer,
-        #[ParamConverter(ProductVariationConst::class)] $variation = null,
-        #[ParamConverter(ProductModificationConst::class)] $modification = null,
+        #[ParamConverter(ProductOfferConst::class)] ?ProductOfferConst $offer = null,
+        #[ParamConverter(ProductVariationConst::class)] ?ProductVariationConst $variation = null,
+        #[ParamConverter(ProductModificationConst::class)] ?ProductModificationConst $modification = null,
     ): Response
     {
 
-        $dto = new AvitoProductDTO();
+        $AvitoProductDTO = new AvitoProductDTO();
 
-        $dto
+        $AvitoProductDTO
             ->setProduct($product)
             ->setOffer($offer)
             ->setVariation($variation)
             ->setModification($modification);
 
+        $AvitoProductDTO->getProfile()->setValue($this->getProfileUid());
+        
+
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
          *
-         * @var AvitoProduct|null $avitoProductCard
+         * @var AvitoProduct|false $avitoProductCard
          */
-        $avitoProductCard = $entityManager->getRepository(AvitoProduct::class)
-            ->findOneBy([
-                'product' => $product,
-                'offer' => $offer,
-                'variation' => $variation,
-                'modification' => $modification,
-            ]);
+        $avitoProductCard = $AvitoProductProfileInterface
+            ->product($product)
+            ->offerConst($offer)
+            ->variationConst($variation)
+            ->modificationConst($modification)
+            ->find();
 
-        if($avitoProductCard)
+        if(true === ($avitoProductCard instanceof AvitoProduct))
         {
-            $avitoProductCard->getDto($dto);
+            $avitoProductCard->getDto($AvitoProductDTO);
         }
 
         $form = $this->createForm(
             AvitoProductForm::class,
-            $dto,
+            $AvitoProductDTO,
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
-                    'product' => $dto->getProduct(),
-                    'offer' => $dto->getOffer(),
-                    'variation' => $dto->getVariation(),
-                    'modification' => $dto->getModification()
+                    'product' => $AvitoProductDTO->getProduct(),
+                    'offer' => $AvitoProductDTO->getOffer(),
+                    'variation' => $AvitoProductDTO->getVariation(),
+                    'modification' => $AvitoProductDTO->getModification(),
                 ]
             )]
         );
@@ -111,7 +118,7 @@ final class NewEditController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $handle = $handler->handle($dto);
+            $handle = $handler->handle($AvitoProductDTO);
 
             $this->addFlash(
                 'page.edit',
@@ -123,18 +130,18 @@ final class NewEditController extends AbstractController
             return $this->redirectToRoute('avito-products:admin.products.index');
         }
 
-        $avitoProductHeader = $oneProductWithAvitoImages
-            ->product($dto->getProduct())
-            ->offerConst($dto->getOffer())
-            ->variationConst($dto->getVariation())
-            ->modificationConst($dto->getModification())
-            ->execute();
+        $product = $oneProductWithAvitoImages
+            ->product($AvitoProductDTO->getProduct())
+            ->offerConst($AvitoProductDTO->getOffer())
+            ->variationConst($AvitoProductDTO->getVariation())
+            ->modificationConst($AvitoProductDTO->getModification())
+            ->find();
 
         if(false === $product)
         {
             throw new Exception('Продукт не найден ');
         }
 
-        return $this->render(['form' => $form->createView(), 'product' => $avitoProductHeader]);
+        return $this->render(['form' => $form->createView(), 'product' => $product]);
     }
 }

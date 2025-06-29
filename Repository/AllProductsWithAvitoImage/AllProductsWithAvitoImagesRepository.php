@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ use BaksDev\Avito\Board\Entity\AvitoBoard;
 use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
@@ -59,6 +60,8 @@ use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\Property\ProductFilterPropertyDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvitoImagesInterface
 {
@@ -71,7 +74,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
-        private readonly ?ElasticGetIndex $elasticGetIndex = null,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
     public function search(SearchDTO $search): self
@@ -340,6 +343,21 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
 
+        /** Продукт Авито по профилю бизнес-пользователя */
+        $dbal
+            ->leftJoin(
+                'product_modification',
+                AvitoProductProfile::class,
+                'avito_product_profile',
+                'avito_product_profile.value = :profile',
+            )
+            ->setParameter(
+                key: 'profile',
+                value: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
+
         /** Продукт Авито */
         $dbal
             ->addSelect('avito_product.id as avito_product_id')
@@ -348,12 +366,33 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 AvitoProduct::class,
                 'avito_product',
                 '
-                avito_product.product = product.id AND 
-                (avito_product.offer IS NULL OR avito_product.offer = product_offer.const) AND 
-                (avito_product.variation IS NULL OR avito_product.variation = product_variation.const) AND 
-                (avito_product.modification IS NULL OR avito_product.modification = product_modification.const)
-            '
-            );
+                avito_product.id = avito_product_profile.avito AND
+                avito_product.product = product.id 
+
+                AND
+                        
+                    CASE 
+                        WHEN product_offer.const IS NOT NULL 
+                        THEN avito_product.offer = product_offer.const
+                        ELSE avito_product.offer IS NULL
+                    END
+                        
+                AND 
+                
+                    CASE
+                        WHEN product_variation.const IS NOT NULL 
+                        THEN avito_product.variation = product_variation.const
+                        ELSE avito_product.variation IS NULL
+                    END
+                    
+                AND
+                
+                    CASE
+                        WHEN product_modification.const IS NOT NULL 
+                        THEN avito_product.modification = product_modification.const
+                        ELSE avito_product.modification IS NULL
+                    END
+            ');
 
         /** Изображения Авито */
         $dbal->leftJoin(
@@ -509,43 +548,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         if($this->search?->getQuery())
         {
-            /** Поиск по модификации */
-            $result = $this->elasticGetIndex ? $this->elasticGetIndex->handle(ProductModification::class, $this->search->getQuery(), 1) : false;
-
-            if($result)
-            {
-                $counter = $result['hits']['total']['value'];
-
-                if($counter)
-                {
-                    /** Идентификаторы */
-                    $data = array_column($result['hits']['hits'], "_source");
-
-                    $dbal
-                        ->createSearchQueryBuilder($this->search)
-                        ->addSearchInArray('product_modification.id', array_column($data, "id"));
-
-                    return $this->paginator->fetchAllAssociative($dbal);
-                }
-
-                /** Поиск по продукции */
-                $result = $this->elasticGetIndex->handle(Product::class, $this->search->getQuery(), 1);
-
-                $counter = $result['hits']['total']['value'];
-
-                if($counter)
-                {
-                    /** Идентификаторы */
-                    $data = array_column($result['hits']['hits'], "_source");
-
-                    $dbal
-                        ->createSearchQueryBuilder($this->search)
-                        ->addSearchInArray('product.id', array_column($data, "id"));
-
-                    return $this->paginator->fetchAllAssociative($dbal);
-                }
-            }
-
             $dbal
                 ->createSearchQueryBuilder($this->search)
                 ->addSearchEqualUid('account.id')

@@ -50,35 +50,44 @@ final class IndexController extends AbstractController
         int $page = 0,
     ): Response
     {
-        // Поиск
+        /**
+         * Поиск
+         */
         $search = new SearchDTO();
 
         $searchForm = $this
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('avito-products:admin.products.index')]
+                options: ['action' => $this->generateUrl('avito-products:admin.products.index')],
             )
             ->handleRequest($request);
 
         /**
          * Фильтр продукции по ТП
          */
-        $productFilterDTO = new ProductFilterDTO($request);
-        $productFilterForm = $this->createForm(ProductFilterForm::class, $productFilterDTO, [
-            'action' => $this->generateUrl('avito-products:admin.products.index'),
-        ]);
+        $productFilterDTO = new ProductFilterDTO();
 
-        $productFilterForm->handleRequest($request);
+        $productFilterForm = $this
+            ->createForm(
+                type: ProductFilterForm::class,
+                data: $productFilterDTO,
+                options: ['action' => $this->generateUrl('avito-products:admin.products.index'),],
+            )
+            ->handleRequest($request);
 
+        /**
+         * Фильтр продукции по фото|без фото
+         */
         $avitoProductsFilterDTO = new AvitoProductsFilterDTO();
-        $avitoProductsFilterForm = $this->createForm(AvitoProductsFilterForm::class, $avitoProductsFilterDTO, [
-            'action' => $this->generateUrl('avito-products:admin.products.index'),
-        ]);
-        $avitoProductsFilterForm->handleRequest($request);
+        $avitoProductsFilterForm = $this
+            ->createForm(
+                type: AvitoProductsFilterForm::class,
+                data: $avitoProductsFilterDTO,
+                options: ['action' => $this->generateUrl('avito-products:admin.products.index'),],
+            )
+            ->handleRequest($request);
 
-        /** Если перезагрузить страницу */
-        //false === $filterForm->isSubmitted() ?: $this->redirectToReferer();
 
         $products = $allProductsWithAvitoImages
             ->search($search)
@@ -92,7 +101,7 @@ final class IndexController extends AbstractController
                 'avito' => $avitoProductsFilterForm->createView(),
                 'search' => $searchForm->createView(),
                 'query' => $products,
-            ]
+            ],
         );
     }
 }

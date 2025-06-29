@@ -132,9 +132,13 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product',
                 AvitoToken::class,
                 'avito_token',
-                'avito_token.id = :profile'
+                'avito_token.id = :profile',
             )
-            ->setParameter('profile', $this->profile, UserProfileUid::TYPE);
+            ->setParameter(
+                key: 'profile',
+                value: $this->profile,
+                type: UserProfileUid::TYPE,
+            );
 
         $dbal
             ->join(
@@ -155,13 +159,17 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 info.status = :status',
         );
 
-        $dbal->setParameter('status', new UserProfileStatus(UserProfileStatusActive::class), UserProfileStatus::TYPE);
+        $dbal->setParameter(
+            key: 'status',
+            value: UserProfileStatusActive::class,
+            type: UserProfileStatus::TYPE,
+        );
 
         $dbal->leftJoin(
             'product',
             ProductEvent::class,
             'product_event',
-            'product_event.id = product.event'
+            'product_event.id = product.event',
         );
 
         /** Получаем только на активные продукты */
@@ -172,7 +180,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_active',
                 '
                     product_active.event = product.event AND 
-                    product_active.active IS TRUE'
+                    product_active.active IS TRUE',
             );
 
         /** Здесь находится артикул продукта */
@@ -181,7 +189,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_event',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product.id'
+                'product_info.product = product.id',
             );
 
         /**
@@ -193,7 +201,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_event',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.event = product_event.id'
+                'product_offer.event = product_event.id',
             );
 
         /**
@@ -205,7 +213,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_offer',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.offer = product_offer.id'
+                'product_variation.offer = product_offer.id',
             );
 
         /**
@@ -217,7 +225,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.variation = product_variation.id'
+                'product_modification.variation = product_variation.id',
             );
 
         /**
@@ -240,14 +248,14 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_event',
                 ProductCategory::class,
                 'product_category',
-                'product_category.event = product_event.id AND product_category.root = true'
+                'product_category.event = product_event.id AND product_category.root = true',
             );
 
         $dbal->join(
             'product_category',
             CategoryProduct::class,
             'category',
-            'category.id = product_category.category'
+            'category.id = product_category.category',
         );
 
         /** Получаем только на активные категории */
@@ -258,7 +266,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'category_info',
                 '
                     category.event = category_info.event AND
-                    category_info.active IS TRUE'
+                    category_info.active IS TRUE',
             );
 
         $dbal
@@ -267,7 +275,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'category',
                 CategoryProductTrans::class,
                 'category_trans',
-                'category_trans.event = category.event AND category_trans.local = :local'
+                'category_trans.event = category.event AND category_trans.local = :local',
             );
 
         /**
@@ -277,7 +285,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product',
             ProductPrice::class,
             'product_price',
-            'product_price.event = product.event'
+            'product_price.event = product.event',
         )
             ->addGroupBy('product_price.reserve');
 
@@ -288,7 +296,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_offer',
             ProductOfferPrice::class,
             'product_offer_price',
-            'product_offer_price.offer = product_offer.id'
+            'product_offer_price.offer = product_offer.id',
         );
 
         /**
@@ -298,7 +306,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_variation',
             ProductVariationPrice::class,
             'product_variation_price',
-            'product_variation_price.variation = product_variation.id'
+            'product_variation_price.variation = product_variation.id',
         );
 
         /**
@@ -308,7 +316,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_modification',
             ProductModificationPrice::class,
             'product_modification_price',
-            'product_modification_price.modification = product_modification.id'
+            'product_modification_price.modification = product_modification.id',
         );
 
         /**
@@ -330,7 +338,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 			   THEN product_price.price
 			   
 			   ELSE NULL
-			END AS product_price'
+			END AS product_price',
         );
 
         /* Предыдущая стоимость продукта */
@@ -355,7 +363,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_offer',
             ProductOfferQuantity::class,
             'product_offer_quantity',
-            'product_offer_quantity.offer = product_offer.id'
+            'product_offer_quantity.offer = product_offer.id',
         )
             ->addGroupBy('product_offer_quantity.reserve');
 
@@ -366,7 +374,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_variation',
             ProductVariationQuantity::class,
             'product_variation_quantity',
-            'product_variation_quantity.variation = product_variation.id'
+            'product_variation_quantity.variation = product_variation.id',
         )
             ->addGroupBy('product_variation_quantity.reserve');
 
@@ -374,7 +382,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             'product_modification',
             ProductModificationQuantity::class,
             'product_modification_quantity',
-            'product_modification_quantity.modification = product_modification.id'
+            'product_modification_quantity.modification = product_modification.id',
         )
             ->addGroupBy('product_modification_quantity.reserve');
 
@@ -394,7 +402,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 			   THEN (product_price.quantity - product_price.reserve)
 			 
 			   ELSE 0
-			END AS product_quantity'
+			END AS product_quantity',
         );
 
         /** Avito mapper */
@@ -406,7 +414,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'product_category',
                 AvitoBoard::class,
                 'avito_board',
-                'avito_board.id = product_category.category'
+                'avito_board.id = product_category.category',
             );
 
         /**
@@ -417,7 +425,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'avito_board',
                 AvitoBoardEvent::class,
                 'avito_board_event',
-                'avito_board_event.id = avito_board.event'
+                'avito_board_event.id = avito_board.event',
             );
 
         $dbal
@@ -425,7 +433,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 'avito_board',
                 AvitoBoardMapperElement::class,
                 'avito_mapper',
-                'avito_mapper.event = avito_board.event'
+                'avito_mapper.event = avito_board.event',
             );
 
         $dbal->allGroupByExclude();

@@ -21,8 +21,9 @@
  *  THE SOFTWARE.
  */
 
-namespace BaksDev\Avito\Products\Repository\OneProductWithAvitoImages;
+namespace BaksDev\Avito\Products\Repository\AvitoProductProfile;
 
+use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
@@ -32,18 +33,19 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 
-interface OneProductWithAvitoImagesInterface
+interface AvitoProductProfileInterface
 {
-    public function product(Product|ProductUid|string $product): self;
+    public function product(ProductUid|Product $product): self;
 
-    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self;
+    public function offerConst(ProductOfferConst|ProductOffer|false|null $offer): self;
 
-    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self;
+    public function variationConst(ProductVariationConst|ProductVariation|false|null $variation): self;
 
-    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self;
+    public function modificationConst(ProductModificationConst|ProductModification|null|false $modification): self;
 
     /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
+     * Метод возвращает объект сущности AvitoProduct
      */
-    public function find(): array|bool;
+    public function find(): AvitoProduct|false;
+
 }
