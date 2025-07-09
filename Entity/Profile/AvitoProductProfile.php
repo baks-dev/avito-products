@@ -36,18 +36,6 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-interface AvitoProductProfileInterface
-{
-    /**
-     * Значение свойства
-     *
-     * @see AvitoProductProfile
-     */
-    public function getValue(): ?UserProfileUid;
-
-
-}
-
 /**
  * AvitoProductProfile
  *

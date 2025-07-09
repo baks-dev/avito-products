@@ -81,6 +81,7 @@ class AvitoProduct extends EntityState
     #[ORM\OneToOne(targetEntity: AvitoProductProfile::class, mappedBy: 'avito', cascade: ['all'])]
     private AvitoProductProfile $profile;
 
+
     public function __construct()
     {
         $this->id = new AvitoProductUid();

@@ -545,6 +545,8 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             }
         }
 
+        $dbal->allGroupByExclude();
+
 
         if($this->search?->getQuery())
         {

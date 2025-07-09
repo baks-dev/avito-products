@@ -146,15 +146,16 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
                 type: ProductUid::TYPE,
             );
 
+
         $orm
             ->join(
                 AvitoProductProfile::class,
                 'profile',
                 'WITH',
-                'profile.id = avito.id AND profile.value = :profile',
+                'profile.avito = avito.id AND profile.value = :profile',
             )
             ->setParameter(
-                key: 'key',
+                key: 'profile',
                 value: $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
@@ -207,6 +208,6 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
         }
 
 
-        return $orm->getQuery()->getResult() ?: false;
+        return $orm->getOneOrNullResult() ?: false;
     }
 }

@@ -28,6 +28,12 @@ namespace BaksDev\Avito\Products\Messenger\ProductStocks;
 use BaksDev\Avito\Board\Api\GetIdByArticleRequest;
 use BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\UpdateAvitoProductStockRequest;
 use BaksDev\Avito\Products\Repository\ProductInfoByIdentifier\ProductInfoByIdentifierInterface;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDelay;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Repository\ProductTotalInOrders\ProductTotalInOrdersInterface;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -41,6 +47,10 @@ final readonly class UpdateAvitoProductStockHandler
         private ProductInfoByIdentifierInterface $productInfoByIdentifier,
         private GetIdByArticleRequest $getIdByArticleRequest,
         private UpdateAvitoProductStockRequest $updateAvitoProductStockRequest,
+        private DeduplicatorInterface $deduplicator,
+        private MessageDispatchInterface $dispatcher,
+        private ProductTotalInOrdersInterface $ProductTotalInOrders,
+        private ?ProductWarehouseTotalInterface $ProductWarehouseTotal = null,
     ) {}
 
     /**
@@ -48,6 +58,7 @@ final readonly class UpdateAvitoProductStockHandler
      */
     public function __invoke(UpdateAvitoProductStockMessage $message): void
     {
+
         /** Находим уникальный продукт: его количество и артикул */
         $product = $this->productInfoByIdentifier
             ->forProduct($message->getProduct())
@@ -79,37 +90,85 @@ final readonly class UpdateAvitoProductStockHandler
             return;
         }
 
-        /** Задержка перед выполнением запроса на обновление остатков - максимальное количество запросов в минуту: 500 */
-        usleep(500000);
+        $Deduplicator = $this->deduplicator
+            ->namespace('avito-products')
+            ->expiresAfter('1 seconds')
+            ->deduplication([$message->getProfile(), self::class]);
+
+        if($Deduplicator->isExecuted())
+        {
+            $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('1 seconds'));
+
+            $this->dispatcher->dispatch(
+                message: $message,
+                stamps: [$MessageDelay],
+                transport: 'avito-products',
+            );
+
+            return;
+        }
+
+        /** Остаток товара в карточке (по умолчанию) */
+        $ProductQuantity = $product['product_quantity'];
+
+        /** Если подключен модуль складского учета - расчет согласно остаткам склада */
+        if(class_exists(BaksDevProductsStocksBundle::class))
+        {
+            /** Получаем остаток на складе с учетом резерва */
+            $stocksTotal = $this->ProductWarehouseTotal->getProductProfileTotal(
+                $message->getProfile(),
+                $message->getProduct(),
+                $message->getOfferConst(),
+                $message->getVariationConst(),
+                $message->getModificationConst(),
+            );
+
+            /** Получаем количество необработанных заказов */
+            $unprocessed = $this->ProductTotalInOrders
+                ->onProfile($message->getProfile())
+                ->onProduct($message->getProduct())
+                ->onOfferConst($message->getOfferConst())
+                ->onVariationConst($message->getVariationConst())
+                ->onModificationConst($message->getModificationConst())
+                ->findTotal();
+
+
+            $ProductQuantity = ($stocksTotal - $unprocessed);
+        }
+
+        /** Обновляем остаток товара в объявлении */
 
         $updateStock = $this->updateAvitoProductStockRequest
             ->profile($message->getProfile())
             ->externalId($article)
             ->itemId($identifier)
-            ->quantity($product['product_quantity'])
+            ->quantity($ProductQuantity)
             ->put();
 
-        if(false !== $updateStock)
+        if(false === $updateStock)
         {
-            $this->logger->info(
-                sprintf('%s: Обновили остаток товара => %s', $article, $product['product_quantity']),
-                [__FILE__.':'.__LINE__]
+            $this->logger->critical(
+                sprintf('avito-products: Не удалось обновить остатки товара с артикулом %s', $article),
+                [__FILE__.':'.__LINE__],
             );
 
             return;
         }
 
 
-        $this->logger->critical(
-            sprintf('avito-products: Не удалось обновить остатки товара с артикулом %s', $article),
-            [__FILE__.':'.__LINE__]
+        $this->logger->info(
+            sprintf('%s: Обновили остаток товара => %s', $article, $product['product_quantity']),
+            [__FILE__.':'.__LINE__],
         );
+
+
+        $Deduplicator->save();
+
 
         /*$this->messageDispatch->dispatch(
             message: $message,
             stamps: [new MessageDelay('1 minutes')], // повторение через 1 минуту
             transport: 'avito-products'
         );*/
-
     }
 }
