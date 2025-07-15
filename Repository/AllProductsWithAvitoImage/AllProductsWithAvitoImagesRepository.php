@@ -343,20 +343,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
 
-        /** Продукт Авито по профилю бизнес-пользователя */
-        $dbal
-            ->leftJoin(
-                'product_modification',
-                AvitoProductProfile::class,
-                'avito_product_profile',
-                'avito_product_profile.value = :profile',
-            )
-            ->setParameter(
-                key: 'profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
-            );
-
 
         /** Продукт Авито */
         $dbal
@@ -366,7 +352,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 AvitoProduct::class,
                 'avito_product',
                 '
-                avito_product.id = avito_product_profile.avito AND
+                
                 avito_product.product = product.id 
 
                 AND
@@ -393,6 +379,25 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                         ELSE avito_product.modification IS NULL
                     END
             ');
+
+        /** Продукт Авито по профилю бизнес-пользователя */
+        $dbal
+            ->leftJoin(
+                'product_modification',
+                AvitoProductProfile::class,
+                'avito_product_profile',
+                'avito_product_profile.avito = avito_product.id',
+            );
+
+        $dbal
+            ->andWhere('avito_product_profile.value = :profile OR avito_product_profile.value IS NULL')
+            ->setParameter(
+                key: 'profile',
+                value: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
+
 
         /** Изображения Авито */
         $dbal->leftJoin(
