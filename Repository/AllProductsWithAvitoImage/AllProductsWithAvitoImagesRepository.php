@@ -27,8 +27,12 @@ namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
 use BaksDev\Avito\Board\Entity\AvitoBoard;
 use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
+use BaksDev\Avito\Entity\AvitoToken;
+use BaksDev\Avito\Entity\Event\AvitoTokenEvent;
+use BaksDev\Avito\Entity\Event\Kit\AvitoTokenKit;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
@@ -102,16 +106,44 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ->bindLocal();
 
         $dbal
-            ->select('product.id')
-            ->addSelect('product.event')
-            ->from(Product::class, 'product');
+            ->from(AvitoToken::class, 'avito_token');
 
-        $dbal->join(
-            'product',
-            ProductEvent::class,
-            'product_event',
-            'product_event.id = product.event'
-        );
+        $dbal
+            ->join(
+                'avito_token',
+                AvitoTokenEvent::class,
+                'avito_token_event',
+                '
+                    avito_token_event.id = avito_token.event 
+                    AND avito_token_event.profile = :profile
+                ',
+            )
+            ->setParameter(
+                key: 'profile',
+                value: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE,
+            );
+
+
+        $dbal
+            ->addSelect('avito_token_kit.value AS kit')
+            ->leftJoin(
+                'avito_token',
+                AvitoTokenKit::class,
+                'avito_token_kit',
+                'avito_token_kit.event = avito_token.event',
+            );
+
+
+        $dbal
+            ->addSelect('product.id')
+            ->addSelect('product.event')
+            ->join(
+                'avito_token',
+                Product::class,
+                'product',
+                'product.id != avito_token.id',
+            );
 
         /** Только активные продукты */
         $dbal
@@ -121,28 +153,28 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_active',
                 '
                     product_active.event = product.event AND
-                    product_active.active IS TRUE'
+                    product_active.active IS TRUE',
             );
 
         /** Название продукта */
         $dbal
             ->addSelect('product_trans.name AS product_name')
             ->leftJoin(
-                'product_event',
+                'product',
                 ProductTrans::class,
                 'product_trans',
                 '
-                    product_trans.event = product_event.id AND 
-                    product_trans.local = :local'
+                    product_trans.event = product.event AND 
+                    product_trans.local = :local',
             );
 
-        /** Здесь основной артикул товара */
+        /** Артикул карточки */
         $dbal
             ->leftJoin(
-                'product_event',
+                'product',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product.id'
+                'product_info.product = product.id',
             );
 
         /**
@@ -154,10 +186,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ->addSelect('product_offer.const as product_offer_const')
             ->addSelect('product_offer.postfix as product_offer_postfix')
             ->leftJoin(
-                'product_event',
+                'product',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.event = product_event.id'
+                'product_offer.event = product.event',
             );
 
 
@@ -173,7 +205,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_offer',
             ProductOfferPrice::class,
             'product_offer_price',
-            'product_offer_price.offer = product_offer.id'
+            'product_offer_price.offer = product_offer.id',
         );
 
         /** ТИП торгового предложения */
@@ -183,7 +215,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_offer',
                 CategoryProductOffers::class,
                 'category_offer',
-                'category_offer.id = product_offer.category_offer'
+                'category_offer.id = product_offer.category_offer',
             );
 
         /**
@@ -198,7 +230,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_offer',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.offer = product_offer.id'
+                'product_variation.offer = product_offer.id',
             );
 
         /** ФИЛЬТР по множественным вариантам */
@@ -214,7 +246,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_variation',
             ProductVariationPrice::class,
             'product_variation_price',
-            'product_variation_price.variation = product_variation.id'
+            'product_variation_price.variation = product_variation.id',
         );
 
         /** ТИП множественного варианта торгового предложения */
@@ -224,7 +256,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_variation',
                 CategoryProductVariation::class,
                 'category_offer_variation',
-                'category_offer_variation.id = product_variation.category_variation'
+                'category_offer_variation.id = product_variation.category_variation',
             );
 
         /**
@@ -239,7 +271,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.variation = product_variation.id '
+                'product_modification.variation = product_variation.id ',
             );
 
         /** ФИЛЬТР по модификациям множественного варианта */
@@ -254,7 +286,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_modification',
             ProductModificationPrice::class,
             'product_modification_price',
-            'product_modification_price.modification = product_modification.id'
+            'product_modification_price.modification = product_modification.id',
         );
 
         /** ТИП модификации множественного варианта */
@@ -263,7 +295,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_modification',
             CategoryProductModification::class,
             'category_offer_modification',
-            'category_offer_modification.id = product_modification.category_modification'
+            'category_offer_modification.id = product_modification.category_modification',
         );
 
         /**
@@ -281,13 +313,14 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         /**
          * Все фото
          */
+
         $dbal->leftJoin(
-            'product_event',
+            'product',
             ProductPhoto::class,
             'product_photo',
             '
-                product_photo.event = product_event.id AND
-                product_photo.root = true'
+                product_photo.event = product.event AND
+                product_photo.root = true',
         );
 
         $dbal->leftJoin(
@@ -296,7 +329,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_variation_image',
             '
                 product_variation_image.variation = product_variation.id AND
-                product_variation_image.root = true'
+                product_variation_image.root = true',
         );
 
         $dbal->leftJoin(
@@ -305,7 +338,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_offer_images',
             '
                 product_offer_images.offer = product_offer.id AND
-                product_offer_images.root = true'
+                product_offer_images.root = true',
         );
 
         $dbal->addSelect(
@@ -319,7 +352,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 					CONCAT ( '/upload/".$dbal->table(ProductPhoto::class)."' , '/', product_photo.name)
 			   ELSE NULL
 			END AS product_image
-		"
+		",
         );
 
         /** Расширение изображения */
@@ -329,7 +362,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 product_variation_image.ext,
                 product_offer_images.ext,
                 product_photo.ext
-            ) AS product_image_ext'
+            ) AS product_image_ext',
         );
 
         /** Флаг загрузки файла CDN */
@@ -339,9 +372,17 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 product_variation_image.cdn,
                 product_offer_images.cdn,
                 product_photo.cdn
-            ) AS product_image_cdn'
+            ) AS product_image_cdn',
         );
 
+
+        //        $dbal
+        //            ->andWhere('avito_product_profile.value = :profile OR avito_product_profile.value IS NULL')
+        //            ->setParameter(
+        //                key: 'profile',
+        //                value: $this->UserProfileTokenStorage->getProfile(),
+        //                type: UserProfileUid::TYPE,
+        //            );
 
 
         /** Продукт Авито */
@@ -380,7 +421,9 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     END
             ');
 
+
         /** Продукт Авито по профилю бизнес-пользователя */
+
         $dbal
             ->leftJoin(
                 'product_modification',
@@ -390,23 +433,28 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
         $dbal
-            ->andWhere('avito_product_profile.value = :profile OR avito_product_profile.value IS NULL')
-            ->setParameter(
-                key: 'profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
-            );
+            ->andWhere('(avito_product_profile.value = avito_token_event.profile OR avito_product_profile.value IS NULL)');
+
+        /** Комплект */
+        $dbal->leftJoin(
+            'avito_product',
+            AvitoProductKit::class,
+            'avito_product_kit',
+            'avito_product_kit.avito = avito_product.id AND avito_product_kit.value = avito_token_kit.value',
+        );
 
 
+        /**
+         * Изображения Авито
+         */
 
-        /** Изображения Авито */
         $dbal->leftJoin(
             'avito_product',
             AvitoProductImage::class,
             'avito_product_images',
             '
-                avito_product_images.avito = avito_product.id AND
-                avito_product_images.root = true'
+                avito_product_images.avito = avito_product_kit.avito AND
+                avito_product_images.root = true',
         );
 
         $dbal->addSelect(
@@ -416,7 +464,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name)
                 ELSE NULL 
             END as avito_product_image
-            "
+            ",
         );
 
         /** Расширение изображения */
@@ -437,19 +485,39 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 			END AS avito_product_image_cdn
 		');
 
+        if(($this->avitoProductsFilter instanceof AvitoProductsFilterDTO) && $this->avitoProductsFilter->getExists() !== null)
+        {
+            if($this->avitoProductsFilter->getExists() === true)
+            {
+                $dbal->andWhere('avito_product_images.name IS NOT NULL');
+            }
+            else
+            {
+                $dbal->andWhere('avito_product_images.name IS NULL');
+            }
+        }
+
+        $dbal->andWhere('
+            (avito_product.id IS NOT NULL AND avito_product_images.id IS NOT NULL) 
+            OR 
+            (avito_product.id IS NULL)   
+        ');
+
 
         /**
          * Категория
          */
+
         $dbal
             ->join(
-                'product_event',
+                'product',
                 ProductCategory::class,
                 'product_category',
                 '
-                    product_category.event = product_event.id AND 
-                    product_category.root = true'
+                    product_category.event = product.event AND 
+                    product_category.root = true',
             );
+
 
         if($this->filter?->getCategory())
         {
@@ -461,7 +529,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'product_category',
             CategoryProduct::class,
             'category',
-            'category.id = product_category.category'
+            'category.id = product_category.category',
         );
 
         /** Только активные разделы */
@@ -473,7 +541,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'category_info',
                 '
                     category.event = category_info.event AND
-                    category_info.active IS TRUE'
+                    category_info.active IS TRUE',
             );
 
         $dbal
@@ -484,38 +552,37 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'category_trans',
                 '
                     category_trans.event = category.event AND 
-                    category_trans.local = :local'
+                    category_trans.local = :local',
             );
 
-        /** Avito mapper */
+
         /**
-         * Только те продукты, для которых создан маппер
+         * Avito mapper
          */
+
+
+        /** Только те продукты, для которых создан маппер */
         $dbal
             ->addSelect('avito_board.id AS avito_board_mapper_category_id')
             ->join(
                 'product_category',
                 AvitoBoard::class,
                 'avito_board',
-                'avito_board.id = product_category.category'
+                'avito_board.id = product_category.category',
             );
 
-        /**
-         * Название категории в Авито из активного события маппера. Для каждой карточки
-         */
+        /** Название категории в Авито из активного события маппера. Для каждой карточки */
         $dbal
             ->addSelect('avito_board_event.avito AS avito_board_avito_category')
             ->join(
                 'avito_board',
                 AvitoBoardEvent::class,
                 'avito_board_event',
-                'avito_board_event.id = avito_board.event'
+                'avito_board_event.id = avito_board.event',
             );
 
-        /**
-         * Фильтр по свойства продукта
-         */
-        if($this->filter?->getProperty())
+        /** Фильтр по свойства продукта */
+        if(true === ($this->filter instanceof ProductFilterPropertyDTO))
         {
             /** @var ProductFilterPropertyDTO $property */
             foreach($this->filter->getProperty() as $property)
@@ -528,7 +595,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                         'product_property_'.$property->getType(),
                         'product_property_'.$property->getType().'.event = product.event AND
                         product_property_'.$property->getType().'.field = :'.$property->getType().'_const AND
-                        product_property_'.$property->getType().'.value = :'.$property->getType().'_value'
+                        product_property_'.$property->getType().'.value = :'.$property->getType().'_value',
                     );
 
                     $dbal->setParameter($property->getType().'_const', $property->getConst());
@@ -536,21 +603,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 }
             }
         }
-
-
-        if($this->avitoProductsFilter->getExists() !== null)
-        {
-            if($this->avitoProductsFilter->getExists() === true)
-            {
-                $dbal->andWhere('avito_product_images.name IS NOT NULL');
-            }
-            else
-            {
-                $dbal->andWhere('avito_product_images.name IS NULL');
-            }
-        }
-
-        $dbal->allGroupByExclude();
 
 
         if($this->search?->getQuery())
@@ -564,11 +616,17 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 ->addSearchLike('product_offer.article')
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article');
-
         }
+
+
+        $dbal->addOrderBy('product.event', 'DESC');
+        $dbal->addOrderBy('product_offer', 'DESC');
+        $dbal->addOrderBy('product_variation', 'DESC');
+        $dbal->addOrderBy('product_modification', 'DESC');
+        $dbal->addOrderBy('avito_token_kit.value', 'ASC');
+
+        $dbal->allGroupByExclude();
 
         return $this->paginator->fetchAllAssociative($dbal);
     }
-
-
 }

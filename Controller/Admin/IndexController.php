@@ -95,6 +95,7 @@ final class IndexController extends AbstractController
             ->filterAvitoProducts($avitoProductsFilterDTO)
             ->findAll();
 
+
         return $this->render(
             [
                 'filter' => $productFilterForm->createView(),

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Entity;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
@@ -70,8 +71,9 @@ class AvitoProduct extends EntityState
 
     /** Коллекция "живых" изображений продукта */
     #[ORM\OrderBy(['root' => 'DESC'])]
-    #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'], fetch: 'EAGER')]
+    #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
     private Collection $images;
+
 
     /** Шаблон описания */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -81,12 +83,17 @@ class AvitoProduct extends EntityState
     #[ORM\OneToOne(targetEntity: AvitoProductProfile::class, mappedBy: 'avito', cascade: ['all'])]
     private AvitoProductProfile $profile;
 
+    /** Комплекты */
+    #[ORM\OneToOne(targetEntity: AvitoProductKit::class, mappedBy: 'avito', cascade: ['all'])]
+    private AvitoProductKit $kit;
+
 
     public function __construct()
     {
         $this->id = new AvitoProductUid();
         $this->images = new ArrayCollection();
         $this->profile = new AvitoProductProfile($this);
+        $this->kit = new AvitoProductKit($this);
     }
 
     public function __toString(): string

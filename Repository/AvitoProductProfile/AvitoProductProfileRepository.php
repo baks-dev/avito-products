@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Repository\AvitoProductProfile;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Core\Type\UidType\ParamConverter;
@@ -51,6 +52,8 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
     private ProductVariationConst|false $variation = false;
 
     private ProductModificationConst|false $modification = false;
+
+    private int $kit = 1;
 
     public function __construct(
         private readonly ORMQueryBuilder $ORMQueryBuilder,
@@ -124,6 +127,20 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
         return $this;
     }
 
+    public function kit(int|string|null|false $kit): self
+    {
+
+        if(empty($kit))
+        {
+            $this->kit = 1;
+            return $this;
+        }
+
+        $this->kit = (int) $kit;
+
+        return $this;
+    }
+
     /**
      * Метод возвращает объект сущности AvitoProduct
      */
@@ -146,6 +163,17 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
                 type: ProductUid::TYPE,
             );
 
+        $orm
+            ->join(
+                AvitoProductKit::class,
+                'kit',
+                'WITH',
+                'kit.avito = avito.id AND kit.value = :kit',
+            )
+            ->setParameter(
+                key: 'kit',
+                value: $this->kit,
+            );
 
         $orm
             ->join(
