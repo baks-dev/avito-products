@@ -66,6 +66,7 @@ final class AvitoProductHandler extends AbstractHandler
 
         /**
          * Загружаем изображения
+         *
          * @var AvitoProductImage $image
          */
         foreach($entity->getImages() as $image)
@@ -88,10 +89,12 @@ final class AvitoProductHandler extends AbstractHandler
 
         $this->flush();
 
-        $this->messageDispatch->dispatch(
-            message: new AvitoProductMessage($entity->getId()),
-            transport: 'avito-products'
-        );
+        $this->messageDispatch
+            ->addClearCacheOther('avito-board')
+            ->dispatch(
+                message: new AvitoProductMessage($entity->getId()),
+                transport: 'avito-products',
+            );
 
         return $entity;
     }

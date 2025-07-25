@@ -79,7 +79,6 @@ final class NewEditController extends AbstractController
             ->setModification($modification);
 
         $AvitoProductDTO->getProfile()->setValue($this->getProfileUid());
-        $AvitoProductDTO->getKit()->setValue((int) $request->get('kit'));
 
         /**
          * Находим уникальный продукт Авито, делаем его инстанс, передаем в форму
@@ -91,7 +90,6 @@ final class NewEditController extends AbstractController
             ->offerConst($AvitoProductDTO->getOffer())
             ->variationConst($AvitoProductDTO->getVariation())
             ->modificationConst($AvitoProductDTO->getModification())
-            ->kit($AvitoProductDTO->getKit()->getValue())
             ->find();
 
         if(true === ($avitoProductCard instanceof AvitoProduct))
@@ -109,7 +107,6 @@ final class NewEditController extends AbstractController
                     'offer' => $AvitoProductDTO->getOffer(),
                     'variation' => $AvitoProductDTO->getVariation(),
                     'modification' => $AvitoProductDTO->getModification(),
-                    'kit' => $AvitoProductDTO->getKit()->getValue(),
                 ]
             )]
         );
