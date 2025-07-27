@@ -43,8 +43,6 @@ interface AvitoProductProfileInterface
 
     public function modificationConst(ProductModificationConst|ProductModification|null|false $modification): self;
 
-    public function kit(int|string|null|false $kit): self;
-
     /**
      * Метод возвращает объект сущности AvitoProduct
      */
