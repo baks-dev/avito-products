@@ -470,7 +470,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 					)
 			) 
 			FILTER (WHERE avito_product_images.ext IS NOT NULL)
-			AS avito_product_images",
+			AS avito_product_images"
         );
 
 

@@ -36,8 +36,5 @@ interface AllProductsWithAvitoImagesInterface
 
     public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self;
 
-    /**
-     * Метод возвращает список продукции для заполнения карточек Авито
-     */
     public function findAll(): PaginatorInterface;
 }
