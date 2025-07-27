@@ -387,7 +387,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         /** Продукт Авито */
         $dbal
-            ->addSelect('avito_product.id as avito_product_id')
+            //->addSelect('avito_product.id as avito_product_id')
             ->leftJoin(
                 'product_modification',
                 AvitoProduct::class,
@@ -448,42 +448,59 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
          * Изображения Авито
          */
 
-        $dbal->leftJoin(
-            'avito_product',
-            AvitoProductImage::class,
-            'avito_product_images',
-            '
+        $dbal
+            ->leftJoin(
+                'avito_product',
+                AvitoProductImage::class,
+                'avito_product_images',
+                '
                 avito_product_images.avito = avito_product_kit.avito AND
                 avito_product_images.root = true',
-        );
+            );
+
 
         $dbal->addSelect(
-            "
-            CASE
-                WHEN avito_product_images.name IS NOT NULL THEN
-                    CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name)
-                ELSE NULL 
-            END as avito_product_image
-            ",
+            "JSON_AGG
+			( DISTINCT
+					JSONB_BUILD_OBJECT
+					(
+						'name', CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name),
+						'ext', avito_product_images.ext,
+						'cdn', avito_product_images.cdn
+					)
+			) 
+			FILTER (WHERE avito_product_images.ext IS NOT NULL)
+			AS avito_product_images",
         );
 
-        /** Расширение изображения */
-        $dbal->addSelect('
-			CASE
-			   WHEN avito_product_images.name IS NOT NULL THEN
-					avito_product_images.ext
-			   ELSE NULL
-			END AS avito_product_image_ext
-		');
 
-        /** Флаг загрузки файла CDN */
-        $dbal->addSelect('
-			CASE
-			   WHEN avito_product_images.name IS NOT NULL THEN
-					avito_product_images.cdn
-			   ELSE NULL
-			END AS avito_product_image_cdn
-		');
+        //        $dbal->addSelect(
+        //            "
+        //            CASE
+        //                WHEN avito_product_images.name IS NOT NULL THEN
+        //                    CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name)
+        //                ELSE NULL
+        //            END as avito_product_image
+        //            ",
+        //        );
+        //
+        //        /** Расширение изображения */
+        //        $dbal->addSelect('
+        //			CASE
+        //			   WHEN avito_product_images.name IS NOT NULL THEN
+        //					avito_product_images.ext
+        //			   ELSE NULL
+        //			END AS avito_product_image_ext
+        //		');
+        //
+        //        /** Флаг загрузки файла CDN */
+        //        $dbal->addSelect('
+        //			CASE
+        //			   WHEN avito_product_images.name IS NOT NULL THEN
+        //					avito_product_images.cdn
+        //			   ELSE NULL
+        //			END AS avito_product_image_cdn
+        //		');
 
         if(($this->avitoProductsFilter instanceof AvitoProductsFilterDTO) && $this->avitoProductsFilter->getExists() !== null)
         {
@@ -497,11 +514,11 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             }
         }
 
-        $dbal->andWhere('
-            (avito_product.id IS NOT NULL AND avito_product_images.id IS NOT NULL) 
-            OR 
-            (avito_product.id IS NULL)   
-        ');
+        //        $dbal->andWhere('
+        //            (avito_product_images.id IS NOT NULL AND avito_product.id IS NOT NULL)
+        //            OR
+        //            (avito_product.id IS NULL)
+        //        ');
 
 
         /**
