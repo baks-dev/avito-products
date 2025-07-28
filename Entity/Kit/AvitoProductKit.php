@@ -37,7 +37,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * AvitoProductKit
- *
  * @see AvitoProductKitEvent
  */
 #[ORM\Entity]

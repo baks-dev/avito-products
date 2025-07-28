@@ -27,7 +27,6 @@ interface AvitoProductKitInterface
 {
     /**
      * Значение свойства
-     *
      * @see AvitoProductKit
      */
     public function getValue(): ?int;
