@@ -31,7 +31,7 @@ use Symfony\Component\Uid\AbstractUid;
 final class AvitoProductUid extends Uid
 {
     /** Тестовый идентификатор */
-    public const string TEST = 'f17ec3cb-cde6-406a-9ace-b7407cb2571f';
+    public const string TEST = '247b461f-ea21-71e3-9e8b-93146753d61f';
 
     public const string TYPE = 'avito_product';
 
