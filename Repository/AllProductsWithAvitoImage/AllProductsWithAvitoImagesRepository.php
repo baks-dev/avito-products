@@ -99,6 +99,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         return $this;
     }
 
+
     public function findAll(): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
@@ -440,7 +441,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'avito_product',
             AvitoProductKit::class,
             'avito_product_kit',
-            'avito_product_kit.avito = avito_product.id AND avito_product_kit.value = avito_token_kit.value',
+            'avito_product_kit.avito = avito_product_profile.avito AND avito_product_kit.value = avito_token_kit.value',
         );
 
 
