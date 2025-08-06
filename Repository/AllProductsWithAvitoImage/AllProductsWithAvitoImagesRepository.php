@@ -430,7 +430,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_modification',
                 AvitoProductProfile::class,
                 'avito_product_profile',
-                'avito_product_profile.avito = avito_product.id',
+                '
+                    avito_product_profile.avito = avito_product.id AND
+                    avito_product_profile.value = avito_token_event.profile
+                ',
             );
 
         $dbal
