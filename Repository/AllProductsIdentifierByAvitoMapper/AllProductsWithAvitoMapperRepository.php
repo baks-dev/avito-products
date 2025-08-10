@@ -29,6 +29,7 @@ use BaksDev\Avito\Board\Entity\AvitoBoard;
 use BaksDev\Avito\Board\Entity\Element\AvitoBoardMapperElement;
 use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Entity\AvitoToken;
+use BaksDev\Avito\Entity\Event\Active\AvitoTokenActive;
 use BaksDev\Avito\Entity\Event\AvitoTokenEvent;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Products\Category\Entity\CategoryProduct;
@@ -127,6 +128,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             ->from(Product::class, 'product');
 
         /** Проверяю, есть ли соответствующий профиль */
+
         $dbal
             ->join(
                 'product',
@@ -143,27 +145,28 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
         $dbal
             ->join(
                 'avito_token',
-                AvitoTokenEvent::class,
-                'avito_token_event',
+                AvitoTokenActive::class,
+                'avito_token_active',
                 '
-                        avito_token_event.id = avito_token.event AND
-                        avito_token_event.active = TRUE',
+                        avito_token_active.id = avito_token.event AND
+                        avito_token_active.value IS TRUE',
             );
 
-        $dbal->join(
-            'avito_token',
-            UserProfileInfo::class,
-            'info',
-            '
+
+        $dbal
+            ->join(
+                'avito_token',
+                UserProfileInfo::class,
+                'info',
+                '
                 info.profile = avito_token.id AND
                 info.status = :status',
-        );
-
-        $dbal->setParameter(
-            key: 'status',
-            value: UserProfileStatusActive::class,
-            type: UserProfileStatus::TYPE,
-        );
+            )
+            ->setParameter(
+                key: 'status',
+                value: UserProfileStatusActive::class,
+                type: UserProfileStatus::TYPE,
+            );
 
         $dbal->leftJoin(
             'product',
