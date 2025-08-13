@@ -88,7 +88,9 @@ final class AvitoProductHandler extends AbstractHandler
 
         $this->flush();
 
-        $this->messageDispatch->dispatch(
+        $this->messageDispatch
+            ->addClearCacheOther('avito-board')
+            ->dispatch(
             message: new AvitoProductMessage($entity->getId()),
             transport: 'avito-products',
         );
