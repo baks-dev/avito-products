@@ -39,7 +39,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use http\Exception\InvalidArgumentException;
 use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,8 +110,9 @@ final class NewEditController extends AbstractController
                     'variation' => $AvitoProductDTO->getVariation(),
                     'modification' => $AvitoProductDTO->getModification(),
                     'kit' => $AvitoProductDTO->getKit()->getValue(),
-                ]
-            )]
+                    'page' => $request->get('page'),
+                ],
+            )],
         );
 
         $form->handleRequest($request);
@@ -126,10 +127,13 @@ final class NewEditController extends AbstractController
                 'page.edit',
                 $handle instanceof AvitoProduct ? 'success.edit' : 'danger.edit',
                 'avito-products.admin',
-                $handle
+                $handle,
             );
 
-            return $this->redirectToRoute('avito-products:admin.products.index');
+            return $this->redirectToRoute(
+                route: 'avito-products:admin.products.index',
+                parameters: ['page' => $request->get('page')],
+            );
         }
 
         $product = $oneProductWithAvitoImages
@@ -141,7 +145,7 @@ final class NewEditController extends AbstractController
 
         if(false === $product)
         {
-            throw new Exception('Продукт не найден ');
+            throw new InvalidArgumentException('Продукт не найден ');
         }
 
         return $this->render(['form' => $form->createView(), 'product' => $product]);
