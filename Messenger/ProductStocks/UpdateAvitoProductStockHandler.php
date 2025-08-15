@@ -157,7 +157,7 @@ final readonly class UpdateAvitoProductStockHandler
 
 
         $this->logger->info(
-            sprintf('%s: Обновили остаток товара => %s', $article, $product['product_quantity']),
+            sprintf('%s: Обновили остаток товара => %s', $article, $ProductQuantity),
             [__FILE__.':'.__LINE__],
         );
 
