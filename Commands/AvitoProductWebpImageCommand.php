@@ -28,7 +28,6 @@ namespace BaksDev\Avito\Products\Commands;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Repository\AvitoImageIdentifierByName\AvitoImageIdentifierByNameInterface;
 use BaksDev\Avito\Products\Repository\AvitoProductImageLocal\AvitoProductImageLocalInterface;
-use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Files\Resources\Messenger\Request\Images\CDNUploadImageMessage;
@@ -82,7 +81,7 @@ class AvitoProductWebpImageCommand extends Command
         foreach($images as $image)
         {
             $message = new CDNUploadImageMessage(
-                new AvitoProductImageUid($image->getId()),
+                $image->getId(),
                 AvitoProductImage::class,
                 $image->getName(),
             );
