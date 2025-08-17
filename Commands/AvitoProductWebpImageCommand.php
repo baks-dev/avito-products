@@ -26,10 +26,21 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Commands;
 
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
+use BaksDev\Avito\Products\Repository\AvitoImageIdentifierByName\AvitoImageIdentifierByNameInterface;
+use BaksDev\Avito\Products\Repository\AvitoProductImageLocal\AvitoProductImageLocalInterface;
 use BaksDev\Avito\Products\Type\Image\AvitoProductImageUid;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Files\Resources\Messenger\Request\Images\CDNUploadImageMessage;
+use BaksDev\Ozon\Products\Entity\Custom\Images\OzonProductCustomImage;
+use BaksDev\Yandex\Market\Products\Entity\Custom\Images\YandexMarketProductCustomImage;
+use Doctrine\ORM\Mapping\Table;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionAttribute;
+use ReflectionClass;
+use SplFileInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -37,6 +48,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
     name: 'baks:avito-products:cdn',
@@ -45,16 +57,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class AvitoProductWebpImageCommand extends Command
 {
     public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
+        #[Autowire('%kernel.project_dir%')] private readonly string $upload,
         private readonly MessageDispatchInterface $messageDispatch,
+        private readonly AvitoProductImageLocalInterface $AvitoProductImageLocalRepository,
+        private readonly AvitoImageIdentifierByNameInterface $AvitoImageIdentifierByNameRepository
     )
     {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this->addArgument('argument', InputArgument::OPTIONAL, 'Описание аргумента');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -64,26 +73,76 @@ class AvitoProductWebpImageCommand extends Command
         $progressBar = new ProgressBar($output);
         $progressBar->start();
 
+        /**
+         * Обрабатываем файлы по базе данных
+         */
 
-        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-
-        $dbal
-            ->select('image.id')
-            ->addSelect('image.name')
-            ->from(AvitoProductImage::class, 'image')
-            ->where('image.cdn IS NOT TRUE');
-
-        $images = $dbal->fetchAllAssociative();
+        $images = $this->AvitoProductImageLocalRepository->findAll();
 
         foreach($images as $image)
         {
             $message = new CDNUploadImageMessage(
-                new AvitoProductImageUid($image['id']),
+                new AvitoProductImageUid($image->getId()),
                 AvitoProductImage::class,
-                $image['name']
+                $image->getName(),
             );
 
             $this->messageDispatch->dispatch($message);
+            $progressBar->advance();
+        }
+
+        $this->AvitoImageIdentifierByNameRepository->find('MVvHfrUQU');
+
+
+        /**
+         * Проверяем директории на признак не пережатых файлов
+         */
+
+
+        /** Выделяем из сущности название таблицы для директории файлов */
+        $ref = new ReflectionClass(AvitoProductImage::class);
+
+        /** @var ReflectionAttribute $current */
+        $current = current($ref->getAttributes(Table::class));
+        $TABLE = $current->getArguments()['name'] ?? 'images';
+
+        /** Определяем путь к директории файлов */
+        $upload = null;
+        $upload[] = $this->upload;
+        $upload[] = 'public';
+        $upload[] = 'upload';
+        $upload[] = $TABLE;
+        $uploadDir = implode(DIRECTORY_SEPARATOR, $upload);
+
+        $iterator = new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS);
+
+        /** @var SplFileInfo $info */
+        foreach(new RecursiveIteratorIterator($iterator) as $info)
+        {
+            /** Определяем файл в базе данных по названию директории */
+            $dirName = basename(dirname($info->getRealPath()));
+            $YandexMarketProductImage = $this->AvitoImageIdentifierByNameRepository->find($dirName);
+
+
+            if(false === $YandexMarketProductImage)
+            {
+                $io->warning(sprintf('Изображение AvitoProductImage %s не найдено либо уже отправлено на CDN', $dirName));
+
+                unlink($info->getRealPath()); // удаляем файл
+                rmdir($info->getPath());  // удаляем пустую директорию
+
+                continue;
+            }
+
+            $CDNUploadImageMessage = new CDNUploadImageMessage(
+                $YandexMarketProductImage,
+                AvitoProductImage::class,
+                $dirName,
+
+            );
+
+            $this->messageDispatch->dispatch(message: $CDNUploadImageMessage);
+
             $progressBar->advance();
         }
 
