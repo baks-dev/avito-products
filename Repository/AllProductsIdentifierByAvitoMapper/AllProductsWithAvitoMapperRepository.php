@@ -53,11 +53,11 @@ use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Users\Profile\UserProfile\Entity\Event\Info\UserProfileInfo;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\Status\UserProfileStatusActive;
 use BaksDev\Users\Profile\UserProfile\Type\UserProfileStatus\UserProfileStatus;
 use Generator;
-use InvalidArgumentException;
 
 final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvitoMapperInterface
 {
@@ -68,6 +68,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
 
@@ -79,6 +80,12 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 
     public function profile(UserProfile|UserProfileUid|string $profile): self
     {
+        if(empty($profile))
+        {
+            $this->profile = false;
+            return $this;
+        }
+
         if($profile instanceof UserProfile)
         {
             $profile = $profile->getId();
@@ -97,27 +104,10 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
     /**
      * Метод получает продукт для которого есть маппер Авито
      *
-     * @return Generator<int, array{
-     *      id: string,
-     *      event: string,
-     *      product_offer_const: string,
-     *      product_variation_const: string,
-     *      product_modification_const: string,
-     *      product_article: string,
-     *      category_active: bool,
-     *      product_category: string,
-     *      product_price: int,
-     *      product_currency: string,
-     *      product_quantity: int
-     *  }>| false
+     * @return Generator<int, AllProductsWithAvitoMapperResult>|false
      */
     public function findAll(): Generator|false
     {
-        if($this->profile === false)
-        {
-            throw new InvalidArgumentException('Invalid Argument profile');
-        }
-
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -138,7 +128,9 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
             )
             ->setParameter(
                 key: 'profile',
-                value: $this->profile,
+                value: $this->profile instanceof UserProfileUid
+                    ? $this->profile
+                    : $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
 
@@ -148,7 +140,7 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
                 AvitoTokenActive::class,
                 'avito_token_active',
                 '
-                        avito_token_active.id = avito_token.event AND
+                        avito_token_active.event = avito_token.event AND
                         avito_token_active.value IS TRUE',
             );
 
@@ -473,6 +465,6 @@ final class AllProductsWithAvitoMapperRepository implements AllProductsWithAvito
 
         return $dbal
             ->enableCache('orders-order', 3600)
-            ->fetchAllGenerator();
+            ->fetchAllHydrate(AllProductsWithAvitoMapperResult::class);
     }
 }

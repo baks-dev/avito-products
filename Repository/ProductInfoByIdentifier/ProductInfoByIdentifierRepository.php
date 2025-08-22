@@ -144,7 +144,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
      *     'product_article': string
      * }| false
      */
-    public function find(): array|false
+    public function find(): ProductInfoByIdentifierResult|false
     {
         if($this->product === false)
         {
@@ -194,7 +194,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 ->setParameter(
                     'offerConst',
                     $this->offerConst,
-                    ProductOfferConst::TYPE
+                    ProductOfferConst::TYPE,
                 );
         }
         else
@@ -204,7 +204,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                     'product',
                     ProductOffer::class,
                     'product_offer',
-                    'product_offer.event = product.event'
+                    'product_offer.event = product.event',
                 );
         }
 
@@ -223,7 +223,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 ->setParameter(
                     'variationConst',
                     $this->variationConst,
-                    ProductVariationConst::TYPE
+                    ProductVariationConst::TYPE,
                 );
         }
         else
@@ -233,7 +233,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                     'product_offer',
                     ProductVariation::class,
                     'product_variation',
-                    'product_variation.offer = product_offer.id'
+                    'product_variation.offer = product_offer.id',
                 );
         }
 
@@ -252,7 +252,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 ->setParameter(
                     'modificationConst',
                     $this->modificationConst,
-                    ProductModificationConst::TYPE
+                    ProductModificationConst::TYPE,
                 );
         }
         else
@@ -262,7 +262,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                     'product_variation',
                     ProductModification::class,
                     'product_modification',
-                    'product_modification.variation = product_variation.id'
+                    'product_modification.variation = product_variation.id',
                 );
         }
 
@@ -275,7 +275,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 'product',
                 ProductPrice::class,
                 'product_price',
-                'product_price.event = product.event'
+                'product_price.event = product.event',
             )
             ->addGroupBy('product_price.reserve');
 
@@ -286,7 +286,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
             'product_offer',
             ProductOfferPrice::class,
             'product_offer_price',
-            'product_offer_price.offer = product_offer.id'
+            'product_offer_price.offer = product_offer.id',
         );
 
         /**
@@ -296,7 +296,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
             'product_variation',
             ProductVariationPrice::class,
             'product_variation_price',
-            'product_variation_price.variation = product_variation.id'
+            'product_variation_price.variation = product_variation.id',
         );
 
         /**
@@ -306,7 +306,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
             'product_modification',
             ProductModificationPrice::class,
             'product_modification_price',
-            'product_modification_price.modification = product_modification.id'
+            'product_modification_price.modification = product_modification.id',
         );
 
 
@@ -346,7 +346,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 'product_offer',
                 ProductOfferQuantity::class,
                 'product_offer_quantity',
-                'product_offer_quantity.offer = product_offer.id'
+                'product_offer_quantity.offer = product_offer.id',
             )
             ->addGroupBy('product_offer_quantity.reserve');
 
@@ -356,7 +356,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 'product_variation',
                 ProductVariationQuantity::class,
                 'product_variation_quantity',
-                'product_variation_quantity.variation = product_variation.id'
+                'product_variation_quantity.variation = product_variation.id',
             )
             ->addGroupBy('product_variation_quantity.reserve');
 
@@ -365,7 +365,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
                 'product_modification',
                 ProductModificationQuantity::class,
                 'product_modification_quantity',
-                'product_modification_quantity.modification = product_modification.id'
+                'product_modification_quantity.modification = product_modification.id',
             )
             ->addGroupBy('product_modification_quantity.reserve');
 
@@ -385,7 +385,7 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
 			   THEN (product_price.quantity - product_price.reserve)
 			 
 			   ELSE 0
-			END AS product_quantity'
+			END AS product_quantity',
         );
 
         /**
@@ -403,12 +403,6 @@ final class ProductInfoByIdentifierRepository implements ProductInfoByIdentifier
 
         $dbal->allGroupByExclude();
 
-        /** DEBUG */
-        //        dd($dbal->fetchAllAssociative());
-        //        dd($dbal->analyze());
-
-        $result = $dbal->fetchAssociative();
-
-        return empty($result) ? false : $result;
+        return $dbal->fetchHydrate(ProductInfoByIdentifierResult::class);
     }
 }

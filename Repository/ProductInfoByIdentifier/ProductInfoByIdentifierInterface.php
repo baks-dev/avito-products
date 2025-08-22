@@ -49,5 +49,5 @@ interface ProductInfoByIdentifierInterface
      *  'product_article': string
      * }| false
      */
-    public function find(): array|false;
+    public function find(): ProductInfoByIdentifierResult|false;
 }

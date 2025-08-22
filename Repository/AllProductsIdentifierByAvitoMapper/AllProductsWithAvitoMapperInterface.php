@@ -37,19 +37,7 @@ interface AllProductsWithAvitoMapperInterface
     /**
      * Метод получает продукт для которого есть маппер Авито
      *
-     * @return Generator<int, array{
-     *      id: string,
-     *      event: string,
-     *      product_offer_const: string,
-     *      product_variation_const: string,
-     *      product_modification_const: string,
-     *      product_article: string,
-     *      category_active: bool,
-     *      product_category: string,
-     *      product_price: int,
-     *      product_currency: string,
-     *      product_quantity: int
-     *  }>| false
+     * @return Generator<int, AllProductsWithAvitoMapperResult>| false
      */
     public function findAll(): Generator|false;
 }

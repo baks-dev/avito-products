@@ -84,7 +84,7 @@ class UpdateAvitoProductStocksCommand extends Command
         $question = new ChoiceQuestion(
             'Профиль пользователя',
             $questions,
-            0
+            0,
         );
 
         $profileName = $helper->ask($input, $output, $question);
@@ -118,7 +118,6 @@ class UpdateAvitoProductStocksCommand extends Command
         }
 
         $this->io->success('Авито: Остатки успешно обновлены');
-
         return Command::SUCCESS;
     }
 
@@ -137,7 +136,7 @@ class UpdateAvitoProductStocksCommand extends Command
             ->profile($profile)
             ->findAll();
 
-        if(false === $avitoProducts)
+        if(false === $avitoProducts || false === $avitoProducts->valid())
         {
             $this->io->warning('Не найдено продукты для обновления остатков в объявлениях на Авито');
             return;
@@ -147,13 +146,14 @@ class UpdateAvitoProductStocksCommand extends Command
         {
             $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
                 $profile,
-                $product['product_id'],
-                $product['product_offer_const'],
-                $product['product_variation_const'],
-                $product['product_modification_const']);
+                $product->getProductId(),
+                $product->getProductOfferConst(),
+                $product->getProductVariationConst(),
+                $product->getProductModificationConst(),
+            );
 
             $this->messageDispatch->dispatch($updateAvitoProductStockMessage);
-            $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $product['product_article']));
+            $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $product->getProductArticle()));
         }
     }
 }
