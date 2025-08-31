@@ -30,21 +30,19 @@ use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 
-/**
- * @group avito-products
- * @group avito-products-usecase
- *
- * @depends BaksDev\Avito\Products\UseCase\NewEdit\Images\Tests\AvitoProductImagesNewTest::class
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 class AvitoProductImagesEditTest extends KernelTestCase
 {
+    #[DependsOnClass(AvitoProductImagesNewTest::class)]
     public function testEdit(): void
     {
         $container = self::getContainer();

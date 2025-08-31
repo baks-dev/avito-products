@@ -24,15 +24,13 @@
 namespace BaksDev\Avito\Products\Controller\Admin\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group avito-products
- * @group avito-products-controller
- * @group avito-products-controller-index
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 final class AvitoProductIndexAdminControllerTest extends WebTestCase
 {
     private const string URL = '/admin/avito/products';

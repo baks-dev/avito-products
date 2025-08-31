@@ -28,13 +28,13 @@ namespace BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\Tests;
 use BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock\UpdateAvitoProductStockRequest;
 use BaksDev\Avito\Type\Authorization\AvitoTokenAuthorization;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group avito-products
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 final class UpdateAvitoProductStockRequestTest extends KernelTestCase
 {
     private static AvitoTokenAuthorization $authorization;
@@ -46,6 +46,7 @@ final class UpdateAvitoProductStockRequestTest extends KernelTestCase
             $_SERVER['TEST_AVITO_CLIENT'],
             $_SERVER['TEST_AVITO_SECRET'],
             $_SERVER['TEST_AVITO_USER'],
+            $_SERVER['TEST_AVITO_PERCENT'] ?? '0',
         );
     }
 

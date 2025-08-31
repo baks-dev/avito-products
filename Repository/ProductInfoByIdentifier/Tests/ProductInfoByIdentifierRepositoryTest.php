@@ -40,12 +40,8 @@ use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-
-/**
- * @group avito-products
- */
-#[Group('avito-products')]
 #[When(env: 'test')]
+#[Group('avito-products')]
 class ProductInfoByIdentifierRepositoryTest extends KernelTestCase
 {
     public function testEnv()

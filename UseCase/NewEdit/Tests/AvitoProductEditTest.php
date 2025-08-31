@@ -32,18 +32,16 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group avito-products
- * @group avito-products-usecase
- *
- * @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests\AvitoProductNewTest::class
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 class AvitoProductEditTest extends KernelTestCase
 {
+    #[DependsOnClass(AvitoProductNewTest::class)]
     public function testEdit(): void
     {
         $container = self::getContainer();

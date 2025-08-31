@@ -23,58 +23,37 @@
 
 namespace BaksDev\Avito\Products\Controller\Admin\Tests;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
-use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
+use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
+use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Products\Product\UseCase\Admin\Delete\Tests\ProductsProductDeleteAdminUseCaseTest;
+use BaksDev\Products\Product\UseCase\Admin\NewEdit\Tests\ProductsProductNewAdminUseCaseTest;
 use BaksDev\Users\User\Tests\TestUserAccount;
-use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group avito-products
- * @group avito-products-controller
- * @group avito-products-controller-edit
- *
- * @depends BaksDev\Avito\Products\UseCase\NewEdit\Tests\AvitoProductEditTest::class
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 final class AvitoProductNewEditAdminControllerTest extends WebTestCase
 {
     private const string ROLE = 'ROLE_AVITO_PRODUCTS_EDIT';
 
     private static ?string $url = null;
 
+    /** Создаем тестовый продукт */
     public static function setUpBeforeClass(): void
     {
-        $container = self::getContainer();
+        ProductsProductNewAdminUseCaseTest::setUpBeforeClass();
+        new ProductsProductNewAdminUseCaseTest('')->testUseCase();
 
-        /** @var EntityManagerInterface $em */
-        $em = $container->get(EntityManagerInterface::class);
-
-        /**
-         * Находим продукт по тестовому идентификатору
-         *
-         * @var AvitoProduct $product
-         */
-        $product = $em
-            ->getRepository(AvitoProduct::class)
-            ->find(AvitoProductUid::TEST);
-
-        self::assertNotNull($product);
-
-        $editDTO = new AvitoProductDTO();
-
-        $product->getDto($editDTO);
-
-        $product = $editDTO->getProduct();
-        $offer = $editDTO->getOffer();
-        $variation = $editDTO->getVariation() ? '/'.$editDTO->getVariation() : '';
-        $modification = $editDTO->getModification() ? '/'.$editDTO->getModification() : '';
-
-        self::$url = sprintf("/admin/avito/product/%s/%s%s%s", $product, $offer, $variation, $modification);
-
-        $em->clear();
+        self::$url = sprintf("/admin/avito/product/%s/%s/%s/%s",
+            ProductUid::TEST,
+            ProductOfferConst::TEST,
+            ProductVariationConst::TEST,
+            ProductModificationConst::TEST,
+        );
     }
 
     /** Доступ по роли */
@@ -142,6 +121,8 @@ final class AvitoProductNewEditAdminControllerTest extends WebTestCase
     }
 
     /** Доступ без роли */
+    //#[DependsOnClass(AvitoProductEditTest::class)]
+    //#[DependsOnClass(ProductsProductNewAdminUseCaseTest::class)]
     public function testGuestFiled(): void
     {
         self::ensureKernelShutdown();
@@ -158,5 +139,12 @@ final class AvitoProductNewEditAdminControllerTest extends WebTestCase
         }
 
         self::assertTrue(true);
+    }
+
+
+    /** Удаляем тестовый продукт после завершения */
+    public static function tearDownAfterClass(): void
+    {
+        ProductsProductDeleteAdminUseCaseTest::tearDownAfterClass();
     }
 }

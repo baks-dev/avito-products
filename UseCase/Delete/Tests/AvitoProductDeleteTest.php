@@ -27,21 +27,20 @@ use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\Delete\AvitoProductDeleteDTO;
 use BaksDev\Avito\Products\UseCase\Delete\AvitoProductDeleteHandler;
+use BaksDev\Avito\Products\UseCase\NewEdit\Images\Tests\AvitoProductImagesEditTest;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @group avito-products
- * @group avito-products-usecase
- *
- * @depends BaksDev\Avito\Products\UseCase\NewEdit\Images\Tests\AvitoProductImagesEditTest::class
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 class AvitoProductDeleteTest extends KernelTestCase
 {
+    #[DependsOnClass(AvitoProductImagesEditTest::class)]
     public function testDelete(): void
     {
         $container = self::getContainer();
@@ -62,6 +61,7 @@ class AvitoProductDeleteTest extends KernelTestCase
         $deletedAvitoProduct = $handler->handle($deleteDTO);
         self::assertTrue($deletedAvitoProduct instanceof AvitoProduct);
     }
+
 
     public static function tearDownAfterClass(): void
     {

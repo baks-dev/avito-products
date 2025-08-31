@@ -23,6 +23,7 @@
 
 namespace BaksDev\Avito\Products\UseCase\NewEdit\Tests;
 
+use BaksDev\Avito\Products\Controller\Admin\Tests\AvitoProductIndexAdminControllerTest;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
@@ -33,17 +34,15 @@ use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DependsOnClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group avito-products
- * @group avito-products-usecase
- *
- * @depends BaksDev\Avito\Products\Controller\Admin\Tests\AvitoProductIndexControllerTest::class
- */
 #[When(env: 'test')]
+#[Group('avito-products')]
 class AvitoProductNewTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
@@ -73,6 +72,7 @@ class AvitoProductNewTest extends KernelTestCase
         $em->clear();
     }
 
+    #[DependsOnClass(AvitoProductIndexAdminControllerTest::class)]
     public function testNew(): void
     {
         $avitoProductDTO = new AvitoProductDTO();
@@ -92,6 +92,9 @@ class AvitoProductNewTest extends KernelTestCase
         $avitoProductDTO->setDescription('new_description');
         self::assertSame('new_description', $avitoProductDTO->getDescription());
 
+        $avitoProductDTO->getProfile()->setValue(new UserProfileUid(UserProfileUid::TEST));
+        self::assertTrue($avitoProductDTO->getProfile()->getValue()->equals(UserProfileUid::TEST));
+
         $image = new AvitoProductImagesDTO();
         $avitoProductDTO->getImages()->add($image);
 
@@ -100,6 +103,6 @@ class AvitoProductNewTest extends KernelTestCase
         /** @var AvitoProductHandler $handler */
         $handler = $container->get(AvitoProductHandler::class);
         $newAvitoProduct = $handler->handle($avitoProductDTO);
-        self::assertTrue($newAvitoProduct instanceof AvitoProduct);
+        self::assertTrue($newAvitoProduct instanceof AvitoProduct, message: $newAvitoProduct);
     }
 }
