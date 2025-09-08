@@ -32,6 +32,8 @@ use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface AvitoProductProfileInterface
 {
@@ -44,6 +46,8 @@ interface AvitoProductProfileInterface
     public function modificationConst(ProductModificationConst|ProductModification|null|false $modification): self;
 
     public function kit(int|string|null|false $kit): self;
+
+    public function forProfile(UserProfileUid|UserProfile $profile): self;
 
     /**
      * Метод возвращает объект сущности AvitoProduct

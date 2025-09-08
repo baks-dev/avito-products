@@ -38,6 +38,7 @@ use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use InvalidArgumentException;
@@ -52,6 +53,8 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
     private ProductVariationConst|false $variation = false;
 
     private ProductModificationConst|false $modification = false;
+
+    private UserProfileUid|false $profile;
 
     private int $kit = 1;
 
@@ -129,7 +132,6 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
 
     public function kit(int|string|null|false $kit): self
     {
-
         if(empty($kit))
         {
             $this->kit = 1;
@@ -140,6 +142,19 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
 
         return $this;
     }
+
+    public function forProfile(UserProfileUid|UserProfile $profile): self
+    {
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
+
 
     /**
      * Метод возвращает объект сущности AvitoProduct
@@ -184,7 +199,7 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
             )
             ->setParameter(
                 key: 'profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
+                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
 
