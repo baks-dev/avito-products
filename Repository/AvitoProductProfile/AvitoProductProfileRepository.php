@@ -54,7 +54,7 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
 
     private ProductModificationConst|false $modification = false;
 
-    private UserProfileUid|false $profile;
+    private UserProfileUid|false $profile = false;
 
     private int $kit = 1;
 

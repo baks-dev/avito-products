@@ -131,6 +131,38 @@ class CopyAvitoProductCommand extends Command
             /** Присваиваем идентификатор профиля */
             $AvitoProductDTO->getProfile()->setValue($CopyUserProfileUid);
 
+
+            $Description = '<p>
+    🔝 &nbsp; Лучшие цены на ОПТ и РОЗНИЦУ!<br>
+    ☎️ &nbsp; Звоните прямо сейчас или пишите в чат AVITO<br>
+</p>
+<p>
+    🏆 <strong>%PRODUCT_NAME% %PRODUCT_VARIATION%/%PRODUCT_MOD% R%PRODUCT_OFFER%</strong> 🏆
+</p>
+<p>
+    🌎 &nbsp; Производство: Китай 🇨🇳<br>
+    👍 &nbsp; Гарантия завода-изготовителя! 👍<br>
+    ==============================<br>
+    ⭐️ &nbsp; Цена указана со СKИДКОЙ зa НAЛИЧНЫЙ расчёт ⭐️<br>
+    💷 &nbsp; Торга нет<br>
+    ==============================<br>
+    🚛 &nbsp; Доставка в пределах Симферополя - 800 рублей!<br>
+    🚚 &nbsp; Доставка по всей России транспортными компаниями<br>
+    ==============================<br>
+    ✅ &nbsp; Гарантия на установку и балансировку<br>
+    ==============================<br>
+    📢 &nbsp; Продаем в любом количестве, без наценки!<br>
+    📲 &nbsp; Уточняйте наличие.<br>
+    ==============================<br>
+    🏠 &nbsp; Наш адрес: Республика Крым, г. Симферополь, ул. Коммунальная 34<br>
+    🔔 &nbsp; Режим работы: ПН-ПТ с 10.00 до 18.00, в СБ с 12.00 до 15.00 (по звонку), ВС-выходной
+</p>
+<p>
+    %PRODUCT_NAME%, %PRODUCT_VARIATION% %PRODUCT_MOD% %PRODUCT_OFFER%, %PRODUCT_VARIATION%.%PRODUCT_MOD%r%PRODUCT_OFFER%, %PRODUCT_VARIATION% %PRODUCT_MOD% R%PRODUCT_OFFER%, %PRODUCT_VARIATION%/%PRODUCT_MOD%/%PRODUCT_OFFER%, %PRODUCT_VARIATION%.%PRODUCT_MOD%.%PRODUCT_OFFER%, %PRODUCT_VARIATION%/%PRODUCT_MOD%/R%PRODUCT_OFFER%
+</p>';
+
+            $AvitoProductDTO->setDescription($Description);
+
             $this->AvitoProductHandler->handle($AvitoProductDTO);
 
             $progressBar->advance();
