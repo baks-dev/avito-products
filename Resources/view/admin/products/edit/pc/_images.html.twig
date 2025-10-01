@@ -20,7 +20,7 @@
                 <div class="item-collection-photo">
 
                     {# Обложка #}
-                    {% set image_path = '/assets/img/blank.svg' %}
+                    {% set image_path = '/assets/'~version~'/img/blank.svg' %}
 
                     {% if image.vars.data.ext is defined and image.vars.data.ext is not null %}
 
