@@ -30,6 +30,7 @@ use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Entity\AvitoToken;
 use BaksDev\Avito\Entity\Event\AvitoTokenEvent;
 use BaksDev\Avito\Entity\Event\Kit\AvitoTokenKit;
+use BaksDev\Avito\Entity\Event\Profile\AvitoTokenProfile;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
@@ -114,9 +115,18 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'avito_token',
                 AvitoTokenEvent::class,
                 'avito_token_event',
+                'avito_token_event.id = avito_token.event',
+            );
+
+
+        $dbal
+            ->join(
+                'avito_token',
+                AvitoTokenProfile::class,
+                'avito_token_profile',
                 '
-                    avito_token_event.id = avito_token.event 
-                    AND avito_token_event.profile = :profile
+                    avito_token_profile.event = avito_token.event 
+                    AND avito_token_profile.value = :profile
                 ',
             )
             ->setParameter(
@@ -432,12 +442,12 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'avito_product_profile',
                 '
                     avito_product_profile.avito = avito_product.id AND
-                    avito_product_profile.value = avito_token_event.profile
+                    avito_product_profile.value = avito_token_profile.value
                 ',
             );
 
         $dbal
-            ->andWhere('(avito_product_profile.value = avito_token_event.profile OR avito_product_profile.value IS NULL)');
+            ->andWhere('(avito_product_profile.value = avito_token_profile.value OR avito_product_profile.value IS NULL)');
 
         /** Комплект */
         $dbal->leftJoin(
@@ -474,7 +484,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 					)
 			) 
 			FILTER (WHERE avito_product_images.ext IS NOT NULL)
-			AS avito_product_images"
+			AS avito_product_images",
         );
 
 
