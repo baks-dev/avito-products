@@ -43,6 +43,8 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[When(env: 'test')]
 #[Group('avito-products')]
+#[Group('avito-products-repository')]
+#[Group('avito-products-handler')]
 class AvitoProductNewTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void
@@ -52,7 +54,8 @@ class AvitoProductNewTest extends KernelTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get(EntityManagerInterface::class);
 
-        $avitoProduct = $em->getRepository(AvitoProduct::class)
+        $avitoProduct = $em
+            ->getRepository(AvitoProduct::class)
             ->find(AvitoProductUid::TEST);
 
         if($avitoProduct)

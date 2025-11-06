@@ -3,6 +3,7 @@ page:
   new: 'Добавить продукцию для Avito'
   edit: 'Редактировать продукцию для Avito'
   delete: 'Удалить продукцию для Avito'
+  description: 'Редактировать шаблон описания'
 
 breadcrumb:
   index: 'Настройки продукции для Avito'

@@ -16,6 +16,19 @@
                 </h1>
             </div>
 
+
+            {# Изменить шаблон описания #}
+            {% if is_granted('ROLE_AVITO_PRODUCTS_EDIT') or is_granted('ROLE_ADMIN') %}
+                <button data-href="{{ path('avito-products:admin.description.edit') }}"
+                        class="btn btn-primary modal-link w-25 disabled"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal"
+                        title="Изменить шаблон описания">
+                    Изменить шаблон описания
+                </button>
+            {% endif %}
+
+
         </div>
 
         <div class="border border-light rounded-4 p-3">
@@ -24,6 +37,7 @@
 
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
+
 
                 {# Фильтр по продукции #}
                 <div class="w-100 d-flex align-items-center align-content-end gap-2">

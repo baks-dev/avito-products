@@ -1,5 +1,6 @@
+<?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -20,4 +21,16 @@
  *  THE SOFTWARE.
  */
 
-executeFunc((function avitoProductsFunction(){if(typeof formDebounce!=="function"){return false}const form=document.forms.avito_products_filter_form;if(typeof form==="undefined"){return false}form.addEventListener("change",formDebounce((()=>{form.submit()}),300));return true}));
+declare(strict_types=1);
+
+namespace BaksDev\Avito\Products\Repository\AllAvitoProductsByProfile;
+
+use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+
+interface AllAvitoProductsByProfileInterface
+{
+    /** @return array<AvitoProduct>|null */
+    public function findAll(UserProfileUid $profile): ?array;
+}

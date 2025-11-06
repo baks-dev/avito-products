@@ -3,6 +3,7 @@ page:
   new: 'Add products for Avito'
   edit: 'Edit products for Avito'
   delete: 'Delete products for Avito'
+  description: 'Edit description template'
 
 breadcrumb:
   index: 'Product settings for Avito'
