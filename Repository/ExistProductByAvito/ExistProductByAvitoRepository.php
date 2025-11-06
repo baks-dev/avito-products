@@ -67,10 +67,11 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
         return $this;
     }
 
-    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self
+    public function offerConst(ProductOffer|ProductOfferConst|string|null|false $offer): self
     {
-        if(is_null($offer))
+        if(empty($offer))
         {
+            $this->offer = false;
             return $this;
         }
 
@@ -89,10 +90,11 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
         return $this;
     }
 
-    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self
+    public function variationConst(ProductVariation|ProductVariationConst|string|null|false $variation): self
     {
-        if(is_null($variation))
+        if(empty($variation))
         {
+            $this->variation = false;
             return $this;
         }
 
@@ -111,10 +113,12 @@ final class ExistProductByAvitoRepository implements ExistProductByAvitoProductI
         return $this;
     }
 
-    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self
+    public function modificationConst(ProductModification|ProductModificationConst|string|null|false $modification
+    ): self
     {
-        if(is_null($modification))
+        if(empty($modification))
         {
+            $this->modification = false;
             return $this;
         }
 

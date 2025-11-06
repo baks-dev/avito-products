@@ -92,10 +92,11 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         return $this;
     }
 
-    public function offerConst(ProductOffer|ProductOfferConst|string|null $offer): self
+    public function offerConst(ProductOffer|ProductOfferConst|string|null|false $offer): self
     {
         if(is_null($offer))
         {
+            $this->offer = false;
             return $this;
         }
 
@@ -114,10 +115,11 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         return $this;
     }
 
-    public function variationConst(ProductVariation|ProductVariationConst|string|null $variation): self
+    public function variationConst(ProductVariation|ProductVariationConst|string|null|false $variation): self
     {
-        if(is_null($variation))
+        if(empty($variation))
         {
+            $this->variation = false;
             return $this;
         }
 
@@ -136,10 +138,12 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
         return $this;
     }
 
-    public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self
+    public function modificationConst(ProductModification|ProductModificationConst|string|null|false $modification
+    ): self
     {
-        if(is_null($modification))
+        if(empty($modification))
         {
+            $this->modification = false;
             return $this;
         }
 
@@ -164,7 +168,7 @@ final class OneProductWithAvitoImagesRepository implements OneProductWithAvitoIm
     public function find(): array|bool
     {
 
-        if($this->product === false)
+        if(false === ($this->product instanceof ProductUid))
         {
             throw new InvalidArgumentException('Invalid Argument product');
         }
