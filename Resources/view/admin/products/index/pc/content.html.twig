@@ -25,8 +25,17 @@
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
 
+
                 {# Фильтр по продукции #}
                 <div class="w-100 d-flex align-items-center align-content-end gap-2">
+
+                    <button data-href="{{ path('avito-products:admin.description.edit') }}"
+                            class="btn btn-primary modal-link w-50 disabled"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal"
+                            title="Изменить шаблон описания">
+                        Изменить шаблон описания
+                    </button>
 
                     {% include Template('@products-product/admin/filter/'~baks_settings.device~'/filter.html.twig') %}
 

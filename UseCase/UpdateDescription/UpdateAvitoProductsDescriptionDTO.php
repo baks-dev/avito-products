@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
- *  
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,27 +23,36 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Repository\AvitoImageIdentifierByName\Tests;
+namespace BaksDev\Avito\Products\UseCase\UpdateDescription;
 
-use BaksDev\Avito\Products\Repository\AvitoImageIdentifierByName\AvitoImageIdentifierByNameInterface;
-use PHPUnit\Framework\Attributes\Group;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Attribute\When;
+use BaksDev\Avito\Products\Entity\AvitoProductInterface;
+use BaksDev\Avito\Products\UseCase\UpdateDescription\Profile\UpdateAvitoProductsDescriptionProfileDTO;
 
-#[When(env: 'test')]
-#[Group('avito-products')]
-class AvitoImageIdentifierByNameRepositoryTest extends KernelTestCase
+final readonly class UpdateAvitoProductsDescriptionDTO implements AvitoProductInterface
 {
-    public function testUseCase(): void
+    private UpdateAvitoProductsDescriptionProfileDTO $profile;
+
+    private string $description;
+
+    public function getProfile(): UpdateAvitoProductsDescriptionProfileDTO
     {
-        /** @var AvitoImageIdentifierByNameInterface $AvitoImageIdentifierByNameRepository */
-        $AvitoImageIdentifierByNameRepository = self::getContainer()->get(AvitoImageIdentifierByNameInterface::class);
+        return $this->profile;
+    }
 
-        $result = $AvitoImageIdentifierByNameRepository->find('21f55b9523af7366d9f869587309970c');
+    public function setProfile(UpdateAvitoProductsDescriptionProfileDTO $profile): self
+    {
+        $this->profile = $profile;
+        return $this;
+    }
 
-        //dump($result);
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
 
-        self::assertTrue(true);
-
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
     }
 }

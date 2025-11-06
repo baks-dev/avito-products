@@ -25,13 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Entity\Profile;
 
-
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Core\Entity\EntityEvent;
-use BaksDev\Core\Entity\EntityState;
-use BaksDev\Files\Resources\Upload\UploadEntityInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
