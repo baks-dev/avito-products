@@ -38,7 +38,7 @@ final class UpdateAvitoProductsDescriptionForm extends AbstractType
 	{
 		 $builder->add('description', TextareaType::class, ['required' => false, 'label' => false]);
 
-         $builder->add('profile', UpdateAvitoProductsDescriptionProfileForm::class);
+         $builder->add('profile', UpdateAvitoProductsDescriptionProfileForm::class, ['label' => false]);
 
 		/* Сохранить ******************************************************/
 		$builder->add(

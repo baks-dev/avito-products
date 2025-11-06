@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Controller\Admin;
 
-use BaksDev\Avito\Products\UseCase\UpdateDescription\Profile\UpdateAvitoProductsDescriptionProfileDTO;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\UpdateAvitoProductsDescriptionDTO;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\UpdateAvitoProductsDescriptionForm;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\UpdateAvitoProductsDescriptionHandler;
@@ -47,10 +46,7 @@ final class UpdateDescriptionController extends AbstractController
     ): Response
     {
         /** Добавляем текущий профиль */
-        $updateAvitoProductsDescriptionProfileDTO = new UpdateAvitoProductsDescriptionProfileDTO($this->getProfileUid());
-
-        $updateAvitoProductsDescriptionDTO = new UpdateAvitoProductsDescriptionDTO()
-            ->setProfile($updateAvitoProductsDescriptionProfileDTO);
+        $updateAvitoProductsDescriptionDTO = new UpdateAvitoProductsDescriptionDTO($this->getProfileUid());
 
         // Форма
         $form = $this

@@ -27,21 +27,29 @@ namespace BaksDev\Avito\Products\UseCase\UpdateDescription;
 
 use BaksDev\Avito\Products\Entity\AvitoProductInterface;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\Profile\UpdateAvitoProductsDescriptionProfileDTO;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class UpdateAvitoProductsDescriptionDTO implements AvitoProductInterface
+final class UpdateAvitoProductsDescriptionDTO implements AvitoProductInterface
 {
     private UpdateAvitoProductsDescriptionProfileDTO $profile;
 
+    #[Assert\NotBlank]
     private string $description;
+
+    public function __construct(UserProfileUid $profile)
+    {
+        $this->profile = new UpdateAvitoProductsDescriptionProfileDTO()->setValue($profile);
+    }
 
     public function getProfile(): UpdateAvitoProductsDescriptionProfileDTO
     {
         return $this->profile;
     }
 
-    public function setProfile(UpdateAvitoProductsDescriptionProfileDTO $profile): self
+    public function setProfile(UserProfileUid $profile): self
     {
-        $this->profile = $profile;
+        $this->profile = new UpdateAvitoProductsDescriptionProfileDTO()->setValue($profile);
         return $this;
     }
 

@@ -27,10 +27,13 @@ namespace BaksDev\Avito\Products\UseCase\UpdateDescription\Profile;
 
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfileInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class UpdateAvitoProductsDescriptionProfileDTO implements AvitoProductProfileInterface
 {
-    public function __construct(private UserProfileUid $value) {}
+    #[Assert\NotBlank]
+    #[Assert\Uuid]
+    private ?UserProfileUid $value = null;
 
     public function getValue(): UserProfileUid
     {

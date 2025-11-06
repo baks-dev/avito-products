@@ -44,11 +44,9 @@ final class UpdateAvitoProductsDescriptionHandlerTest extends KernelTestCase
     public function testUseCase(): void
     {
         $profile = new UserProfileUid(UserProfileUid::TEST);
-        $updateAvitoProductsDescriptionProfileDTO = new UpdateAvitoProductsDescriptionProfileDTO($profile);
 
         /** @see UpdateAvitoProductsDescriptionDTO */
-        $updateAvitoProductsDescriptionDTO = new UpdateAvitoProductsDescriptionDTO()
-            ->setProfile($updateAvitoProductsDescriptionProfileDTO)
+        $updateAvitoProductsDescriptionDTO = new UpdateAvitoProductsDescriptionDTO($profile)
             ->setDescription('test change');
 
 

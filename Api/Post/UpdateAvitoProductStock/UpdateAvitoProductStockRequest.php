@@ -27,9 +27,7 @@ namespace BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock;
 
 use BaksDev\Avito\Api\AvitoApi;
 use InvalidArgumentException;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
-#[Autoconfigure(public: true)]
 final class UpdateAvitoProductStockRequest extends AvitoApi
 {
     private const bool STOP_SALES = false;
