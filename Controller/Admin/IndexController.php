@@ -93,7 +93,7 @@ final class IndexController extends AbstractController
             ->search($search)
             ->filter($productFilterDTO)
             ->filterAvitoProducts($avitoProductsFilterDTO)
-            ->findAllResult();
+            ->findPaginator();
 
 
         return $this->render(

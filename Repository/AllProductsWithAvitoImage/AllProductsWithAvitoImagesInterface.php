@@ -37,12 +37,7 @@ interface AllProductsWithAvitoImagesInterface
     public function filterAvitoProducts(AvitoProductsFilterDTO $avitoProductsFilter): self;
 
     /**
-     * @deprecated Все продукты авито в виде пагинатора с массивами
-     */
-    public function findAll(): PaginatorInterface;
-
-    /**
      * Все продукты авито в виде пагинатора с резалтами
      */
-    public function findAllResult(): PaginatorInterface;
+    public function findPaginator(): PaginatorInterface;
 }

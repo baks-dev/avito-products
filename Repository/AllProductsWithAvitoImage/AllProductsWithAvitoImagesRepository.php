@@ -98,7 +98,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         return $this;
     }
 
-    private function builder(): DBALQueryBuilder
+    /**
+     * Все продукты авито в виде пагинатора с резалтами
+     */
+    public function findPaginator(): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -610,22 +613,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         $dbal->allGroupByExclude();
 
-        return $dbal;
-    }
-
-    /**
-     * @deprecated Все продукты авито в виде пагинатора с массивами
-     */
-    public function findAll(): PaginatorInterface
-    {
-        return $this->paginator->fetchAllAssociative($this->builder());
-    }
-
-    /**
-     * Все продукты авито в виде пагинатора с резалтами
-     */
-    public function findAllResult(): PaginatorInterface
-    {
-        return $this->paginator->fetchAllHydrate($this->builder(), AllProductsWithAvitoImagesResult::class);
+        return $this->paginator->fetchAllHydrate($dbal, AllProductsWithAvitoImagesResult::class);
     }
 }

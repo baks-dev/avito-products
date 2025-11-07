@@ -27,28 +27,23 @@ namespace BaksDev\Avito\Products\UseCase\Delete;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
+use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class AvitoProductDeleteHandler
+final class AvitoProductDeleteHandler extends AbstractHandler
 {
-    public function __construct(
-        private EntityManagerInterface $entityManager,
-        private MessageDispatchInterface $messageDispatch,
-        private ValidatorCollectionInterface $validatorCollection,
-    ) {}
-
     public function handle(AvitoProductDeleteDTO $command): AvitoProduct|string|null
     {
         /** Валидация DTO */
-        $this->validatorCollection->add($command);
+        $this->setCommand($command);
 
-        /** @var AvitoProduct|null $entity */
-        $entity = $this->entityManager->getRepository(AvitoProduct::class)
+        /** @var AvitoProduct|null $AvitoProduct */
+        $AvitoProduct = $this->getRepository(AvitoProduct::class)
             ->find($command->getId());
 
-        if(is_null($entity))
+        if(false === ($AvitoProduct instanceof AvitoProduct))
         {
             return null;
         }
@@ -59,16 +54,16 @@ final readonly class AvitoProductDeleteHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->entityManager->remove($entity);
+        $this->remove($AvitoProduct);
 
-        $this->entityManager->flush();
+        $this->flush();
 
         /** Отправляем сообщение в шину */
         $this->messageDispatch->dispatch(
-            message: new AvitoProductMessage($entity->getId()),
-            transport: 'avito-products'
+            message: new AvitoProductMessage($AvitoProduct->getId()),
+            transport: 'avito-products',
         );
 
-        return $entity;
+        return $AvitoProduct;
     }
 }
