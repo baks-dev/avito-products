@@ -39,7 +39,6 @@ use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Elastic\Api\Index\ElasticGetIndex;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
@@ -49,7 +48,6 @@ use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Entity\Active\ProductActive;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
-use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
 use BaksDev\Products\Product\Entity\Offers\Price\ProductOfferPrice;
@@ -100,8 +98,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         return $this;
     }
 
-
-    public function findAll(): PaginatorInterface
+    private function builder(): DBALQueryBuilder
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
@@ -387,18 +384,9 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         );
 
 
-        //        $dbal
-        //            ->andWhere('avito_product_profile.value = :profile OR avito_product_profile.value IS NULL')
-        //            ->setParameter(
-        //                key: 'profile',
-        //                value: $this->UserProfileTokenStorage->getProfile(),
-        //                type: UserProfileUid::TYPE,
-        //            );
-
-
         /** Продукт Авито */
         $dbal
-            //->addSelect('avito_product.id as avito_product_id')
+            ->addSelect('avito_product.id as avito_product_id')
             ->leftJoin(
                 'product_modification',
                 AvitoProduct::class,
@@ -487,35 +475,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 			AS avito_product_images",
         );
 
-
-        //        $dbal->addSelect(
-        //            "
-        //            CASE
-        //                WHEN avito_product_images.name IS NOT NULL THEN
-        //                    CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name)
-        //                ELSE NULL
-        //            END as avito_product_image
-        //            ",
-        //        );
-        //
-        //        /** Расширение изображения */
-        //        $dbal->addSelect('
-        //			CASE
-        //			   WHEN avito_product_images.name IS NOT NULL THEN
-        //					avito_product_images.ext
-        //			   ELSE NULL
-        //			END AS avito_product_image_ext
-        //		');
-        //
-        //        /** Флаг загрузки файла CDN */
-        //        $dbal->addSelect('
-        //			CASE
-        //			   WHEN avito_product_images.name IS NOT NULL THEN
-        //					avito_product_images.cdn
-        //			   ELSE NULL
-        //			END AS avito_product_image_cdn
-        //		');
-
         if(($this->avitoProductsFilter instanceof AvitoProductsFilterDTO) && $this->avitoProductsFilter->getExists() !== null)
         {
             if($this->avitoProductsFilter->getExists() === true)
@@ -527,12 +486,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 $dbal->andWhere('avito_product_images.name IS NULL');
             }
         }
-
-        //        $dbal->andWhere('
-        //            (avito_product_images.id IS NOT NULL AND avito_product.id IS NOT NULL)
-        //            OR
-        //            (avito_product.id IS NULL)
-        //        ');
 
 
         /**
@@ -613,7 +566,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
         /** Фильтр по свойства продукта */
-        if(true === ($this->filter instanceof ProductFilterPropertyDTO))
+        if(true === ($this->filter instanceof ProductFilterDTO) && is_iterable($this->filter->getProperty()))
         {
             /** @var ProductFilterPropertyDTO $property */
             foreach($this->filter->getProperty() as $property)
@@ -634,7 +587,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 }
             }
         }
-
 
         if($this->search?->getQuery())
         {
@@ -658,6 +610,22 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         $dbal->allGroupByExclude();
 
-        return $this->paginator->fetchAllAssociative($dbal);
+        return $dbal;
+    }
+
+    /**
+     * @deprecated Все продукты авито в виде пагинатора с массивами
+     */
+    public function findAll(): PaginatorInterface
+    {
+        return $this->paginator->fetchAllAssociative($this->builder());
+    }
+
+    /**
+     * Все продукты авито в виде пагинатора с резалтами
+     */
+    public function findAllResult(): PaginatorInterface
+    {
+        return $this->paginator->fetchAllHydrate($this->builder(), AllProductsWithAvitoImagesResult::class);
     }
 }

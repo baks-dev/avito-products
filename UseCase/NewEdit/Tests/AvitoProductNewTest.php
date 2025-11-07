@@ -43,6 +43,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[When(env: 'test')]
 #[Group('avito-products')]
+#[Group('avito-products-controller')]
 #[Group('avito-products-repository')]
 #[Group('avito-products-handler')]
 class AvitoProductNewTest extends KernelTestCase

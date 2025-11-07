@@ -1,7 +1,7 @@
 {% trans_default_domain('avito-products.admin') %}
 
 {% block title %}
-    {{ 'page.description'|trans }}
+    {{ 'page.delete'|trans }}
 {% endblock %}
 
 {# ---- ШАБЛОН ------------------------------------------------------------ #}
@@ -9,9 +9,5 @@
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
-    {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/form.html.twig" })) }}
-{% endblock %}
-
-{% block javascript %}
-<script nonce='{{ csp_nonce() }}' async  data-src="/assets/{{ version }}/plugins/ckeditor/classic.min.js?v={{ version }}" class='lazy'></script>
+{{ include(_self|replace({ "template.html.twig": baks_settings.device~"/form.html.twig" })) }}
 {% endblock %}
