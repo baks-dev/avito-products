@@ -1,14 +1,14 @@
 {# Пользовательское меню редактирования продукта #}
 
 {% set identifier = item.id %}
-{% if item.product_offer_const is not null %}
-    {% set identifier = item.product_offer_const %}
+{% if item.productOfferConst is not null %}
+    {% set identifier = item.productOfferConst %}
 {% endif %}
-{% if item.product_variation_const is not null %}
-    {% set identifier = item.product_variation_const %}
+{% if item.productVariationConst is not null %}
+    {% set identifier = item.productVariationConst %}
 {% endif %}
-{% if item.product_modification_const is not null %}
-    {% set identifier = item.product_modification_const %}
+{% if item.productModificationConst is not null %}
+    {% set identifier = item.productModificationConst %}
 {% endif %}
 
 <button class="btn btn-link btn-sm p-0"
@@ -29,7 +29,6 @@
 {# Чекбокс #}
 <label>
     <input class="form-check-input ms-3 p-2" type="checkbox"
-            {# onchange=checkedItem(); #}
            value="{{ identifier }}">
 </label>
 
@@ -42,11 +41,11 @@
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('avito-products:admin.products.edit', {
-                    category: item.category_name,
+                    category: item.categoryName,
                     product : item.id,
-                    offer: item.product_offer_const,
-                    variation: item.product_variation_const,
-                    modification: item.product_modification_const,
+                    offer: item.productOfferConst,
+                    variation: item.productVariationConst,
+                    modification: item.productModificationConst,
                 }) }}"
                    class="text-decoration-none text-dark w-100 modal-link"
                    data-bs-toggle="modal"
@@ -72,9 +71,9 @@
         {% endif %}
 
         {# Удалить продукт #}
-        {% if item.avito_product_id != null and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
+        {% if item.avitoProductId != null and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('avito-products:admin.products.delete', {id: item.avito_product_id }) }}"
+                <a href="{{ path('avito-products:admin.products.delete', {id: item.avitoProductId }) }}"
                    class="text-decoration-none text-dark w-100 modal-link"
                    data-bs-toggle="modal"
                    data-bs-target="#modal"
