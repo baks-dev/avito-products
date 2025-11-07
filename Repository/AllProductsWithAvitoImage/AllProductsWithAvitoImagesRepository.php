@@ -398,7 +398,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         /** Продукт Авито */
         $dbal
-            //->addSelect('avito_product.id as avito_product_id')
+            ->addSelect('avito_product.id as avito_product_id')
             ->leftJoin(
                 'product_modification',
                 AvitoProduct::class,

@@ -59,7 +59,7 @@
         {% endif %}
 
         {# Редактировать продукт #}
-        {% if  is_granted('ROLE_PRODUCT_EDIT') or is_granted('ROLE_ADMIN') %}
+        {% if  is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN') %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('products-product:admin.newedit.edit', {id: item.event }) }}"
@@ -69,6 +69,19 @@
                 </a>
             </li>
 
+        {% endif %}
+
+        {# Удалить продукт #}
+        {% if item.avito_product_id != null and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
+            <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
+                <a href="{{ path('avito-products:admin.products.delete', {id: item.avito_product_id }) }}"
+                   class="text-decoration-none text-dark w-100 modal-link"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="{{ 'btn.delete'|trans({}, 'core.btn') }}">
+                    Удалить продукт
+                </a>
+            </li>
         {% endif %}
 
     </ul>
