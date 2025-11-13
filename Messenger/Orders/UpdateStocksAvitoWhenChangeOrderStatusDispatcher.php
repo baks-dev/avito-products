@@ -33,7 +33,7 @@ use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\Products\OrderProductDTO;
-use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -50,7 +50,7 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
         private MessageDispatchInterface $messageDispatch,
         private AllUserProfilesByActiveTokenInterface $allUserProfilesByActiveToken,
         private CurrentOrderEventInterface $currentOrderEvent,
-        private CurrentProductIdentifierInterface $currentProductIdentifier,
+        private CurrentProductIdentifierByEventInterface $currentProductIdentifier,
     ) {}
 
 
