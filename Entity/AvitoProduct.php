@@ -71,7 +71,7 @@ class AvitoProduct extends EntityState
 
     /** Коллекция "живых" изображений продукта */
     #[ORM\OrderBy(['root' => 'DESC'])]
-    #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'])]
+    #[ORM\OneToMany(targetEntity: AvitoProductImage::class, mappedBy: 'avito', cascade: ['all'], fetch: 'EAGER')]
     private Collection $images;
 
 
