@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\Controller\Admin;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterForm;
 use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesInterface;
+use BaksDev\Avito\Products\Repository\AvitoProductImageInfo\AvitoProductImageInfoInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
@@ -47,6 +48,7 @@ final class IndexController extends AbstractController
     public function index(
         Request $request,
         AllProductsWithAvitoImagesInterface $allProductsWithAvitoImages,
+        AvitoProductImageInfoInterface $avitoProductImageInfo,
         int $page = 0,
     ): Response
     {
@@ -95,6 +97,8 @@ final class IndexController extends AbstractController
             ->filterAvitoProducts($avitoProductsFilterDTO)
             ->findPaginator();
 
+        /* Данные для блока с рекомендацией добавить изображение */
+        $info = $avitoProductImageInfo->find();
 
         return $this->render(
             [
@@ -102,6 +106,7 @@ final class IndexController extends AbstractController
                 'avito' => $avitoProductsFilterForm->createView(),
                 'search' => $searchForm->createView(),
                 'query' => $products,
+                'info' => $info,
             ],
         );
     }

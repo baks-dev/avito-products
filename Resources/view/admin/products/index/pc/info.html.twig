@@ -1,0 +1,51 @@
+{# @var info \BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesResult #}
+
+<div class="alert alert-warning m-3 w-100 justify-content-between align-items-center d-flex" role="alert">
+
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <div class="icon rounded-circle bg-contain p-2 bg-primary text-white"
+                 style="width: 10px; height: 10px;"><span class="small">!</span></div>
+        </div>
+        <div class="lh-1">
+            <div>
+                У товара <strong>
+                    {{ info.productName }}
+
+                    {# Значение множественного варианта ТП #}
+                    {{ info.productVariationValue|call_twig_func(info.productVariationReference~'_render') ~
+                    info.productModificationValue|call_twig_func(info.productModificationReference~'_render') }}
+
+                    {# Значение торгового предложения #}
+                    {{ info.productOfferValue|call_twig_func(info.productOfferReference~'_render') }}
+
+                    {# Постфикс торгового предложения #}
+                    {{ info.productOfferPostfix }}
+                    {# Постфикс множественного варианта #}
+                    {{ info.productVariationPostfix }}
+                    {# Постфикс модификации #}
+                    {{ info.productModificationPostfix }}
+                </strong> нет изображения.
+                Объявление Avito не опубликовано.
+            </div>
+
+        </div>
+
+        {% set href = path('avito-products:admin.products.edit', {
+            product : info.id,
+            offer: info.productOfferConst,
+            variation: info.productVariationConst,
+            modification: info.productModificationConst
+        }) %}
+
+    </div>
+
+    <a data-href="{{ href }}"
+       class="btn-danger text-nowrap btn btn-sm m-0 border-0 rounded-3 p-2 bg-cover lazy modal-link disabled"
+       data-bs-toggle="modal"
+       data-bs-target="#modal"
+       title="Настройки объявления">
+        Добавить объявление
+    </a>
+
+</div>
