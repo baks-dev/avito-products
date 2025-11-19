@@ -23,8 +23,12 @@
 
 namespace BaksDev\Avito\Products\Repository\AvitoProductImageInfo;
 
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+
 interface AvitoProductImageInfoInterface
 {
     public function find(): AvitoProductImageInfoResult|false;
 
+    public function forProfile(UserProfileUid|UserProfile $profile): self;
 }
