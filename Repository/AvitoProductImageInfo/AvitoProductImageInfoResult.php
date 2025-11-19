@@ -23,9 +23,6 @@
 
 namespace BaksDev\Avito\Products\Repository\AvitoProductImageInfo;
 
-use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
-use BaksDev\Products\Category\Type\Id\CategoryProductUid;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -38,11 +35,6 @@ final class AvitoProductImageInfoResult
 {
     public function __construct(
         private string $id,
-        private string $event,
-        private bool $category_active,
-        private string $avito_board_mapper_category_id,
-        private ?int $kit,
-
         private ?string $product_name,
         private ?string $product_offer_id,
         private ?string $product_offer_value,
@@ -59,34 +51,11 @@ final class AvitoProductImageInfoResult
         private ?string $product_modification_const,
         private ?string $product_modification_postfix,
         private ?string $product_modification_reference,
-
-        private ?string $avito_product_id,
-        private ?string $avito_product_images,
     ) {}
 
     public function getId(): ProductUid
     {
         return new ProductUid($this->id);
-    }
-
-    public function getEvent(): ProductEventUid
-    {
-        return new ProductEventUid($this->event);
-    }
-
-    public function isCategoryActive(): bool
-    {
-        return $this->category_active;
-    }
-
-    public function getAvitoBoardMapperCategoryId(): CategoryProductUid
-    {
-        return new CategoryProductUid($this->avito_board_mapper_category_id);
-    }
-
-    public function getKit(): ?int
-    {
-        return $this->kit;
     }
 
     public function getProductName(): ?string
@@ -113,7 +82,6 @@ final class AvitoProductImageInfoResult
     {
         return false === empty($this->product_modification_const) ? new ProductModificationConst($this->product_modification_const) : null;
     }
-
 
     public function getProductOfferValue(): ?string
     {
@@ -170,45 +138,4 @@ final class AvitoProductImageInfoResult
         return false === empty($this->product_modification_reference) ? $this->product_modification_reference : null;
     }
 
-
-    public function getAvitoProductId(): ?AvitoProductUid
-    {
-        if(empty($this->avito_product_id))
-        {
-            return null;
-        }
-
-        if(false === json_validate($this->avito_product_id))
-        {
-            return null;
-        }
-
-        $decode = json_decode($this->avito_product_id, false, 512, JSON_THROW_ON_ERROR);
-        $decode = current($decode);
-
-        return $decode ? new AvitoProductUid($decode->id) : null;
-
-    }
-
-    public function getAvitoProductImages(): ?array
-    {
-        if(empty($this->avito_product_images))
-        {
-            return null;
-        }
-
-        if(false === json_validate($this->avito_product_images))
-        {
-            return null;
-        }
-
-        $images = json_decode($this->avito_product_images, true, 512, JSON_THROW_ON_ERROR);
-
-        if(null === current($images))
-        {
-            return null;
-        }
-
-        return $images;
-    }
 }

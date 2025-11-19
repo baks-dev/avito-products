@@ -47,17 +47,32 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModific
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 
 final class AvitoProductImageInfoRepository implements AvitoProductImageInfoInterface
 {
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
     ) {}
 
+    public function forProfile(UserProfileUid|UserProfile $profile): self
+    {
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
+        return $this;
+    }
 
     public function find(): AvitoProductImageInfoResult|false
     {
@@ -80,7 +95,7 @@ final class AvitoProductImageInfoRepository implements AvitoProductImageInfoInte
             )
             ->setParameter(
                 key: 'profile',
-                value: $this->UserProfileTokenStorage->getProfile(),
+                value: ($this->profile instanceof UserProfileUid) ? $this->profile : $this->UserProfileTokenStorage->getProfile(),
                 type: UserProfileUid::TYPE,
             );
 
@@ -113,6 +128,14 @@ final class AvitoProductImageInfoRepository implements AvitoProductImageInfoInte
                     product_active.event = product.event AND
                     product_active.active IS TRUE',
             );
+
+        /* Только те, которые есть на складе */
+        $dbal->join(
+            'product',
+            ProductStockTotal::class,
+            'product_stock_total',
+            'product_stock_total.product = product.id AND product_stock_total.total <> 0',
+        );
 
         /** Название продукта */
         $dbal
