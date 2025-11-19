@@ -25,6 +25,13 @@
                     {{ info.productVariationPostfix }}
                     {# Постфикс модификации #}
                     {{ info.productModificationPostfix }}
+
+                    {% if info.kit > 1 %}
+                        <span class="badge text-bg-danger">
+                            Комплект  {{ item.kit }}
+                        </span>
+                    {% endif %}
+
                 </strong> нет изображения.
                 Объявление Avito не опубликовано.
             </div>
@@ -35,7 +42,8 @@
             product : info.id,
             offer: info.productOfferConst,
             variation: info.productVariationConst,
-            modification: info.productModificationConst
+            modification: info.productModificationConst,
+            kit: info.kit
         }) %}
 
     </div>
