@@ -98,7 +98,8 @@ final class IndexController extends AbstractController
             ->findPaginator();
 
         /* Данные для блока с рекомендацией добавить изображение */
-        $info = $avitoProductImageInfo->find();
+        // $info = $avitoProductImageInfo->find();
+        $info = false;
 
         return $this->render(
             [
