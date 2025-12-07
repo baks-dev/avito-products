@@ -59,7 +59,7 @@ class AvitoProductImagesNewTest extends KernelTestCase
 
         $avitoProduct->getDto($editDTO);
 
-        self::assertEquals('edit_description', $editDTO->getDescription());
+        self::assertEquals('test change', $editDTO->getDescription());
 
         $image = new AvitoProductImagesDTO();
         $image->setRoot(true);
