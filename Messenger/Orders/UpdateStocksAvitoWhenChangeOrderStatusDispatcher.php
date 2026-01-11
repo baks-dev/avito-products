@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductI
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -51,13 +52,15 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
         private AllUserProfilesByActiveTokenInterface $allUserProfilesByActiveToken,
         private CurrentOrderEventInterface $currentOrderEvent,
         private CurrentProductIdentifierByEventInterface $currentProductIdentifier,
+        #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
 
 
     public function __invoke(OrderMessage $message): void
     {
         /** Получаем все активные профили, у которых активный токен Авито */
-        $profiles = $this->allUserProfilesByActiveToken->findProfilesByActiveToken();
+        $profiles = $this->allUserProfilesByActiveToken
+            ->findProfilesByActiveToken();
 
         if($profiles->valid() === false)
         {
@@ -77,8 +80,14 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
         $editOrderDTO = new EditOrderDTO();
         $orderEvent->getDto($editOrderDTO);
 
-        foreach($profiles as $profile)
+        foreach($profiles as $UserProfileUid)
         {
+            /** Если указан профиль проекта - пропускаем остальные профили */
+            if(false === empty($this->PROJECT_PROFILE) && false === $UserProfileUid->equals($this->PROJECT_PROFILE))
+            {
+                continue;
+            }
+
             /** @var OrderProductDTO $product */
             foreach($editOrderDTO->getProduct() as $product)
             {
@@ -96,7 +105,7 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                 }
 
                 $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
-                    $profile,
+                    $UserProfileUid,
                     $CurrentProductIdentifier->getProduct(),
                     $CurrentProductIdentifier->getOfferConst(),
                     $CurrentProductIdentifier->getVariationConst(),
@@ -106,8 +115,17 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                 $this->messageDispatch->dispatch(
                     message: $updateAvitoProductStockMessage,
                     stamps: [new MessageDelay('5 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
-                    transport: (string) $profile
+                    transport: (string) $UserProfileUid,
                 );
+
+                /** Дополнительно пробуем обновить (на случай если остатки еще не успели пересчитаться) */
+
+                $this->messageDispatch->dispatch(
+                    message: $updateAvitoProductStockMessage,
+                    stamps: [new MessageDelay('15 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
+                    transport: (string) $UserProfileUid,
+                );
+
             }
         }
     }
