@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,11 +30,13 @@ use BaksDev\Avito\Board\Entity\Event\AvitoBoardEvent;
 use BaksDev\Avito\Entity\AvitoToken;
 use BaksDev\Avito\Entity\Event\AvitoTokenEvent;
 use BaksDev\Avito\Entity\Event\Kit\AvitoTokenKit;
+use BaksDev\Avito\Entity\Event\Name\AvitoTokenName;
 use BaksDev\Avito\Entity\Event\Profile\AvitoTokenProfile;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
@@ -103,21 +105,30 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
      */
     public function findPaginator(): PaginatorInterface
     {
+
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
         $dbal
+            ->addSelect('avito_token.id AS avito_token_uid')
             ->from(AvitoToken::class, 'avito_token');
 
-        $dbal
+        /** ФИЛЬТР по множественным вариантам */
+        if($this->avitoProductsFilter?->getToken())
+        {
+            $dbal->andWhere('avito_token.id = :token');
+            $dbal->setParameter('token', $this->avitoProductsFilter->getToken());
+        }
+
+
+        /*$dbal
             ->join(
                 'avito_token',
                 AvitoTokenEvent::class,
                 'avito_token_event',
                 'avito_token_event.id = avito_token.event',
-            );
-
+            );*/
 
         $dbal
             ->join(
@@ -137,6 +148,16 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
 
         $dbal
+            ->addSelect('avito_token_name.value AS token_name')
+            ->join(
+                'avito_token',
+                AvitoTokenName::class,
+                'avito_token_name',
+                'avito_token_name.event = avito_token.event',
+            );
+
+
+        $dbal
             ->addSelect('avito_token_kit.value AS kit')
             ->leftJoin(
                 'avito_token',
@@ -145,10 +166,11 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'avito_token_kit.event = avito_token.event',
             );
 
+        /** Родукт */
 
         $dbal
-            ->addSelect('product.id')
-            ->addSelect('product.event')
+            ->addSelect('product.id AS product_uid')
+            ->addSelect('product.event AS product_event_uid')
             ->join(
                 'avito_token',
                 Product::class,
@@ -389,7 +411,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
         /** Продукт Авито */
         $dbal
-
+            //->addSelect('avito_product.id AS tmp_avito_product_id')
             ->leftJoin(
                 'product_modification',
                 AvitoProduct::class,
@@ -427,6 +449,19 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         /** Продукт Авито по профилю бизнес-пользователя */
 
         $dbal
+            //->addSelect('avito_product_token.value AS tmp_avito_token_value')
+            ->leftJoin(
+                'product_modification',
+                AvitoProductToken::class,
+                'avito_product_token',
+                '
+                    avito_product_token.avito = avito_product.id AND
+                    avito_product_token.value = avito_token.id
+                ',
+            );
+
+
+        /*$dbal
             ->leftJoin(
                 'product_modification',
                 AvitoProductProfile::class,
@@ -435,7 +470,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                     avito_product_profile.avito = avito_product.id AND
                     avito_product_profile.value = avito_token_profile.value
                 ',
-            );
+            );*/
 
         //$dbal->andWhere('(avito_product_profile.value = avito_token_profile.value OR avito_product_profile.value IS NULL)');
 
@@ -444,7 +479,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             'avito_product',
             AvitoProductKit::class,
             'avito_product_kit',
-            'avito_product_kit.avito = avito_product_profile.avito AND avito_product_kit.value = avito_token_kit.value',
+            'avito_product_kit.avito = avito_token.id AND avito_product_kit.value = avito_token_kit.value',
         );
 
 
@@ -459,21 +494,20 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             		JSONB_BUILD_OBJECT
 					(
 						'id', CASE 
-                        WHEN avito_product_images.ext IS NOT NULL 
-                        THEN avito_product_images.avito
-                        ELSE NULL
-                    END
+                            WHEN avito_product_images.ext IS NOT NULL 
+                            THEN avito_product_images.avito
+                            ELSE NULL
+                        END 
 					)
             ) /*FILTER (WHERE avito_product_images.ext IS NOT NULL )*/
 
             as avito_product_id")
-
             ->leftJoin(
                 'avito_product',
                 AvitoProductImage::class,
                 'avito_product_images',
                 '
-                avito_product_images.avito = avito_product_kit.avito AND
+                avito_product_images.avito = avito_product_token.avito AND
                 avito_product_images.root = true',
             );
 
@@ -494,10 +528,12 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
 
 
         /* Фильтр по товарам "С фото" / "Без Фото" */
-        if (true === $this->avitoProductsFilter?->getExists()) {
+        if(true === $this->avitoProductsFilter?->getExists())
+        {
             $dbal->andWhere('avito_product_images.root IS NOT NULL');
         }
-        if (false === $this->avitoProductsFilter?->getExists()) {
+        if(false === $this->avitoProductsFilter?->getExists())
+        {
             $dbal->andWhere('avito_product_images.root IS NULL');
         }
 
@@ -637,7 +673,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         $dbal->addOrderBy('avito_token_kit.value', 'ASC');
 
         $dbal->allGroupByExclude();
-
 
         return $this->paginator->fetchAllHydrate($dbal, AllProductsWithAvitoImagesResult::class);
     }

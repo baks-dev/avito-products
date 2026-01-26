@@ -27,6 +27,7 @@ namespace BaksDev\Avito\Products\Commands;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
 use BaksDev\Avito\Products\Repository\AvitoProductProfile\AvitoProductProfileInterface;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
@@ -86,7 +87,7 @@ class CopyAvitoProductCommand extends Command
 
         $orm
             ->join(
-                AvitoProductProfile::class,
+                AvitoProductToken::class,
                 'profile',
                 'WITH',
                 'profile.avito = main.id AND profile.value = :original',
@@ -116,7 +117,7 @@ class CopyAvitoProductCommand extends Command
                 ->variationConst($AvitoProductDTO->getVariation())
                 ->modificationConst($AvitoProductDTO->getModification())
                 ->kit($AvitoProductDTO->getKit()->getValue())
-                ->forProfile($CopyUserProfileUid)
+                ->forAvitoToken($AvitoProductDTO->getToken()->getValue())
                 ->find();
 
             if($AvitoProduct instanceof AvitoProduct)

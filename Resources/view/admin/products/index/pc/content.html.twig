@@ -40,13 +40,31 @@
 
 
                 {# Фильтр по продукции #}
-                <div class="w-100 d-flex align-items-center align-content-end gap-2">
+                <div class="w-100 d-flex align-items-center align-content-end gap-2 me-3">
 
                     {% include Template('@products-product/admin/filter/'~baks_settings.device~'/filter.html.twig') %}
 
-                    {{ form_start(avito) }}
-                    {{ form_widget(avito.exists, { attr: { style: 'width: 100px;' } }) }}
-                    {{ form_end(avito) }}
+                    <div style="width: {{ avito.token is defined ? '540px;' : '100px;' }}" class="">
+                        {{ form_start(avito, { attr: { class: 'd-flex w-100 gap-2 align-items-center align-content-end' } }) }}
+
+
+                        {% if avito.token is defined %}
+                            <div class="w-75">
+                                {{ form_widget(avito.token, {
+                                    placeholder: 'Выберите профиль Avito ...',
+                                    attr: { 'data-select' : 'select2', style: 'width: 100px;', class: 'mb-0' }
+                                }) }}
+                            </div>
+
+                        {% endif %}
+
+                        <div class="w-25">
+                            {{ form_widget(avito.exists, { attr: { style: 'width: 100px;' } }) }}
+                        </div>
+
+                        {{ form_end(avito) }}
+                    </div>
+
 
                 </div>
 

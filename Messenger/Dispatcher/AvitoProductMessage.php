@@ -23,15 +23,24 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Repository\AllAvitoProductsByProfile;
+namespace BaksDev\Avito\Products\Messenger\Dispatcher;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Type\Id\AvitoTokenUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 
-interface AllAvitoProductsByProfileInterface
+final class AvitoProductMessage
 {
-    /** @return array<AvitoProduct>|null */
-    public function findAll(AvitoTokenUid $token): ?array;
+    /**
+     * Внутренний (системный) идентификатор продукта Avito
+     */
+    private AvitoProductUid $id;
+
+    public function __construct(AvitoProductUid $id)
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): AvitoProductUid
+    {
+        return $this->id;
+    }
 }

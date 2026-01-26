@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,8 @@ namespace BaksDev\Avito\Products\Repository\AvitoProductProfile;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Core\Type\UidType\ParamConverter;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
@@ -46,6 +48,8 @@ use InvalidArgumentException;
 
 final class AvitoProductProfileRepository implements AvitoProductProfileInterface
 {
+    private AvitoTokenUid|false $token = false;
+
     private ProductUid|false $product = false;
 
     private ProductOfferConst|false $offer = false;
@@ -54,14 +58,20 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
 
     private ProductModificationConst|false $modification = false;
 
-    private UserProfileUid|false $profile = false;
-
     private int $kit = 1;
 
+
     public function __construct(
-        private readonly ORMQueryBuilder $ORMQueryBuilder,
-        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
+        private readonly ORMQueryBuilder $ORMQueryBuilder
     ) {}
+
+
+    public function forAvitoToken(AvitoTokenUid $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
 
     public function product(ProductUid|Product $product): self
     {
@@ -143,27 +153,19 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
         return $this;
     }
 
-    public function forProfile(UserProfileUid|UserProfile $profile): self
-    {
-        if($profile instanceof UserProfile)
-        {
-            $profile = $profile->getId();
-        }
-
-        $this->profile = $profile;
-
-        return $this;
-    }
-
-
     /**
      * Метод возвращает объект сущности AvitoProduct
      */
     public function find(): AvitoProduct|false
     {
+        if(false === ($this->token instanceof AvitoTokenUid))
+        {
+            throw new InvalidArgumentException('Invalid Argument AvitoTokenUid');
+        }
+
         if(false === ($this->product instanceof ProductUid))
         {
-            throw new InvalidArgumentException('Invalid Argument Product');
+            throw new InvalidArgumentException('Invalid Argument ProductUid');
         }
 
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
@@ -192,15 +194,15 @@ final class AvitoProductProfileRepository implements AvitoProductProfileInterfac
 
         $orm
             ->join(
-                AvitoProductProfile::class,
-                'profile',
+                AvitoProductToken::class,
+                'avito_product_token',
                 'WITH',
-                'profile.avito = avito.id AND profile.value = :profile',
+                'avito_product_token.avito = avito.id AND avito_product_token.value = :token',
             )
             ->setParameter(
-                key: 'profile',
-                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE,
+                key: 'token',
+                value: $this->token,
+                type: AvitoTokenUid::TYPE,
             );
 
 

@@ -1,6 +1,6 @@
 {# Пользовательское меню редактирования продукта #}
 
-{% set identifier = item.id %}
+{% set identifier = item.productId %}
 {% if item.productOfferConst is not null %}
     {% set identifier = item.productOfferConst %}
 {% endif %}
@@ -41,8 +41,8 @@
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('avito-products:admin.products.edit', {
-                    category: item.categoryName,
-                    product : item.id,
+                    token : item.avitoToken,
+                    product : item.productId,
                     offer: item.productOfferConst,
                     variation: item.productVariationConst,
                     modification: item.productModificationConst,
@@ -61,7 +61,7 @@
         {% if  is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN') %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('products-product:admin.newedit.edit', {id: item.event }) }}"
+                <a href="{{ path('products-product:admin.newedit.edit', {id: item.productEvent }) }}"
                    class="text-decoration-none text-dark w-100"
                    title="{{ 'btn.edit'|trans({}, 'core.btn') }}">
                     Редактировать продукт

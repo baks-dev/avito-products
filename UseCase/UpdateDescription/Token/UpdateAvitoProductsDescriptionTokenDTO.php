@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,30 +23,26 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\UseCase\NewEdit\Profile;
+namespace BaksDev\Avito\Products\UseCase\UpdateDescription\Token;
 
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfileInterface;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductTokenInterface;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see AvitoProductProfile */
-final class AvitoProductProfileDTO implements AvitoProductProfileInterface
+final class UpdateAvitoProductsDescriptionTokenDTO implements AvitoProductTokenInterface
 {
-    /** Значение свойства */
     #[Assert\NotBlank]
-    private ?UserProfileUid $value = null;
+    #[Assert\Uuid]
+    private ?AvitoTokenUid $value = null;
 
-    /**
-     * Значение свойства
-     *
-     * @see AvitoProductProfile
-     */
-    public function getValue(): ?UserProfileUid
+    public function getValue(): ?AvitoTokenUid
     {
         return $this->value;
     }
 
-    public function setValue(UserProfileUid $value): self
+    public function setValue(AvitoTokenUid $value): self
     {
         $this->value = $value;
         return $this;

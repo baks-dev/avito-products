@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ namespace BaksDev\Avito\Products\UseCase\UpdateDescription;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Repository\AllAvitoProductsByProfile\AllAvitoProductsByProfileInterface;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;
@@ -52,6 +53,11 @@ final class UpdateAvitoProductsDescriptionHandler extends AbstractHandler
     /** @see UpdateDescription */
     public function handle(UpdateAvitoProductsDescriptionDTO $command): string|bool
     {
+        if(false === ($command->getToken()->getValue() instanceof AvitoTokenUid))
+        {
+            return true;
+        }
+
         $this->setCommand($command);
 
         /** Валидация всех объектов */
@@ -65,7 +71,8 @@ final class UpdateAvitoProductsDescriptionHandler extends AbstractHandler
          *
          * @var array<AvitoProduct> $result
          */
-        $result = $this->AllAvitoProductsByProfileRepository->findAll($command->getProfile()->getValue());
+        $result = $this->AllAvitoProductsByProfileRepository
+            ->findAll($command->getToken()->getValue());
 
         foreach($result as $key => $product)
         {

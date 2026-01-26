@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAv
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductForm;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Type\UidType\ParamConverter;
@@ -54,7 +55,7 @@ final class NewEditController extends AbstractController
      * @throws JsonException
      */
     #[Route(
-        '/admin/avito/product/{product}/{offer}/{variation}/{modification}',
+        '/admin/avito/product/{token}/{product}/{offer}/{variation}/{modification}',
         name: 'admin.products.edit',
         methods: ['GET', 'POST']
     )]
@@ -63,6 +64,7 @@ final class NewEditController extends AbstractController
         AvitoProductProfileInterface $AvitoProductProfileInterface,
         AvitoProductHandler $handler,
         OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
+        #[ParamConverter(AvitoTokenUid::class)] $token,
         #[ParamConverter(ProductUid::class)] $product,
         #[ParamConverter(ProductOfferConst::class)] ?ProductOfferConst $offer = null,
         #[ParamConverter(ProductVariationConst::class)] ?ProductVariationConst $variation = null,
@@ -78,7 +80,7 @@ final class NewEditController extends AbstractController
             ->setVariation($variation)
             ->setModification($modification);
 
-        $AvitoProductDTO->getProfile()->setValue($this->getProfileUid());
+        $AvitoProductDTO->getToken()->setValue($token);
         $AvitoProductDTO->getKit()->setValue((int) $request->get('kit'));
 
         /**
@@ -87,6 +89,7 @@ final class NewEditController extends AbstractController
          * @var AvitoProduct|false $avitoProductCard
          */
         $avitoProductCard = $AvitoProductProfileInterface
+            ->forAvitoToken($AvitoProductDTO->getToken()->getValue())
             ->product($AvitoProductDTO->getProduct())
             ->offerConst($AvitoProductDTO->getOffer())
             ->variationConst($AvitoProductDTO->getVariation())
@@ -105,6 +108,7 @@ final class NewEditController extends AbstractController
             ['action' => $this->generateUrl(
                 'avito-products:admin.products.edit',
                 [
+                    'token' => $AvitoProductDTO->getToken()->getValue(),
                     'product' => $AvitoProductDTO->getProduct(),
                     'offer' => $AvitoProductDTO->getOffer(),
                     'variation' => $AvitoProductDTO->getVariation(),

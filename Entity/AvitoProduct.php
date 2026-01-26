@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\Entity;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Id\ProductUid;
@@ -80,8 +81,8 @@ class AvitoProduct extends EntityState
     private ?string $description = null;
 
     /** Идентификатор профиля */
-    #[ORM\OneToOne(targetEntity: AvitoProductProfile::class, mappedBy: 'avito', cascade: ['all'])]
-    private AvitoProductProfile $profile;
+    #[ORM\OneToOne(targetEntity: AvitoProductToken::class, mappedBy: 'avito', cascade: ['all'])]
+    private AvitoProductToken $token;
 
     /** Комплекты */
     #[ORM\OneToOne(targetEntity: AvitoProductKit::class, mappedBy: 'avito', cascade: ['all'])]
@@ -92,7 +93,7 @@ class AvitoProduct extends EntityState
     {
         $this->id = new AvitoProductUid();
         $this->images = new ArrayCollection();
-        $this->profile = new AvitoProductProfile($this);
+        $this->token = new AvitoProductToken($this);
         $this->kit = new AvitoProductKit($this);
     }
 

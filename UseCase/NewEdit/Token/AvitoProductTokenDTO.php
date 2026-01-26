@@ -23,15 +23,33 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Repository\AllAvitoProductsByProfile;
+namespace BaksDev\Avito\Products\UseCase\NewEdit\Token;
 
-use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Products\Entity\Token\AvitoProductTokenInterface;
 use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Symfony\Component\Validator\Constraints as Assert;
 
-interface AllAvitoProductsByProfileInterface
+/** @see AvitoProductToken */
+final class AvitoProductTokenDTO implements AvitoProductTokenInterface
 {
-    /** @return array<AvitoProduct>|null */
-    public function findAll(AvitoTokenUid $token): ?array;
+    /** Значение свойства */
+    #[Assert\NotBlank]
+    private ?AvitoTokenUid $value = null;
+
+    /**
+     * Значение свойства
+     *
+     * @see AvitoProductToken
+     */
+    public function getValue(): ?AvitoTokenUid
+    {
+        return $this->value;
+    }
+
+    public function setValue(AvitoTokenUid $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
 }

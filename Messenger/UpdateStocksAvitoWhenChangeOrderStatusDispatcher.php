@@ -23,12 +23,14 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Avito\Products\Messenger\Orders;
+namespace BaksDev\Avito\Products\Messenger;
 
 use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
-use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllUserProfilesByActiveTokenInterface;
+use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllProfilesByActiveTokenInterface;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Messenger\OrderMessage;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\UseCase\Admin\Edit\EditOrderDTO;
@@ -38,7 +40,9 @@ use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductI
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -49,36 +53,71 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
 {
     public function __construct(
         private MessageDispatchInterface $messageDispatch,
-        private AllUserProfilesByActiveTokenInterface $allUserProfilesByActiveToken,
-        private CurrentOrderEventInterface $currentOrderEvent,
+        private AllProfilesByActiveTokenInterface $AllProfilesByActiveTokenRepository,
+        private CurrentOrderEventInterface $CurrentOrderEventRepository,
         private CurrentProductIdentifierByEventInterface $currentProductIdentifier,
+        private DeduplicatorInterface $Deduplicator,
+        #[Target('avitoProductsLogger')] private LoggerInterface $Logger,
         #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
 
 
     public function __invoke(OrderMessage $message): void
     {
-        /** Получаем все активные профили, у которых активный токен Авито */
-        $profiles = $this->allUserProfilesByActiveToken
-            ->findProfilesByActiveToken();
 
-        if($profiles->valid() === false)
+        /**  Получаем активные токены профилей пользователя */
+
+        $profiles = $this->AllProfilesByActiveTokenRepository
+            ->onlyActiveToken()
+            ->findAll();
+
+        if(false === $profiles || false === $profiles->valid())
         {
             return;
         }
 
-        /** Получаем активное событие заказа */
-        $orderEvent = $this->currentOrderEvent
+
+        /** Получаем событие заказа */
+        $OrderEvent = $this->CurrentOrderEventRepository
             ->forOrder($message->getId())
             ->find();
 
-        if($orderEvent === false)
+        if(false === ($OrderEvent instanceof OrderEvent))
+        {
+            $this->Logger->critical(
+                'products-sign: Не найдено событие OrderEvent',
+                [self::class.':'.__LINE__, var_export($message, true)],
+            );
+
+            return;
+        }
+
+        /** Дедубликатор изменения статусов (обновляем только один раз в сутки на статус) */
+
+        $Deduplicator = $this->Deduplicator
+            ->namespace('ozon-products')
+            ->expiresAfter('1 day')
+            ->deduplication([
+                (string) $message->getId(),
+                $OrderEvent->getStatus()->getOrderStatusValue(),
+                self::class,
+            ]);
+
+        if($Deduplicator->isExecuted())
         {
             return;
         }
 
-        $editOrderDTO = new EditOrderDTO();
-        $orderEvent->getDto($editOrderDTO);
+        $Deduplicator->save();
+
+
+        /**
+         * Обновляем остатки
+         */
+
+        $EditOrderDTO = new EditOrderDTO();
+        $OrderEvent->getDto($EditOrderDTO);
+
 
         foreach($profiles as $UserProfileUid)
         {
@@ -89,7 +128,7 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
             }
 
             /** @var OrderProductDTO $product */
-            foreach($editOrderDTO->getProduct() as $product)
+            foreach($EditOrderDTO->getProduct() as $product)
             {
                 /** Получаем идентификаторы продуктов, на которые поступил заказ  */
                 $CurrentProductIdentifier = $this->currentProductIdentifier

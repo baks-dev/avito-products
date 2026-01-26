@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Forms\AvitoFilter;
 
+use BaksDev\Avito\Repository\AllTokensByProfile\AvitoTokensByProfileInterface;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -40,7 +43,11 @@ final class AvitoProductsFilterForm extends AbstractType
 
     private SessionInterface|false $session = false;
 
-    public function __construct(private readonly RequestStack $request)
+    public function __construct(
+        private readonly RequestStack $request,
+        private readonly AvitoTokensByProfileInterface $AvitoTokensByProfileRepository,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage,
+    )
     {
         $this->sessionKey = md5(self::class);
     }
@@ -54,6 +61,29 @@ final class AvitoProductsFilterForm extends AbstractType
                 'Без фото' => false,
             ],
         ]);
+
+        $tokens = $this->AvitoTokensByProfileRepository
+            ->forProfile($this->UserProfileTokenStorage->getProfile())
+            ->onlyActive()
+            ->findAll();
+
+        if($tokens->valid())
+        {
+            $builder
+                ->add('token', ChoiceType::class, [
+                    'choices' => $tokens,
+                    'choice_value' => function(?AvitoTokenUid $type) {
+                        return $type?->getValue();
+                    },
+                    'choice_label' => function(AvitoTokenUid $type) {
+                        return $type->getAttr()->name;
+                    },
+                    'label' => false,
+                    'expanded' => false,
+                    'multiple' => false,
+                    'required' => false,
+                ]);
+        }
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
@@ -86,8 +116,10 @@ final class AvitoProductsFilterForm extends AbstractType
                     $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true) : [];
 
                     $data->setExists($sessionArray['exists'] ?? null);
+                    $data->setToken($sessionArray['token'] ?? null);
+
                 }
-            }
+            },
         );
 
 
@@ -107,6 +139,8 @@ final class AvitoProductsFilterForm extends AbstractType
                     $sessionArray = [];
 
                     $data->getExists() !== null ? $sessionArray['exists'] = $data->getExists() : null;
+                    $data->getToken() instanceof AvitoTokenUid ? $sessionArray['token'] = (string) $data->getToken() : null;
+
 
                     if($sessionArray)
                     {
@@ -119,7 +153,7 @@ final class AvitoProductsFilterForm extends AbstractType
                     $this->request->getSession()->remove($this->sessionKey);
 
                 }
-            }
+            },
         );
 
 
@@ -130,7 +164,7 @@ final class AvitoProductsFilterForm extends AbstractType
         $resolver->setDefaults([
             'data_class' => AvitoProductsFilterDTO::class,
             'method' => 'POST',
-            /*'attr' => ['class' => 'w-100'],*/
+            'attr' => ['class' => 'w-100'],
         ]);
     }
 }

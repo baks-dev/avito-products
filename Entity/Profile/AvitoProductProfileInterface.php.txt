@@ -30,7 +30,7 @@ interface AvitoProductProfileInterface
     /**
      * Значение свойства
      *
-     * @see AvitoProductProfile
+     * @see AvitoProductToken
      */
     public function getValue(): ?UserProfileUid;
 

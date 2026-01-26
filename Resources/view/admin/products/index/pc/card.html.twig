@@ -1,3 +1,5 @@
+{# @var item \BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesResult #}
+
 <tr class="vertical-middle">
 
     <td class="text-nowrap">
@@ -11,7 +13,8 @@
     </td>
 
     {% set href = path('avito-products:admin.products.edit', {
-        product : item.id,
+        token : item.avitoToken,
+        product : item.productId,
         offer: item.productOfferConst,
         variation: item.productVariationConst,
         modification: item.productModificationConst,
@@ -36,8 +39,18 @@
 
             </a>
 
+
             <div>
 
+                <div>
+                    <a href="{{ href }}"
+                       class="text-decoration-none modal-link disabled fw-bolder text-muted"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal"
+                       title="Настройки объявления">
+                        {{ item.tokenName }}
+                    </a>
+                </div>
 
                 <div class="d-flex align-items-center gap-2">
 

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 namespace BaksDev\Avito\Products\Repository\AvitoProductProfile;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
@@ -37,6 +38,8 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface AvitoProductProfileInterface
 {
+    public function forAvitoToken(AvitoTokenUid $token): self;
+
     public function product(ProductUid|Product $product): self;
 
     public function offerConst(ProductOfferConst|ProductOffer|false|null $offer): self;
@@ -46,8 +49,6 @@ interface AvitoProductProfileInterface
     public function modificationConst(ProductModificationConst|ProductModification|null|false $modification): self;
 
     public function kit(int|string|null|false $kit): self;
-
-    public function forProfile(UserProfileUid|UserProfile $profile): self;
 
     /**
      * Метод возвращает объект сущности AvitoProduct

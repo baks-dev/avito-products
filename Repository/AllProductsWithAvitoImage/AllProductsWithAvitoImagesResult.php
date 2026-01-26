@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
@@ -39,8 +40,10 @@ use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModifi
 final readonly class AllProductsWithAvitoImagesResult
 {
     public function __construct(
-        private string $id,
-        private string $event,
+        private string $avito_token_uid,
+        private string $product_uid,
+        private string $product_event_uid,
+        private string $token_name,
         private bool $category_active,
         private string $avito_board_mapper_category_id,
         private string $avito_board_avito_category,
@@ -70,14 +73,14 @@ final readonly class AllProductsWithAvitoImagesResult
         private ?string $category_name,
     ) {}
 
-    public function getId(): ProductUid
+    public function getProductId(): ProductUid
     {
-        return new ProductUid($this->id);
+        return new ProductUid($this->product_uid);
     }
 
-    public function getEvent(): ProductEventUid
+    public function getProductEvent(): ProductEventUid
     {
-        return new ProductEventUid($this->event);
+        return new ProductEventUid($this->product_event_uid);
     }
 
     public function isCategoryActive(): bool
@@ -246,5 +249,15 @@ final readonly class AllProductsWithAvitoImagesResult
         }
 
         return $images;
+    }
+
+    public function getAvitoToken(): AvitoTokenUid
+    {
+        return new AvitoTokenUid($this->avito_token_uid);
+    }
+
+    public function getTokenName(): string
+    {
+        return $this->token_name;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ namespace BaksDev\Avito\Products\Commands;
 
 use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
 use BaksDev\Avito\Products\Repository\AllProductsIdentifierByAvitoMapper\AllProductsWithAvitoMapperInterface;
-use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllUserProfilesByActiveTokenInterface;
+use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllProfilesByActiveTokenInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -50,7 +50,7 @@ class UpdateAvitoProductStocksCommand extends Command
     public function __construct(
         private readonly MessageDispatchInterface $messageDispatch,
         private readonly AllProductsWithAvitoMapperInterface $allProductsWithAvitoMapper,
-        private readonly AllUserProfilesByActiveTokenInterface $allProfilesByToken,
+        private readonly AllProfilesByActiveTokenInterface $allProfilesByToken,
     )
     {
         parent::__construct();
@@ -68,7 +68,7 @@ class UpdateAvitoProductStocksCommand extends Command
         /** Получаем все активные профили, у которых активный токен Авито */
         $profiles = $this
             ->allProfilesByToken
-            ->findProfilesByActiveToken();
+            ->findAll();
 
         $profiles = iterator_to_array($profiles);
 

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\UseCase\Delete;
 
 use BaksDev\Avito\Products\Entity\AvitoProduct;
-use BaksDev\Avito\Products\Messenger\AvitoProductMessage;
+use BaksDev\Avito\Products\Messenger\Dispatcher\AvitoProductMessage;
 use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;

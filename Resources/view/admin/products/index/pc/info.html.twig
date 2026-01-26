@@ -39,6 +39,7 @@
         </div>
 
         {% set href = path('avito-products:admin.products.edit', {
+            token : info.avitoToken,
             product : info.id,
             offer: info.productOfferConst,
             variation: info.productVariationConst,

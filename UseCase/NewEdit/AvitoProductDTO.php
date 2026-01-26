@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\Kit\AvitoProductKitDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\Profile\AvitoProductProfileDTO;
+use BaksDev\Avito\Products\UseCase\NewEdit\Token\AvitoProductTokenDTO;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -71,7 +72,7 @@ final class AvitoProductDTO implements AvitoProductInterface
 
     /** Идентификатор профиля */
     #[Assert\Valid]
-    private AvitoProductProfileDTO $profile;
+    private AvitoProductTokenDTO $token;
 
     /** Комплекты */
     #[Assert\Valid]
@@ -83,7 +84,7 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function __construct()
     {
         $this->images = new ArrayCollection();
-        $this->profile = new AvitoProductProfileDTO();
+        $this->token = new AvitoProductTokenDTO();
         $this->kit = new AvitoProductKitDTO();
     }
 
@@ -191,9 +192,9 @@ final class AvitoProductDTO implements AvitoProductInterface
         $this->description = $description;
     }
 
-    public function getProfile(): AvitoProductProfileDTO
+    public function getToken(): AvitoProductTokenDTO
     {
-        return $this->profile;
+        return $this->token;
     }
 
     public function getKit(): AvitoProductKitDTO
