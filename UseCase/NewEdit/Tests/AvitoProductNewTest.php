@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\AvitoProductHandler;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -96,8 +97,8 @@ class AvitoProductNewTest extends KernelTestCase
         $avitoProductDTO->setDescription('new_description');
         self::assertSame('new_description', $avitoProductDTO->getDescription());
 
-        $avitoProductDTO->getProfile()->setValue(new UserProfileUid(UserProfileUid::TEST));
-        self::assertTrue($avitoProductDTO->getProfile()->getValue()->equals(UserProfileUid::TEST));
+        $avitoProductDTO->getToken()->setValue(new AvitoTokenUid(AvitoTokenUid::TEST));
+        self::assertTrue($avitoProductDTO->getToken()->getValue()->equals(AvitoTokenUid::TEST));
 
         $image = new AvitoProductImagesDTO();
         $avitoProductDTO->getImages()->add($image);

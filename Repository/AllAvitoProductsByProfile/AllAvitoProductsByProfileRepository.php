@@ -56,7 +56,7 @@ final readonly class AllAvitoProductsByProfileRepository implements AllAvitoProd
                 AvitoProduct::class,
                 'product',
                 'WITH',
-                'product.id = profile.avito',
+                'product.id = token.value',
             );
 
         return $orm->getResult();

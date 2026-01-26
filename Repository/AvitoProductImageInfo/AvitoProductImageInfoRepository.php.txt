@@ -275,7 +275,7 @@ final class AvitoProductImageInfoRepository implements AvitoProductImageInfoInte
 
         /** Продукт Авито по профилю бизнес-пользователя */
 
-        $dbal
+        /*$dbal
             ->leftJoin(
                 'product_modification',
                 AvitoProductProfile::class,
@@ -284,7 +284,7 @@ final class AvitoProductImageInfoRepository implements AvitoProductImageInfoInte
                     avito_product_profile.avito = avito_product.id AND
                     avito_product_profile.value = avito_token_profile.value
                 ',
-            );
+            );*/
 
         /** Комплект */
         $dbal->leftJoin(

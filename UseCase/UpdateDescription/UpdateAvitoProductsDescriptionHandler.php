@@ -74,6 +74,11 @@ final class UpdateAvitoProductsDescriptionHandler extends AbstractHandler
         $result = $this->AllAvitoProductsByProfileRepository
             ->findAll($command->getToken()->getValue());
 
+        if(empty($result))
+        {
+            return true;
+        }
+
         foreach($result as $key => $product)
         {
             $product->setEntity($command);

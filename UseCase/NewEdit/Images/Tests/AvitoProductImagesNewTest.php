@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ class AvitoProductImagesNewTest extends KernelTestCase
 
         $avitoProduct->getDto($editDTO);
 
-        self::assertEquals('test change', $editDTO->getDescription());
+        self::assertEquals('edit_description', $editDTO->getDescription());
 
         $image = new AvitoProductImagesDTO();
         $image->setRoot(true);
