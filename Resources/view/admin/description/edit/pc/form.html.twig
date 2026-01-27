@@ -26,16 +26,19 @@
         <div class="modal-footer">
 
             {% if form.token.value is defined %}
-                <div class="flex-grow-1 d-flex gap-3 align-items-center">
+                <div class="flex-grow-1 d-flex gap-3 align-items-center mt-3">
 
-                    <strong class="mb-3">
+                    <strong class="w-25">
                         Профиль авито:
                     </strong>
 
-                    {{ form_widget(form.token.value, {
-                        placeholder: 'Выберите профиль Avito ...',
-                        attr: { 'data-select' : 'select2', style: 'width: 300px;', class: 'mb-0' }
-                    }) }}
+                    <div class="w-50">
+                        {{ form_widget(form.token.value, {
+                            placeholder: 'Выберите профиль Avito ...',
+                            attr: { 'data-select' : 'select2', style: 'width: 300px;', class: 'mb-0' }
+                        }) }}
+                    </div>
+
                 </div>
             {% endif %}
 

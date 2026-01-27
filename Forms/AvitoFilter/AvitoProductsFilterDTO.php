@@ -60,6 +60,12 @@ final class AvitoProductsFilterDTO
 
     public function setToken(AvitoTokenUid|string|null $token): self
     {
+        if(empty($token))
+        {
+            $this->token = null;
+            return $this;
+        }
+
         if(false === ($token instanceof AvitoTokenUid))
         {
             $token = new AvitoTokenUid($token);
