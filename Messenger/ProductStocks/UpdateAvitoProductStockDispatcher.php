@@ -55,8 +55,8 @@ final readonly class UpdateAvitoProductStockDispatcher
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $dispatcher,
         private ProductTotalInOrdersInterface $ProductTotalInOrders,
-        private ?ProductWarehouseTotalInterface $ProductWarehouseTotal = null,
         private AvitoTokensByProfileInterface $AvitoTokensByProfileRepository,
+        private ?ProductWarehouseTotalInterface $ProductWarehouseTotal = null,
         #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
 
