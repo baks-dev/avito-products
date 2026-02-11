@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -66,8 +66,8 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
     }
 
     /**
-     * С помощью метода API из этого раздела вы можете контролировать количество остатков в объявлениях, размещённых на Авито.
-     * Данные синхронизируются с вашей системой учёта.
+     * С помощью метода API из этого раздела вы можете контролировать количество остатков в объявлениях, размещённых на
+     * Авито. Данные синхронизируются с вашей системой учёта.
      *
      * Максимальное количество элементов в одном запросе - 200
      * Максимальное количество запросов в минуту - 500
@@ -107,8 +107,8 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
                             'external_id' => $this->externalId,
                             'item_id' => $this->itemId,
                             'quantity' => self::STOP_SALES === true ? 0 : max($this->quantity, 0),
-                        ]]
-                    ]
+                        ]],
+                    ],
                 ],
             );
 
@@ -119,7 +119,7 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
                 [
-                    __FILE__.':'.__LINE__,
+                    self::class.':'.__LINE__,
                     $result,
                 ]);
 
@@ -130,7 +130,7 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         {
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
-                [__FILE__.':'.__LINE__, $result]
+                [self::class.':'.__LINE__, $result],
             );
 
             return false;
@@ -142,7 +142,7 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         {
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
-                [__FILE__.':'.__LINE__, $result]
+                [self::class.':'.__LINE__, $result, $this->getTokenIdentifier()],
             );
 
             return false;
