@@ -1,6 +1,6 @@
 # BaksDev Avito Products
 
-[![Version](https://img.shields.io/badge/version-7.3.24-blue)](https://github.com/baks-dev/avito-products/releases)
+[![Version](https://img.shields.io/badge/version-7.4.0-blue)](https://github.com/baks-dev/avito-products/releases)
 ![php 8.4+](https://img.shields.io/badge/php-min%208.4-red.svg)
 [![packagist](https://img.shields.io/badge/packagist-green)](https://packagist.org/packages/baks-dev/avito-products)
 
