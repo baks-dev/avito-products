@@ -30,6 +30,7 @@ use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(public: true)]
 interface AllAvitoProductsByProfileInterface
 {
     /** @return array<AvitoProduct>|null */

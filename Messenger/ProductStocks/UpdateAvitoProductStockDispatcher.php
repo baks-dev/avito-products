@@ -37,6 +37,7 @@ use BaksDev\Orders\Order\Repository\ProductTotalInOrders\ProductTotalInOrdersInt
 use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
 use BaksDev\Products\Stocks\Repository\ProductWarehouseTotal\ProductWarehouseTotalInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -44,7 +45,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Метод отправляет запрос Avito API на обновление остатков у объявления
  */
-#[AsMessageHandler]
+#[Autoconfigure(public: true)]
+#[AsMessageHandler(priority: 0)]
 final readonly class UpdateAvitoProductStockDispatcher
 {
     public function __construct(

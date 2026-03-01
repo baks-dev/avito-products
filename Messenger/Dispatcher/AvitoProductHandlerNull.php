@@ -25,9 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Messenger\Dispatcher;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[Autoconfigure(public: true)]
+#[AsMessageHandler(priority: 0)]
 final class AvitoProductHandlerNull
 {
     public function __invoke(AvitoProductMessage $message): void {}

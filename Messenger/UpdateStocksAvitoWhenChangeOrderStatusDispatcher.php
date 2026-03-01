@@ -41,6 +41,7 @@ use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\ConstId\ProductModificationConst;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -48,6 +49,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Обновляем остатки Авито при изменении статусов заказов
  */
+#[Autoconfigure(public: true)]
 #[AsMessageHandler(priority: 90)]
 final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
 {

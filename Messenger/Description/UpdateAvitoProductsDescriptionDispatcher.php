@@ -29,9 +29,11 @@ namespace BaksDev\Avito\Products\Messenger\Description;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\UpdateAvitoProductsDescriptionDTO;
 use BaksDev\Avito\Products\UseCase\UpdateDescription\UpdateAvitoProductsDescriptionHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+#[Autoconfigure(public: true)]
 #[AsMessageHandler(priority: 0)]
 final readonly class UpdateAvitoProductsDescriptionDispatcher
 {

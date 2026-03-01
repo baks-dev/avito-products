@@ -34,7 +34,9 @@ use BaksDev\Core\Validator\ValidatorCollectionInterface;
 use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
 use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(public: true)]
 final class UpdateAvitoProductsDescriptionHandler extends AbstractHandler
 {
     public function __construct(
