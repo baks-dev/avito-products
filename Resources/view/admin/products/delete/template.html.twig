@@ -9,5 +9,5 @@
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
-{{ include(_self|replace({ "template.html.twig": baks_settings.device~"/form.html.twig" })) }}
+    {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/form.html.twig" })) }}
 {% endblock %}

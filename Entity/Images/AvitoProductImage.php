@@ -93,6 +93,7 @@ class AvitoProductImage extends EntityState implements UploadEntityInterface
 
     /**
      * Обязательно для загрузки на cdn
+     *
      * @see ImageUpload
      */
     public function getId(): AvitoProductImageUid

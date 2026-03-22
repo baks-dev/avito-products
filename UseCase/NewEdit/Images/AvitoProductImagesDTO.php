@@ -30,11 +30,9 @@ use Symfony\Component\HttpFoundation\File\File;
 /** @see AvitoProductImage */
 final class AvitoProductImagesDTO implements AvitoProductImagesInterface
 {
-    private ?AvitoProductImageUid $id = null;
-
     /** Обложка категории */
     public ?File $file = null;
-
+    private ?AvitoProductImageUid $id = null;
     /** Название файла */
     private ?string $name = null;
 

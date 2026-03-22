@@ -30,6 +30,6 @@ return static function(TwigConfig $twig) {
 
     $twig->path(
         BaksDevAvitoProductsBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), //.'Resources/view',
-        'avito-products'
+        'avito-products',
     );
 };

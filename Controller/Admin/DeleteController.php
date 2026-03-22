@@ -34,8 +34,8 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_AVITO_PRODUCTS_DELETE')]
@@ -53,7 +53,7 @@ final class DeleteController extends AbstractController
         $form = $this
             ->createForm(AvitoProductDeleteForm::class, $avitoProductDeleteDTO, ['action' => $this->generateUrl(
                 'avito-products:admin.products.delete',
-                ['id' => $avitoProductDeleteDTO->getId()]
+                ['id' => $avitoProductDeleteDTO->getId()],
             )])
             ->handleRequest($request);
 
@@ -66,7 +66,7 @@ final class DeleteController extends AbstractController
                 'page.delete',
                 $handle instanceof AvitoProduct ? 'success.delete' : 'danger.delete',
                 'avito-products.admin',
-                $handle
+                $handle,
             );
 
             return $this->redirectToReferer();

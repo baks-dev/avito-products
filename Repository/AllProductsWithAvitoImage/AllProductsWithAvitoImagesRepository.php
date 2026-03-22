@@ -483,8 +483,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             );
 
 
-
-
         /**
          * Изображения Авито
          */
@@ -610,7 +608,6 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         /**
          * Avito mapper
          */
-
 
 
         /** Только те продукты, для которых создан маппер */

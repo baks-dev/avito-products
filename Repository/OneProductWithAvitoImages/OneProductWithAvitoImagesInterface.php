@@ -43,7 +43,8 @@ interface OneProductWithAvitoImagesInterface
     public function modificationConst(ProductModification|ProductModificationConst|string|null $modification): self;
 
     /**
-     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и модификаций.
+     * Метод возвращает детальную информацию о продукте по его неизменяемым идентификаторам Const ТП, вариантов и
+     * модификаций.
      */
     public function find(): array|bool;
 }

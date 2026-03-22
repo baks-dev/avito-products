@@ -26,9 +26,9 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Controller\Admin\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use PHPUnit\Framework\Attributes\Group;
 
 #[Group('avito-products')]
 #[Group('avito-products-controller')]

@@ -40,29 +40,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Group('avito-products')]
 class AvitoProductDeleteTest extends KernelTestCase
 {
-    #[DependsOnClass(AvitoProductImagesEditTest::class)]
-    public function testDelete(): void
-    {
-        $container = self::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
-
-        $avitoProduct = $em
-            ->getRepository(AvitoProduct::class)
-            ->find(AvitoProductUid::TEST);
-
-        self::assertNotNull($avitoProduct);
-
-        $deleteDTO = new AvitoProductDeleteDTO();
-
-        $avitoProduct->getDto($deleteDTO);
-
-        /** @var AvitoProductDeleteHandler $handler */
-        $handler = $container->get(AvitoProductDeleteHandler::class);
-        $deletedAvitoProduct = $handler->handle($deleteDTO);
-        self::assertTrue($deletedAvitoProduct instanceof AvitoProduct);
-    }
-
-
     public static function tearDownAfterClass(): void
     {
         $container = self::getContainer();
@@ -95,5 +72,27 @@ class AvitoProductDeleteTest extends KernelTestCase
         {
             $fileSystem->remove($testUploadDir);
         }
+    }
+
+    #[DependsOnClass(AvitoProductImagesEditTest::class)]
+    public function testDelete(): void
+    {
+        $container = self::getContainer();
+        $em = $container->get(EntityManagerInterface::class);
+
+        $avitoProduct = $em
+            ->getRepository(AvitoProduct::class)
+            ->find(AvitoProductUid::TEST);
+
+        self::assertNotNull($avitoProduct);
+
+        $deleteDTO = new AvitoProductDeleteDTO();
+
+        $avitoProduct->getDto($deleteDTO);
+
+        /** @var AvitoProductDeleteHandler $handler */
+        $handler = $container->get(AvitoProductDeleteHandler::class);
+        $deletedAvitoProduct = $handler->handle($deleteDTO);
+        self::assertTrue($deletedAvitoProduct instanceof AvitoProduct);
     }
 }
