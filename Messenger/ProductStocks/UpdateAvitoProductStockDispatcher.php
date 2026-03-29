@@ -100,7 +100,11 @@ final readonly class UpdateAvitoProductStockDispatcher
                     'avito-products: Не найден идентификатор объявления по артикулу %s',
                     $ProductInfoByIdentifierResult->getProductArticle(),
                 ),
-                [self::class.':'.__LINE__],
+                [
+                    self::class.':'.__LINE__,
+                    'profile' => (string) $message->getProfile(),
+                    'token' => (string) $message->getTokenIdentifier(),
+                ],
             );
 
             return;

@@ -143,6 +143,8 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                 continue;
             }
 
+            $tokens = iterator_to_array($tokens);
+
             /** @var OrderProductDTO $product */
             foreach($EditOrderDTO->getProduct() as $product)
             {
