@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Messenger\ProductStocks;
 
+use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
 use BaksDev\Products\Product\Type\Offers\Variation\ConstId\ProductVariationConst;
@@ -35,6 +36,8 @@ final readonly class UpdateAvitoProductStockMessage
 {
     private string $profile;
 
+    private string $token;
+
     private string $product;
 
     private string|false $offer;
@@ -43,8 +46,10 @@ final readonly class UpdateAvitoProductStockMessage
 
     private string|false $modification;
 
+
     public function __construct(
         UserProfileUid|string $profile,
+        AvitoTokenUid|string $token,
         ProductUid|string $product,
         ProductOfferConst|string|null|false $offer,
         ProductVariationConst|string|null|false $variation,
@@ -52,6 +57,7 @@ final readonly class UpdateAvitoProductStockMessage
     )
     {
         $this->profile = (string) $profile;
+        $this->token = (string) $token;
         $this->product = (string) $product;
         $this->offer = !empty($offer) ? (string) $offer : false;
         $this->variation = !empty($variation) ? (string) $variation : false;
@@ -61,6 +67,11 @@ final readonly class UpdateAvitoProductStockMessage
     public function getProfile(): UserProfileUid
     {
         return new UserProfileUid($this->profile);
+    }
+
+    public function getTokenIdentifier(): AvitoTokenUid
+    {
+        return new AvitoTokenUid($this->token);
     }
 
     public function getProduct(): ProductUid

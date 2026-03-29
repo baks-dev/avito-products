@@ -26,6 +26,7 @@ namespace BaksDev\Avito\Products\Commands;
 
 use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
 use BaksDev\Avito\Products\Repository\AllProductsIdentifierByAvitoMapper\AllProductsWithAvitoMapperInterface;
+use BaksDev\Avito\Repository\AllTokensByProfile\AvitoTokensByProfileInterface;
 use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllProfilesByActiveTokenInterface;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -51,6 +52,7 @@ class UpdateAvitoProductStocksCommand extends Command
         private readonly MessageDispatchInterface $messageDispatch,
         private readonly AllProductsWithAvitoMapperInterface $allProductsWithAvitoMapper,
         private readonly AllProfilesByActiveTokenInterface $allProfilesByToken,
+        private readonly AvitoTokensByProfileInterface $AvitoTokensByProfileRepository,
     )
     {
         parent::__construct();
@@ -142,18 +144,38 @@ class UpdateAvitoProductStocksCommand extends Command
             return;
         }
 
+
+        /**  Получаем активные токены профилей пользователя */
+
+        $tokens = $this->AvitoTokensByProfileRepository
+            ->forProfile($profile)
+            ->onlyActive()
+            ->findAll();
+
+        if(false === $tokens || false === $tokens->valid())
+        {
+            $this->io->warning('Токенов авторизации профиля не найдено для обновления остатков в объявлениях Авито');
+            return;
+        }
+
+
         foreach($avitoProducts as $product)
         {
-            $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
-                $profile,
-                $product->getProductId(),
-                $product->getProductOfferConst(),
-                $product->getProductVariationConst(),
-                $product->getProductModificationConst(),
-            );
+            foreach($tokens as $AvitoTokenUid)
+            {
+                $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
+                    $profile,
+                    $AvitoTokenUid,
+                    $product->getProductId(),
+                    $product->getProductOfferConst(),
+                    $product->getProductVariationConst(),
+                    $product->getProductModificationConst(),
+                );
 
-            $this->messageDispatch->dispatch($updateAvitoProductStockMessage);
-            $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $product->getProductArticle()));
+                $this->messageDispatch->dispatch($updateAvitoProductStockMessage);
+                $this->io->text(sprintf('Обновили остатки у объявления с артикулом %s', $product->getProductArticle()));
+            }
+
         }
     }
 }

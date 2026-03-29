@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Avito\Products\Messenger;
 
 use BaksDev\Avito\Products\Messenger\ProductStocks\UpdateAvitoProductStockMessage;
+use BaksDev\Avito\Repository\AllTokensByProfile\AvitoTokensByProfileInterface;
 use BaksDev\Avito\Repository\AllUserProfilesByActiveToken\AllProfilesByActiveTokenInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDelay;
@@ -49,7 +50,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Обновляем остатки Авито при изменении статусов заказов
  */
-// #[Autoconfigure(public: true)]
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 90)]
 final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
 {
@@ -59,6 +60,7 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
         private CurrentOrderEventInterface $CurrentOrderEventRepository,
         private CurrentProductIdentifierByEventInterface $currentProductIdentifier,
         private DeduplicatorInterface $Deduplicator,
+        private AvitoTokensByProfileInterface $AvitoTokensByProfileRepository,
         #[Target('avitoProductsLogger')] private LoggerInterface $Logger,
         #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
@@ -129,6 +131,18 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                 continue;
             }
 
+            /**  Получаем активные токены профилей пользователя */
+
+            $tokens = $this->AvitoTokensByProfileRepository
+                ->forProfile($UserProfileUid)
+                ->onlyActive()
+                ->findAll();
+
+            if(false === $tokens || false === $tokens->valid())
+            {
+                continue;
+            }
+
             /** @var OrderProductDTO $product */
             foreach($EditOrderDTO->getProduct() as $product)
             {
@@ -145,27 +159,31 @@ final readonly class UpdateStocksAvitoWhenChangeOrderStatusDispatcher
                     continue;
                 }
 
-                $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
-                    $UserProfileUid,
-                    $CurrentProductIdentifier->getProduct(),
-                    $CurrentProductIdentifier->getOfferConst(),
-                    $CurrentProductIdentifier->getVariationConst(),
-                    $CurrentProductIdentifier->getModificationConst(),
-                );
+                foreach($tokens as $AvitoTokenUid)
+                {
+                    $updateAvitoProductStockMessage = new UpdateAvitoProductStockMessage(
+                        $UserProfileUid,
+                        $AvitoTokenUid,
+                        $CurrentProductIdentifier->getProduct(),
+                        $CurrentProductIdentifier->getOfferConst(),
+                        $CurrentProductIdentifier->getVariationConst(),
+                        $CurrentProductIdentifier->getModificationConst(),
+                    );
 
-                $this->messageDispatch->dispatch(
-                    message: $updateAvitoProductStockMessage,
-                    stamps: [new MessageDelay('5 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
-                    transport: (string) $UserProfileUid,
-                );
+                    $this->messageDispatch->dispatch(
+                        message: $updateAvitoProductStockMessage,
+                        stamps: [new MessageDelay('5 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
+                        transport: (string) $UserProfileUid,
+                    );
 
-                /** Дополнительно пробуем обновить (на случай если остатки еще не успели пересчитаться) */
+                    /** Дополнительно пробуем обновить (на случай если остатки еще не успели пересчитаться) */
 
-                $this->messageDispatch->dispatch(
-                    message: $updateAvitoProductStockMessage,
-                    stamps: [new MessageDelay('15 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
-                    transport: (string) $UserProfileUid,
-                );
+                    $this->messageDispatch->dispatch(
+                        message: $updateAvitoProductStockMessage,
+                        stamps: [new MessageDelay('15 seconds')], // задержка 5 сек для обновления остатков в объявлении на Авито
+                        transport: (string) $UserProfileUid,
+                    );
+                }
 
             }
         }

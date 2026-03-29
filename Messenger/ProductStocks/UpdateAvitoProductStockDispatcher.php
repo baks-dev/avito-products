@@ -57,7 +57,6 @@ final readonly class UpdateAvitoProductStockDispatcher
         private DeduplicatorInterface $deduplicator,
         private MessageDispatchInterface $dispatcher,
         private ProductTotalInOrdersInterface $ProductTotalInOrders,
-        private AvitoTokensByProfileInterface $AvitoTokensByProfileRepository,
         private ?ProductWarehouseTotalInterface $ProductWarehouseTotal = null,
         #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
@@ -87,112 +86,107 @@ final readonly class UpdateAvitoProductStockDispatcher
             return;
         }
 
-        /**  Получаем активные токены профилей пользователя */
+        $AvitoTokenUid = $message->getTokenIdentifier();
 
-        $tokens = $this->AvitoTokensByProfileRepository
-            ->forProfile($message->getProfile())
-            ->onlyActive()
-            ->findAll();
+        /** Получаем идентификатор объявления по артикулу */
+        $identifier = $this->getIdByArticleRequest
+            ->forTokenIdentifier($AvitoTokenUid)
+            ->find($ProductInfoByIdentifierResult->getProductArticle());
 
-        if(false === $tokens || false === $tokens->valid())
+        if(false === $identifier)
         {
-            return;
-        }
-
-        foreach($tokens as $AvitoTokenUid)
-        {
-            /** Получаем идентификатор объявления по артикулу */
-            $identifier = $this->getIdByArticleRequest
-                ->forTokenIdentifier($AvitoTokenUid)
-                ->find($ProductInfoByIdentifierResult->getProductArticle());
-
-            if(false === $identifier)
-            {
-                $this->logger->critical(
-                    sprintf(
-                        'avito-products: Не найден идентификатор объявления по артикулу %s',
-                        $ProductInfoByIdentifierResult->getProductArticle(),
-                    ),
-                    [self::class.':'.__LINE__],
-                );
-
-                return;
-            }
-
-            $Deduplicator = $this->deduplicator
-                ->namespace('avito-products')
-                ->expiresAfter('1 seconds')
-                ->deduplication([$AvitoTokenUid, self::class]);
-
-            if($Deduplicator->isExecuted())
-            {
-                $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('1 seconds'));
-
-                $this->dispatcher->dispatch(
-                    message: $message,
-                    stamps: [$MessageDelay],
-                    transport: 'avito-products',
-                );
-
-                return;
-            }
-
-            /** Остаток товара в карточке (по умолчанию) */
-            $ProductQuantity = $ProductInfoByIdentifierResult->getProductQuantity();
-
-            /** Если подключен модуль складского учета - расчет согласно остаткам склада */
-            if(class_exists(BaksDevProductsStocksBundle::class))
-            {
-                /** Получаем остаток на складе с учетом резерва */
-                $stocksTotal = $this->ProductWarehouseTotal->getProductProfileTotal(
-                    $message->getProfile(),
-                    $message->getProduct(),
-                    $message->getOfferConst(),
-                    $message->getVariationConst(),
-                    $message->getModificationConst(),
-                );
-
-                /** Получаем количество необработанных заказов */
-                $unprocessed = $this->ProductTotalInOrders
-                    ->onProfile($message->getProfile())
-                    ->onProduct($message->getProduct())
-                    ->onOfferConst($message->getOfferConst())
-                    ->onVariationConst($message->getVariationConst())
-                    ->onModificationConst($message->getModificationConst())
-                    ->findTotal();
-
-
-                $ProductQuantity = ($stocksTotal - $unprocessed);
-            }
-
-            /** Обновляем остаток товара в объявлении */
-
-            $updateStock = $this->updateAvitoProductStockRequest
-                ->forTokenIdentifier($AvitoTokenUid)
-                ->externalId($ProductInfoByIdentifierResult->getProductArticle())
-                ->itemId($identifier)
-                ->quantity($ProductQuantity)
-                ->put();
-
-            if(false === $updateStock)
-            {
-                $this->logger->critical(
-                    sprintf(
-                        'avito-products: Не удалось обновить остатки товара с артикулом %s',
-                        $ProductInfoByIdentifierResult->getProductArticle(),
-                    ),
-                    [self::class.':'.__LINE__],
-                );
-
-                return;
-            }
-
-            $this->logger->info(
-                sprintf('%s: Обновили остаток товара => %s', $ProductInfoByIdentifierResult->getProductArticle(), $ProductQuantity),
+            $this->logger->critical(
+                sprintf(
+                    'avito-products: Не найден идентификатор объявления по артикулу %s',
+                    $ProductInfoByIdentifierResult->getProductArticle(),
+                ),
                 [self::class.':'.__LINE__],
             );
 
-            $Deduplicator->save();
+            return;
         }
+
+        $Deduplicator = $this->deduplicator
+            ->namespace('avito-products')
+            ->expiresAfter('1 seconds')
+            ->deduplication([$AvitoTokenUid, self::class]);
+
+        if($Deduplicator->isExecuted())
+        {
+            $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('1 seconds'));
+
+            $this->dispatcher->dispatch(
+                message: $message,
+                stamps: [$MessageDelay],
+                transport: 'avito-products',
+            );
+
+            $this->logger->info(
+                sprintf(
+                    '%s: Отложили обновление остатков Авито',
+                    $ProductInfoByIdentifierResult->getProductArticle(),
+                ),
+                [self::class.':'.__LINE__, $MessageDelay],
+            );
+
+            return;
+        }
+
+        /** Остаток товара в карточке (по умолчанию) */
+        $ProductQuantity = $ProductInfoByIdentifierResult->getProductQuantity();
+
+        /** Если подключен модуль складского учета - расчет согласно остаткам склада */
+        if(class_exists(BaksDevProductsStocksBundle::class))
+        {
+            /** Получаем остаток на складе с учетом резерва */
+            $stocksTotal = $this->ProductWarehouseTotal->getProductProfileTotal(
+                $message->getProfile(),
+                $message->getProduct(),
+                $message->getOfferConst(),
+                $message->getVariationConst(),
+                $message->getModificationConst(),
+            );
+
+            /** Получаем количество необработанных заказов */
+            $unprocessed = $this->ProductTotalInOrders
+                ->onProfile($message->getProfile())
+                ->onProduct($message->getProduct())
+                ->onOfferConst($message->getOfferConst())
+                ->onVariationConst($message->getVariationConst())
+                ->onModificationConst($message->getModificationConst())
+                ->findTotal();
+
+
+            $ProductQuantity = ($stocksTotal - $unprocessed);
+        }
+
+        /** Обновляем остаток товара в объявлении */
+
+        $updateStock = $this->updateAvitoProductStockRequest
+            ->forTokenIdentifier($AvitoTokenUid)
+            ->externalId($ProductInfoByIdentifierResult->getProductArticle())
+            ->itemId($identifier)
+            ->quantity($ProductQuantity)
+            ->put();
+
+        if(false === $updateStock)
+        {
+            $this->logger->critical(
+                sprintf(
+                    'avito-products: Не удалось обновить остатки товара с артикулом %s',
+                    $ProductInfoByIdentifierResult->getProductArticle(),
+                ),
+                [self::class.':'.__LINE__],
+            );
+
+            return;
+        }
+
+        $this->logger->info(
+            sprintf('%s: Обновили остаток товара => %s', $ProductInfoByIdentifierResult->getProductArticle(), $ProductQuantity),
+            [self::class.':'.__LINE__],
+        );
+
+        $Deduplicator->save();
     }
 }
