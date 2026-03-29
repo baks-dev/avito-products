@@ -27,7 +27,9 @@ namespace BaksDev\Avito\Products\Api\Post\UpdateAvitoProductStock;
 
 use BaksDev\Avito\Api\AvitoApi;
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(shared: false)]
 final class UpdateAvitoProductStockRequest extends AvitoApi
 {
     private const bool STOP_SALES = false;
@@ -121,7 +123,10 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
                 [
                     self::class.':'.__LINE__,
                     $result,
-                ]);
+                    'profile' => $this->getProfile(),
+                    'token' => $this->getTokenIdentifier(),
+                ],
+            );
 
             return false;
         }
@@ -130,7 +135,12 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         {
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
-                [self::class.':'.__LINE__, $result],
+                [
+                    self::class.':'.__LINE__,
+                    $result,
+                    'profile' => $this->getProfile(),
+                    'token' => $this->getTokenIdentifier(),
+                ],
             );
 
             return false;
@@ -142,7 +152,12 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
         {
             $this->logger->critical(
                 sprintf('avito-products: Не удалось обновить остатки для объявления %s', $this->itemId),
-                [self::class.':'.__LINE__, $result, $this->getTokenIdentifier()],
+                [
+                    self::class.':'.__LINE__,
+                    $result,
+                    'profile' => $this->getProfile(),
+                    'token' => $this->getTokenIdentifier(),
+                ],
             );
 
             return false;
