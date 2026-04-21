@@ -117,12 +117,12 @@ final readonly class UpdateAvitoProductStockDispatcher
 
         if($Deduplicator->isExecuted())
         {
-            $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('1 seconds'));
+            $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('15 seconds'));
 
             $this->dispatcher->dispatch(
                 message: $message,
                 stamps: [$MessageDelay],
-                transport: 'avito-products',
+                transport: $message->getProfile().'-low',
             );
 
             $this->logger->info(
