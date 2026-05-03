@@ -110,32 +110,6 @@ final readonly class UpdateAvitoProductStockDispatcher
             return;
         }
 
-        $Deduplicator = $this->deduplicator
-            ->namespace('avito-products')
-            ->expiresAfter('1 seconds')
-            ->deduplication([$AvitoTokenUid, self::class]);
-
-        if($Deduplicator->isExecuted())
-        {
-            $MessageDelay = new MessageDelay($Deduplicator->getAndSaveNextTime('15 seconds'));
-
-            $this->dispatcher->dispatch(
-                message: $message,
-                stamps: [$MessageDelay],
-                transport: $message->getProfile().'-low',
-            );
-
-            $this->logger->info(
-                sprintf(
-                    '%s: Отложили обновление остатков Авито',
-                    $ProductInfoByIdentifierResult->getProductArticle(),
-                ),
-                [self::class.':'.__LINE__, $MessageDelay],
-            );
-
-            return;
-        }
-
         /** Остаток товара в карточке (по умолчанию) */
         $ProductQuantity = $ProductInfoByIdentifierResult->getProductQuantity();
 
@@ -164,6 +138,18 @@ final readonly class UpdateAvitoProductStockDispatcher
             $ProductQuantity = ($stocksTotal - $unprocessed);
         }
 
+
+        $Deduplicator = $this->deduplicator
+            ->namespace('avito-products')
+            ->expiresAfter('5 seconds')
+            ->deduplication([$message, $ProductQuantity, self::class]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+
         /** Обновляем остаток товара в объявлении */
 
         $updateStock = $this->updateAvitoProductStockRequest
@@ -177,10 +163,16 @@ final readonly class UpdateAvitoProductStockDispatcher
         {
             $this->logger->critical(
                 sprintf(
-                    'avito-products: Не удалось обновить остатки товара с артикулом %s',
+                    'avito-products: Не удалось обновить остатки товара с артикулом %s. Пробуем обновить позже',
                     $ProductInfoByIdentifierResult->getProductArticle(),
                 ),
                 [self::class.':'.__LINE__],
+            );
+
+            $this->dispatcher->dispatch(
+                message: $message,
+                stamps: [new MessageDelay('15 seconds')],
+                transport: $message->getProfile().'-low',
             );
 
             return;
