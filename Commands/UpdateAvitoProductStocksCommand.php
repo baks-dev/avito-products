@@ -105,7 +105,7 @@ class UpdateAvitoProductStocksCommand extends Command
 
             foreach($profiles as $profile)
             {
-                if($profile->getAttr() === $questions[$profileName])
+                if($profile->getAttr() === $profileName)
                 {
                     /* Присваиваем профиль пользователя */
                     $UserProfileUid = $profile;
