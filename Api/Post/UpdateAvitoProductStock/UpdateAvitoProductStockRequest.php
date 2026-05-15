@@ -128,6 +128,11 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
                 ],
             );
 
+            if(str_contains(mb_strtolower(current($result['stocks'])['errors']), 'товара нет на авито'))
+            {
+                return true;
+            }
+
             return false;
         }
 
