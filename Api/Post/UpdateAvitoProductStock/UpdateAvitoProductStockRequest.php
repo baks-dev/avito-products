@@ -155,12 +155,16 @@ final class UpdateAvitoProductStockRequest extends AvitoApi
                 [
                     self::class.':'.__LINE__,
                     $result,
+                    $stocks,
                     'profile' => $this->getProfile(),
                     'token' => $this->getTokenIdentifier(),
                 ],
             );
 
-            if(str_contains(mb_strtolower(current($stocks['errors'])), 'товара нет на авито'))
+            if(
+                str_contains(mb_strtolower(current($stocks['errors'])), 'товара нет')
+                || str_contains(mb_strtolower(current($stocks['errors'])), 'товар удалён')
+            )
             {
                 return true;
             }
