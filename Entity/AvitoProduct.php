@@ -44,6 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'avito_product')]
+#[ORM\Index(columns: ['product', 'offer', 'variation', 'modification'])]
 class AvitoProduct extends EntityState
 {
     #[Assert\NotBlank]
