@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage;
 
-use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
@@ -68,9 +67,10 @@ final readonly class AllProductsWithAvitoImagesResult
         private ?string $product_image,
         private ?string $product_image_ext,
         private ?bool $product_image_cdn,
-        private ?string $avito_product_id,
+
         private ?string $avito_product_images,
         private ?string $category_name,
+
     ) {}
 
     public function getProductId(): ProductUid
@@ -208,27 +208,6 @@ final readonly class AllProductsWithAvitoImagesResult
         return $this->category_name;
     }
 
-    public function getAvitoProductId(): ?AvitoProductUid
-    {
-        if(empty($this->avito_product_id))
-        {
-            return null;
-        }
-
-        if(false === json_validate($this->avito_product_id))
-        {
-            return null;
-        }
-
-        $decode = json_decode($this->avito_product_id, false, 512, JSON_THROW_ON_ERROR);
-        $decode = current($decode);
-
-        return $decode ? new AvitoProductUid($decode->id) : null;
-
-
-        //return false === empty($this->avito_product_id) ? new AvitoProductUid($this->avito_product_id) : null;
-    }
-
     public function getAvitoProductImages(): ?array
     {
         if(empty($this->avito_product_images))
@@ -243,12 +222,14 @@ final readonly class AllProductsWithAvitoImagesResult
 
         $images = json_decode($this->avito_product_images, true, 512, JSON_THROW_ON_ERROR);
 
-        if(null === current($images))
+        $current = current($images);
+
+        if(empty($current))
         {
             return null;
         }
 
-        return $images;
+        return $current;
     }
 
     public function getAvitoToken(): AvitoTokenUid

@@ -29,6 +29,7 @@ use BaksDev\Avito\Repository\AllTokensByProfile\AvitoTokensByProfileInterface;
 use BaksDev\Avito\Type\Id\AvitoTokenUid;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -54,13 +55,9 @@ final class AvitoProductsFilterForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('exists', ChoiceType::class, [
-            'choices' => [
-                'Все' => null,
-                'С фото' => true,
-                'Без фото' => false,
-            ],
-        ]);
+        $builder->add('exists', CheckboxType::class, ['required' => false]);
+
+        $builder->add('stocks', CheckboxType::class, ['required' => false]);
 
         $tokens = $this->AvitoTokensByProfileRepository
             ->forProfile($this->UserProfileTokenStorage->getProfile())
@@ -108,6 +105,7 @@ final class AvitoProductsFilterForm extends AbstractType
                     {
                         $this->session->remove($this->sessionKey);
                         $data->setExists(null);
+                        $data->setStocks(null);
                         return;
                     }
 
@@ -116,6 +114,7 @@ final class AvitoProductsFilterForm extends AbstractType
                     $sessionArray = $sessionJson !== false && json_validate($sessionJson) ? json_decode($sessionJson, true) : [];
 
                     $data->setExists($sessionArray['exists'] ?? null);
+                    $data->setStocks($sessionArray['stocks'] ?? null);
                     $data->setToken($sessionArray['token'] ?? null);
 
                 }
@@ -139,6 +138,7 @@ final class AvitoProductsFilterForm extends AbstractType
                     $sessionArray = [];
 
                     $data->getExists() !== null ? $sessionArray['exists'] = $data->getExists() : null;
+                    $data->getStocks() !== null ? $sessionArray['stocks'] = $data->getStocks() : null;
                     $data->getToken() instanceof AvitoTokenUid ? $sessionArray['token'] = (string) $data->getToken() : null;
 
 

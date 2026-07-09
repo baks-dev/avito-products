@@ -50,15 +50,31 @@
                    class="text-decoration-none text-dark w-100 modal-link"
                    data-bs-toggle="modal"
                    data-bs-target="#modal"
-                   title="Изменить параметры упаковки">
-                    Изменить настройки
+                   title="Изменить настройку объявления">
+                    Изменить настройку
                 </a>
             </li>
 
         {% endif %}
 
+
+        {# Удалить продукт #}
+        {% if item.getAvitoProductImages() != null and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
+            <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
+                <a href="{{ path('avito-products:admin.products.delete', { id: item.getAvitoProductImages().id }) }}"
+                   class="text-decoration-none text-dark w-100 modal-link"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="Удалить настройку объявления">
+                    Удалить настройку
+                </a>
+            </li>
+        {% endif %}
+
+
+
         {# Редактировать продукт #}
-        {% if  is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN') %}
+        {% if is_granted(ROLE~'_EDIT') or is_granted('ROLE_ADMIN') %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
                 <a href="{{ path('products-product:admin.newedit.edit', {id: item.productEvent }) }}"
@@ -70,18 +86,6 @@
 
         {% endif %}
 
-        {# Удалить продукт #}
-        {% if item.avitoProductId != null and (is_granted(ROLE~'_DELETE') or is_granted('ROLE_ADMIN')) %}
-            <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('avito-products:admin.products.delete', {id: item.avitoProductId }) }}"
-                   class="text-decoration-none text-dark w-100 modal-link"
-                   data-bs-toggle="modal"
-                   data-bs-target="#modal"
-                   title="{{ 'btn.delete'|trans({}, 'core.btn') }}">
-                    Удалить продукт
-                </a>
-            </li>
-        {% endif %}
 
     </ul>
 </div>

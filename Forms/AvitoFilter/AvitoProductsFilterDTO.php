@@ -33,8 +33,10 @@ final class AvitoProductsFilterDTO
     /** Флаг  */
     private null|bool $exists = null;
 
-    private ?AvitoTokenUid $token = null;
+    /** Наличие */
+    private null|bool $stocks = null;
 
+    private ?AvitoTokenUid $token = null;
 
     /**
      * Exists
@@ -49,6 +51,18 @@ final class AvitoProductsFilterDTO
         $this->exists = $exists;
         return $this;
     }
+
+    public function getStocks(): ?bool
+    {
+        return $this->stocks;
+    }
+
+    public function setStocks(?bool $stocks): self
+    {
+        $this->stocks = $stocks;
+        return $this;
+    }
+
 
     /**
      * Token

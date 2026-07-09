@@ -46,40 +46,12 @@
                 {# Форма поиска по разделу #}
                 {% include Template('/_includes/'~baks_settings.device~'/search.html.twig') %}
 
-
                 {# Фильтр по продукции #}
-                <div class="w-100 d-flex align-items-center align-content-end gap-2 me-3">
-
+                <div class="w-100 d-flex align-items-center align-content-end gap-2">
                     {% include Template('@products-product/admin/filter/'~baks_settings.device~'/filter.html.twig') %}
-
-                    <div style="width: {{ avito.token is defined ? '540px;' : '100px;' }}" class="">
-                        {{ form_start(avito, { attr: { class: 'd-flex w-100 gap-2 align-items-center align-content-end' } }) }}
-
-
-                        {% if avito.token is defined %}
-                            <div class="w-75">
-                                {{ form_widget(avito.token, {
-                                    placeholder: 'Выберите профиль Avito ...',
-                                    attr: { 'data-select' : 'select2', style: 'width: 100px;', class: 'mb-0' }
-                                }) }}
-                            </div>
-
-                        {% endif %}
-
-                        <div class="w-25">
-                            {{ form_widget(avito.exists, { attr: { style: 'width: 100px;' } }) }}
-                        </div>
-
-                        {{ form_end(avito) }}
-                    </div>
-
-
                 </div>
 
             </div>
-
-            {# Текстовый результат фильтра #}
-            {% include Template('@products-product/filter/'~baks_settings.device~'/filter_text.html.twig') %}
 
             {# Инфо-блок с предложением добавить фото #}
             {% if (info) %}
@@ -105,6 +77,83 @@
                     </div>
 
                 </div>
+
+                <div class="d-flex justify-content-between">
+
+                    {# Текстовый результат фильтра #}
+                    <div class="w-100">
+                        {% include Template('@products-product/filter/'~baks_settings.device~'/filter_text.html.twig') %}
+                    </div>
+
+                    <div class="w-100 d-flex align-items-center align-content-end gap-2">
+
+                        {{ form_start(avito, { attr: { class: 'd-flex w-100 gap-2 align-items-center align-content-end' } }) }}
+
+                        {% if avito.token is defined %}
+                            <div class="w-50">
+                                {{ form_widget(avito.token, {
+                                    placeholder: 'Выберите профиль Avito ...',
+                                    attr: { 'data-select' : 'select2', style: 'width: 100px;', class: 'mb-0' }
+                                }) }}
+                            </div>
+
+                        {% endif %}
+
+                        <div class="w-50">
+
+                            <div class="d-flex justify-content-around radio-buttons clearfix"
+                                 data-buttons="true"
+                                 style="clear: both">
+
+                                <label class="btn px-2 py-1 border-dotted rounded-3 w-100 {{ avito.exists.vars.data ? 'active' }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+
+                                            <div class="d-flex align-items-center">
+                                                {{ form_widget(avito.exists, { label: false }) }}
+                                                <div class="form-check ps-0 text-nowrap">
+                                                    {# Продукт активный #}
+                                                    {{ 'Только без фото'|trans }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+
+                            {# {{ form_widget(avito.exists, { placeholder: 'Фильтр фото ...' } ) }} #}
+                        </div>
+
+                        <div class="w-50">
+                            <div class="d-flex justify-content-around radio-buttons clearfix"
+                                 data-buttons="true"
+                                 style="clear: both">
+
+                                <label class="btn px-2 py-1 border-dotted rounded-3 w-100 {{ avito.stocks.vars.data ? 'active' }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+
+                                            <div class="d-flex align-items-center">
+                                                {{ form_widget(avito.stocks, { label: false }) }}
+                                                <div class="form-check ps-0 text-nowrap">
+                                                    {# Продукт активный #}
+                                                    {{ 'Только в наличии'|trans }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{ form_end(avito) }}
+
+                    </div>
+                </div>
+
+
+
 
             {% endif %}
 

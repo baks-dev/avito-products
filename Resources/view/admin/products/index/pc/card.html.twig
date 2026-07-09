@@ -114,7 +114,7 @@
         {% set cover = { name: null, ext: null, cdn: false } %}
 
         {% if item.avitoProductImages is not null %}
-            {% set cover = item.avitoProductImages|first %}
+            {% set cover = item.avitoProductImages %}
         {% endif %}
 
         <button data-href="{{ href }}"

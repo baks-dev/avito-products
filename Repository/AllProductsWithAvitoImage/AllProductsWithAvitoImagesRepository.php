@@ -63,6 +63,8 @@ use BaksDev\Products\Product\Entity\Property\ProductProperty;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\Property\ProductFilterPropertyDTO;
+use BaksDev\Products\Stocks\BaksDevProductsStocksBundle;
+use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
@@ -104,6 +106,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
     public function findPaginator(): PaginatorInterface
     {
 
+
+        $avitoImagesDbal = $this->DBALQueryBuilder
+            ->createQueryBuilder(self::class);
+
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
@@ -119,14 +125,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             $dbal->setParameter('token', $this->avitoProductsFilter->getToken());
         }
 
-
-        /*$dbal
-            ->join(
-                'avito_token',
-                AvitoTokenEvent::class,
-                'avito_token_event',
-                'avito_token_event.id = avito_token.event',
-            );*/
+        /** Настройки токенов Авито */
 
         $dbal
             ->join(
@@ -164,7 +163,10 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'avito_token_kit.event = avito_token.event',
             );
 
-        /** Родукт */
+
+        /**
+         * Продукт
+         */
 
         $dbal
             ->addSelect('product.id AS product_uid')
@@ -406,150 +408,111 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ) AS product_image_cdn',
         );
 
-
-        /** Продукт Авито */
-        $dbal
-            //->addSelect('avito_product.id AS tmp_avito_product_id')
-            ->leftJoin(
-                'product_modification',
-                AvitoProduct::class,
-                'avito_product',
-                '
-                
-                avito_product.product = product.id 
-
-                AND
-                        
-                    CASE 
-                        WHEN product_offer.const IS NOT NULL 
-                        THEN avito_product.offer = product_offer.const
-                        ELSE avito_product.offer IS NULL
-                    END
-                        
-                AND 
-                
-                    CASE
-                        WHEN product_variation.const IS NOT NULL 
-                        THEN avito_product.variation = product_variation.const
-                        ELSE avito_product.variation IS NULL
-                    END
-                    
-                AND
-                
-                    CASE
-                        WHEN product_modification.const IS NOT NULL 
-                        THEN avito_product.modification = product_modification.const
-                        ELSE avito_product.modification IS NULL
-                    END
-            ');
-
-
-        /** Продукт Авито по профилю бизнес-пользователя */
-
-        $dbal
-            //->addSelect('avito_product_token.value AS tmp_avito_token_value')
-            ->leftJoin(
-                'product_modification',
-                AvitoProductToken::class,
-                'avito_product_token',
-                '
-                    avito_product_token.avito = avito_product.id AND
-                    avito_product_token.value = avito_token.id
-                ',
-            );
-
-
-        /*$dbal
-            ->leftJoin(
-                'product_modification',
-                AvitoProductProfile::class,
-                'avito_product_profile',
-                '
-                    avito_product_profile.avito = avito_product.id AND
-                    avito_product_profile.value = avito_token_profile.value
-                ',
-            );*/
-
-        //$dbal->andWhere('(avito_product_profile.value = avito_token_profile.value OR avito_product_profile.value IS NULL)');
-
-        /** Комплект */
-        $dbal
-            //->addSelect('avito_product_kit.avito AS tmp_avito_product_kit')
-            ->leftJoin(
-                'avito_product',
-                AvitoProductKit::class,
-                'avito_product_kit',
-                'avito_product_kit.avito = avito_product_token.avito AND avito_product_kit.value = avito_token_kit.value',
-            );
-
-
         /**
-         * Изображения Авито
+         * Картинки Авито
          */
 
-        $dbal
-            ->addSelect("
-            JSON_AGG
-			( DISTINCT
-            		JSONB_BUILD_OBJECT
-					(
-						'id', CASE 
-                            WHEN avito_product_images.ext IS NOT NULL 
-                            THEN avito_product_images.avito
-                            ELSE NULL
-                        END 
-					)
-            ) /*FILTER (WHERE avito_product_images.ext IS NOT NULL )*/
+        $avitoImagesDbal
+            ->select('DISTINCT avito_product.id')
+            ->addSelect('avito_product_images.root')
+            ->addSelect('avito_product_images.name')
+            ->addSelect('avito_product_images.ext')
+            ->addSelect('avito_product_images.cdn')
+            ->from(AvitoProduct::class, 'avito_product')
+            ->where('avito_product.product = product.id')
+            ->andWhere('avito_product.offer = product_offer.const')
+            ->andWhere(' avito_product.variation = product_variation.const')
+            ->andWhere(' avito_product.modification = product_modification.const');
 
-            as avito_product_id")
-            ->leftJoin(
-                'avito_product',
-                AvitoProductImage::class,
-                'avito_product_images',
-                '
-                avito_product_images.avito = avito_product_kit.avito AND
-                avito_product_images.root = true',
-            );
-
-
-        $dbal->addSelect(
-            "JSON_AGG
-			( DISTINCT
-					JSONB_BUILD_OBJECT
-					(
-						'name', CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name),
-						'ext', avito_product_images.ext,
-						'cdn', avito_product_images.cdn
-					)
-			)
-			FILTER (WHERE avito_product_images.ext IS NOT NULL)
-			AS avito_product_images",
+        $avitoImagesDbal->join(
+            'avito_product',
+            AvitoProductToken::class,
+            'avito_product_token',
+            'avito_product_token.avito = avito_product.id
+            AND avito_product_token.value = avito_token.id',
         );
 
+        $avitoImagesDbal->join(
+            'avito_product_token',
+            AvitoProductKit::class,
+            'avito_product_kit',
+            'avito_product_kit.avito = avito_product_token.avito
+                   AND avito_product_kit.value = avito_token_kit.value',
+        );
 
-        /* Фильтр по товарам "С фото" / "Без Фото" */
+        $avitoImagesDbal->leftJoin(
+            'avito_product_kit',
+            AvitoProductImage::class,
+            'avito_product_images',
+            'avito_product_images.avito = avito_product_kit.avito
+            AND avito_product_images.root IS TRUE',
+        );
+
+        $avitoImagesDbal->setMaxResults(1);
+
+        $dbal
+            ->addSelect('avito_product_images.avito_product_images')
+            ->join(
+                'product_modification',
+                "LATERAL 
+                ( SELECT
+                 
+                     JSON_AGG
+                    (
+                        JSONB_BUILD_OBJECT
+                        (
+                            'id', avito_product_images.id,
+                            'root', avito_product_images.root,
+                            'name', CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name),
+                            'ext', avito_product_images.ext,
+                            'cdn', avito_product_images.cdn
+                        )
+                    ) 
+                    
+                    FILTER (WHERE avito_product_images.ext IS NOT NULL) AS avito_product_images
+               
+                    FROM (".$avitoImagesDbal->getSQL().") avito_product_images
+                )",
+                'avito_product_images',
+                'true');
+
+
+        /* Фильтр "Только без Фото" */
         if(true === $this->avitoProductsFilter?->getExists())
         {
-            $dbal->andWhere('avito_product_images.root IS NOT NULL');
-        }
-        if(false === $this->avitoProductsFilter?->getExists())
-        {
-            $dbal->andWhere('avito_product_images.root IS NULL');
+            $dbal->andWhere('avito_product_images.avito_product_images IS NULL');
         }
 
-        //        $dbal->addSelect(
-        //            "JSON_AGG
-        //			( DISTINCT
-        //					JSONB_BUILD_OBJECT
-        //					(
-        //						'name', COALESCE(CONCAT ('/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name), NULL),
-        //						'ext', COALESCE(avito_product_images.ext, NULL),
-        //						'cdn', COALESCE(avito_product_images.cdn, NULL)
-        //					)
-        //			)
-        //			FILTER (WHERE COALESCE(avito_product_images.ext, NULL) IS NOT NULL)
-        //			AS avito_product_images",
-        //        );
+        /* Фильтр "Только в наличии" */
+        if(true === $this->avitoProductsFilter?->getStocks() && class_exists(BaksDevProductsStocksBundle::class))
+        {
+            $exist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+            $exist
+                ->select('stock.id')
+                ->from(ProductStockTotal::class, 'stock')
+                ->where('stock.profile = avito_token_profile.value')
+                ->andWhere('stock.product = product.id')
+                ->andWhere('CASE
+                            WHEN product_offer.const IS NOT NULL
+                            THEN stock.offer = product_offer.const
+                            ELSE stock.offer IS NULL
+                        END')
+                ->andWhere('CASE
+                            WHEN product_variation.const IS NOT NULL
+                            THEN stock.variation = product_variation.const
+                            ELSE stock.variation IS NULL
+                        END')
+                ->andWhere('CASE
+                            WHEN product_modification.const IS NOT NULL
+                            THEN stock.modification = product_modification.const
+                            ELSE stock.modification IS NULL
+                        END')
+                ->andWhere('stock.total > stock.reserve');
+
+            $dbal->andWhere('EXISTS('.$exist->getSQL().')');
+
+        }
 
 
         /**
@@ -674,7 +637,7 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         $dbal->addOrderBy('product_modification', 'DESC');
         $dbal->addOrderBy('avito_token_kit.value', 'ASC');
 
-        $dbal->allGroupByExclude();
+        //$dbal->allGroupByExclude();
 
 
         return $this->paginator->fetchAllHydrate($dbal, AllProductsWithAvitoImagesResult::class);
