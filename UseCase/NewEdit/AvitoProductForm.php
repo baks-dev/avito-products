@@ -27,6 +27,7 @@ namespace BaksDev\Avito\Products\UseCase\NewEdit;
 
 use BaksDev\Avito\Products\Repository\OneProductWithAvitoImages\OneProductWithAvitoImagesInterface;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductsImagesForm;
+use BaksDev\Avito\Products\UseCase\NewEdit\Sale\AvitoProductSaleForm;
 use BaksDev\Core\Twig\TemplateExtension;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use Exception;
@@ -62,6 +63,9 @@ final class AvitoProductForm extends AbstractType
             'allow_add' => true,
             'prototype_name' => '__images__',
         ]);
+
+
+        $builder->add('sale', AvitoProductSaleForm::class);
 
         $builder->add('description', TextareaType::class, [
             'required' => false,

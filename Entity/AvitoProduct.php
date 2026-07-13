@@ -28,6 +28,7 @@ namespace BaksDev\Avito\Products\Entity;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
 use BaksDev\Avito\Products\Entity\Profile\AvitoProductProfile;
+use BaksDev\Avito\Products\Entity\Sale\AvitoProductSale;
 use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
 use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Core\Entity\EntityState;
@@ -88,6 +89,10 @@ class AvitoProduct extends EntityState
     /** Комплекты */
     #[ORM\OneToOne(targetEntity: AvitoProductKit::class, mappedBy: 'avito', cascade: ['all'])]
     private AvitoProductKit $kit;
+
+    /** AvitoProductSale */
+    #[ORM\OneToOne(targetEntity: AvitoProductSale::class, mappedBy: 'avito', cascade: ['all'])]
+    private ?AvitoProductSale $sale = null;
 
 
     public function __construct()

@@ -30,6 +30,7 @@ use BaksDev\Avito\Products\Type\Id\AvitoProductUid;
 use BaksDev\Avito\Products\UseCase\NewEdit\Images\AvitoProductImagesDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\Kit\AvitoProductKitDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\Profile\AvitoProductProfileDTO;
+use BaksDev\Avito\Products\UseCase\NewEdit\Sale\AvitoProductSaleDTO;
 use BaksDev\Avito\Products\UseCase\NewEdit\Token\AvitoProductTokenDTO;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Offers\ConstId\ProductOfferConst;
@@ -78,14 +79,19 @@ final class AvitoProductDTO implements AvitoProductInterface
     #[Assert\Valid]
     private AvitoProductKitDTO $kit;
 
+    #[Assert\Valid]
+    private AvitoProductSaleDTO $sale;
+
     /** Шаблон описания */
     private ?string $description = null;
+
 
     public function __construct()
     {
         $this->images = new ArrayCollection();
         $this->token = new AvitoProductTokenDTO();
         $this->kit = new AvitoProductKitDTO();
+        $this->sale = new AvitoProductSaleDTO();
     }
 
     public function setId(AvitoProductUid $id): self
@@ -200,5 +206,10 @@ final class AvitoProductDTO implements AvitoProductInterface
     public function getKit(): AvitoProductKitDTO
     {
         return $this->kit;
+    }
+
+    public function getSale(): AvitoProductSaleDTO
+    {
+        return $this->sale;
     }
 }
