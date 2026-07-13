@@ -38,7 +38,7 @@ final class AvitoProductSaleForm extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('sale', CheckboxType::class, ['required' => false]);
+        $builder->add('value', CheckboxType::class, ['required' => false]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

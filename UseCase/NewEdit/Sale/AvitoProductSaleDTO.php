@@ -34,34 +34,33 @@ final class AvitoProductSaleDTO implements AvitoProductSaleInterface
     /** Значение свойства */
     private ?bool $value = null;
 
-    /** Свойство формы */
-    private ?bool $sale = null;
-
-    public function getSale(): bool
-    {
-        return $this->sale === true;
-    }
-
-    public function setSale(?bool $sale): self
-    {
-        $this->sale = $sale;
-
-        /** Присваиваем значение FALSE т.к. в сущности флаг TRUE считается как "Снят с продажи" */
-        $this->value = $sale === false;
-
-        return $this;
-    }
+    //    /** Свойство формы */
+    //    private ?bool $sale = null;
+    //
+    //    public function getSale(): bool
+    //    {
+    //        return $this->sale === true;
+    //    }
+    //
+    //    public function setSale(?bool $sale): self
+    //    {
+    //        $this->sale = $sale;
+    //
+    //        /** Присваиваем значение FALSE т.к. в сущности флаг TRUE считается как "Снят с продажи" */
+    //        $this->value = $sale === false;
+    //
+    //        return $this;
+    //    }
 
     public function getValue(): bool
     {
-
         return $this->value === true;
     }
 
     public function setValue(?bool $value): self
     {
         $this->value = $value;
-        $this->sale = $value === false;
+        //$this->sale = $value;
 
         return $this;
     }
