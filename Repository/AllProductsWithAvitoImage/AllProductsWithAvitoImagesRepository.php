@@ -34,6 +34,7 @@ use BaksDev\Avito\Entity\Event\Profile\AvitoTokenProfile;
 use BaksDev\Avito\Products\Entity\AvitoProduct;
 use BaksDev\Avito\Products\Entity\Images\AvitoProductImage;
 use BaksDev\Avito\Products\Entity\Kit\AvitoProductKit;
+use BaksDev\Avito\Products\Entity\Sale\AvitoProductSale;
 use BaksDev\Avito\Products\Entity\Token\AvitoProductToken;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
@@ -408,12 +409,14 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ) AS product_image_cdn',
         );
 
+
         /**
          * Картинки Авито
          */
 
         $avitoImagesDbal
             ->select('DISTINCT avito_product.id')
+            ->addSelect('avito_product_sale.value AS sale')
             ->addSelect('avito_product_images.root')
             ->addSelect('avito_product_images.name')
             ->addSelect('avito_product_images.ext')
@@ -423,6 +426,20 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
             ->andWhere('avito_product.offer = product_offer.const')
             ->andWhere(' avito_product.variation = product_variation.const')
             ->andWhere(' avito_product.modification = product_modification.const');
+
+        $method = 'leftJoin';
+        if(true === $this->avitoProductsFilter?->getSale())
+        {
+            $method = 'join';
+        }
+
+        $avitoImagesDbal->{$method}(
+            'avito_product',
+            AvitoProductSale::class,
+            'avito_product_sale',
+            'avito_product_sale.avito = avito_product.id'
+            .($this->avitoProductsFilter?->getSale() ? ' AND avito_product_sale.value IS TRUE' : ''),
+        );
 
         $avitoImagesDbal->join(
             'avito_product',
@@ -456,12 +473,13 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                 'product_modification',
                 "LATERAL 
                 ( SELECT
-                 
-                     JSON_AGG
+                   
+                    JSON_AGG
                     (
                         JSONB_BUILD_OBJECT
                         (
                             'id', avito_product_images.id,
+                            'sale', avito_product_images.sale,
                             'root', avito_product_images.root,
                             'name', CONCAT ( '/upload/".$dbal->table(AvitoProductImage::class)."' , '/', avito_product_images.name),
                             'ext', avito_product_images.ext,
@@ -469,7 +487,8 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
                         )
                     ) 
                     
-                    FILTER (WHERE avito_product_images.ext IS NOT NULL) AS avito_product_images
+                    /*FILTER (WHERE avito_product_images.ext IS NOT NULL) */
+                    AS avito_product_images
                
                     FROM (".$avitoImagesDbal->getSQL().") avito_product_images
                 )",
@@ -482,6 +501,13 @@ final class AllProductsWithAvitoImagesRepository implements AllProductsWithAvito
         {
             $dbal->andWhere('avito_product_images.avito_product_images IS NULL');
         }
+
+        /** Фильтр "Сняты с производства" */
+        if(true === $this->avitoProductsFilter?->getSale())
+        {
+            $dbal->andWhere('avito_product_images.avito_product_images IS NOT NULL');
+        }
+
 
         /* Фильтр "Только в наличии" */
         if(true === $this->avitoProductsFilter?->getStocks() && class_exists(BaksDevProductsStocksBundle::class))

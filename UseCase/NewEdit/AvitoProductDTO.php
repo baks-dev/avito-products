@@ -51,9 +51,8 @@ final class AvitoProductDTO implements AvitoProductInterface
     private ProductUid $product;
 
     /** Константа ТП */
-    #[Assert\NotBlank]
     #[Assert\Uuid]
-    private ProductOfferConst $offer;
+    private ?ProductOfferConst $offer;
 
     /** Константа множественного варианта */
     #[Assert\Uuid]

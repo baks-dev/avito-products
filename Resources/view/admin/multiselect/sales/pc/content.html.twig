@@ -1,0 +1,53 @@
+{% trans_default_domain 'products-stocks.admin' %}
+
+<div class="modal-dialog modal-dialog-centered " style="max-width: 700px;">
+    {{ form_start(form) }}
+
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+
+        <div class="modal-header border-0">
+            <h5 class="modal-title" style="font-size:1.1rem;">
+                {{ 'Публикация объявлений'|trans }}
+            </h5>
+        </div>
+
+        {% for collection in form.collection %}
+            {{ form_widget(collection) }}
+        {% endfor %}
+
+        <div class="modal-footer">
+
+            <div class="flex-grow-1 d-flex align-items-center" data-buttons="true">
+                <label class="btn p-3 border-dotted rounded-3 {{ form.sale.vars.data ? 'active' }}">
+                    <div class="form-check d-flex align-items-center p-0">
+                        <div class="mt-1">
+                            {{ form_widget(form.sale, { label: false }) }}
+                        </div>
+                        <div class='d-flex flex-column'>
+                            <div class='text-start'>
+                                Снять с продажи выделенные объявления
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+
+
+            <div class="d-flex gap-3">
+
+                {# Отмена #}
+                <button type="button" class="btn btn-light ms-2" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
+
+                {{ form_widget(form.sales_multiselect, { label: '
+                    <span>Обновить</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                ' } ) }}
+
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>

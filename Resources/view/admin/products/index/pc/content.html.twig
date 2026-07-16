@@ -147,13 +147,32 @@
                             </div>
                         </div>
 
+                        <div class="w-50">
+                            <div class="d-flex justify-content-around radio-buttons clearfix"
+                                 data-buttons="true"
+                                 style="clear: both">
+
+                                <label class="btn px-2 py-1 border-dotted rounded-3 w-100 {{ avito.sale.vars.data ? 'active' }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+
+                                            <div class="d-flex align-items-center">
+                                                {{ form_widget(avito.sale, { label: false }) }}
+                                                <div class="form-check ps-0 text-nowrap">
+                                                    {# Сняты с продажи #}
+                                                    {{ 'Снятые с продажи'|trans }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
                         {{ form_end(avito) }}
 
                     </div>
                 </div>
-
-
-
 
             {% endif %}
 
@@ -181,6 +200,57 @@
             </table>
 
             {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}
+
+
+
+            {% if query.data %}
+
+                <div class="position-absolute mt-2 pt-1 small">
+                    <strong class="">Множественный выбор:</strong>
+                </div>
+
+                <div class="to-invoice-actions d-flex gap-2 sticky-bottom ps-5 pb-3 pt-2 z-1"
+                     style="margin-left: 130px; max-width: 100px;">
+
+                    <button class="btn btn-sm btn-outline-primary text-nowrap mb-2"
+                            role="tooltip"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-delay='{"show":600,"hide":100}'
+                            title="Выбрать все"
+                            id="select-all"
+                            data-name="{{ sales_multiselect_form_name }}"
+                    >
+
+                        Выбрать все
+                    </button>
+
+                    <a class="btn btn-sm btn-warning text-nowrap mb-2 d-none"
+                       role="tooltip"
+                       data-bs-placement="bottom"
+                       data-bs-delay='{"show":600,"hide":100}'
+                       title="Публикация объявлений"
+                       id="btn_sale_{{ sales_multiselect_form_name }}"
+
+                       data-bs-toggle="modal"
+                       data-bs-target="#modal"
+
+                            {# класс элемиента checkbox #}
+                       data-post-class="{{ sales_multiselect_form_name }}"
+
+                       data-method="post"
+
+                       data-collection-form="collection"
+                       data-formname="{{ sales_multiselect_form_name }}"
+
+                       href="{{ path('avito-products:admin.multiselect.sales') }}">
+
+                        Публикация объявлений
+                    </a>
+
+                </div>
+            {% endif %}
+
 
         </div>
 

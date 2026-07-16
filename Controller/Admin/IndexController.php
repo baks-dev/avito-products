@@ -27,12 +27,14 @@ namespace BaksDev\Avito\Products\Controller\Admin;
 
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterDTO;
 use BaksDev\Avito\Products\Forms\AvitoFilter\AvitoProductsFilterForm;
+use BaksDev\Avito\Products\Messenger\Product\SalesMultiselect\Handler\SalesMultiselectForm;
 use BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesInterface;
 use BaksDev\Avito\Products\Repository\AvitoProductImageInfo\AvitoProductImageInfoInterface;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Orders\Order\Forms\Canceled\CanceledOrdersForm;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,6 +111,9 @@ final class IndexController extends AbstractController
                 'search' => $searchForm->createView(),
                 'query' => $products,
                 'info' => $info,
+
+                'sales_multiselect_form_name' => $this->createForm(type: SalesMultiselectForm::class)->getName(),
+
             ],
         );
     }

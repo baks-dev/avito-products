@@ -62,7 +62,7 @@ final class NewEditController extends AbstractController
     public function index(
         Request $request,
         AvitoProductProfileInterface $AvitoProductProfileInterface,
-        AvitoProductHandler $handler,
+        AvitoProductHandler $AvitoProductHandler,
         OneProductWithAvitoImagesInterface $oneProductWithAvitoImages,
         #[ParamConverter(AvitoTokenUid::class)] $token,
         #[ParamConverter(ProductUid::class)] $product,
@@ -114,7 +114,7 @@ final class NewEditController extends AbstractController
                     'variation' => $AvitoProductDTO->getVariation(),
                     'modification' => $AvitoProductDTO->getModification(),
                     'kit' => $AvitoProductDTO->getKit()->getValue(),
-                    'page' => $request->get('page'),
+                    'page' => $request->request->get('page', 0),
                 ],
             )],
         );
@@ -125,7 +125,7 @@ final class NewEditController extends AbstractController
         {
             $this->refreshTokenForm($form);
 
-            $handle = $handler->handle($AvitoProductDTO);
+            $handle = $AvitoProductHandler->handle($AvitoProductDTO);
 
             $this->addFlash(
                 'page.edit',

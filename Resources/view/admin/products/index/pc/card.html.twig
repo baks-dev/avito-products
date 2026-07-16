@@ -1,5 +1,16 @@
 {# @var item \BaksDev\Avito\Products\Repository\AllProductsWithAvitoImage\AllProductsWithAvitoImagesResult #}
 
+    {% set href = path('avito-products:admin.products.edit', {
+        token : item.avitoToken,
+        product : item.productId,
+        offer: item.productOfferConst,
+        variation: item.productVariationConst,
+        modification: item.productModificationConst,
+        kit: item.kit,
+        page: app.request.get('_route_params').page is defined ? app.request.get('_route_params').page : 0
+    }) %}
+
+
 <tr class="vertical-middle">
 
     <td class="text-nowrap">
@@ -12,15 +23,6 @@
         {{ item.categoryName }}
     </td>
 
-    {% set href = path('avito-products:admin.products.edit', {
-        token : item.avitoToken,
-        product : item.productId,
-        offer: item.productOfferConst,
-        variation: item.productVariationConst,
-        modification: item.productModificationConst,
-        kit: item.kit,
-        page: app.request.get('_route_params').page is defined ? app.request.get('_route_params').page : 0
-    }) %}
 
     {# Продукция  #}
     <td class="ps-5 align-middle w-100">
@@ -31,8 +33,7 @@
                data-bs-target="#modal"
                class="pe-3 modal-link disabled"
             >
-                {# Обложка #}
-
+                {# Обложка продукта #}
                 <div class="icon rounded-3 bg-contain lazy p-1" style="width: 50px; height: 50px; cursor: unset;"
                      data-bg="{{ cdn_image_path(item.productImage, item.productImageExt, item.productImageCdn, 'small') }}">
                 </div>
@@ -111,20 +112,39 @@
     <td class="text-center">
         {# Обложка #}
 
-        {% set cover = { name: null, ext: null, cdn: false } %}
+        {% set cover = { name: null, ext: null, cdn: false, sale: false } %}
 
         {% if item.avitoProductImages is not null %}
             {% set cover = item.avitoProductImages %}
         {% endif %}
 
+        {# <button type="button" class="btn btn-primary position-relative">
+            Profile
+            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+    <span class="visually-hidden">New alerts</span>
+  </span>
+        </button> #}
+
         <button data-href="{{ href }}"
-                class="btn btn-sm icon border-0 rounded-3 bg-cover lazy modal-link disabled"
+                class="btn btn-sm icon border-0 rounded-3 bg-cover lazy modal-link disabled position-relative"
                 data-bs-toggle="modal"
                 data-bs-target="#modal"
                 data-bg="{{ cdn_image_path(cover.name, cover.ext, cover.cdn, 'small') }}"
-                title="Настройки объявления"
                 style="width: 50px; height: 50px;"
         >
+
+            {% if cover.sale %}
+                <div class="icon rounded-circle bg-contain p-2 bg-danger text-white small position-absolute top-0 start-100 translate-middle"
+                     style="width: 18px; height: 18px;"
+                     role="tooltip"
+                     data-bs-toggle="tooltip"
+                     data-bs-placement="bottom"
+                     data-bs-delay='{"show":600,"hide":100}'
+                     data-bs-title='Объявление снято с продажи'
+                >
+                    <span class="small">!</span>
+                </div>
+            {% endif %}
 
         </button>
 

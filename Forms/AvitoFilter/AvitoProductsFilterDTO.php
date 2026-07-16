@@ -36,6 +36,9 @@ final class AvitoProductsFilterDTO
     /** Наличие */
     private null|bool $stocks = null;
 
+    /** Сняты с производства */
+    private null|bool $sale = null;
+
     private ?AvitoTokenUid $token = null;
 
     /**
@@ -63,6 +66,16 @@ final class AvitoProductsFilterDTO
         return $this;
     }
 
+    public function getSale(): ?bool
+    {
+        return $this->sale;
+    }
+
+    public function setSale(?bool $sale): self
+    {
+        $this->sale = $sale;
+        return $this;
+    }
 
     /**
      * Token

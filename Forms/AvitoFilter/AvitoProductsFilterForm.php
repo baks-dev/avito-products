@@ -59,6 +59,8 @@ final class AvitoProductsFilterForm extends AbstractType
 
         $builder->add('stocks', CheckboxType::class, ['required' => false]);
 
+        $builder->add('sale', CheckboxType::class, ['required' => false]);
+
         $tokens = $this->AvitoTokensByProfileRepository
             ->forProfile($this->UserProfileTokenStorage->getProfile())
             ->onlyActive()
@@ -106,6 +108,7 @@ final class AvitoProductsFilterForm extends AbstractType
                         $this->session->remove($this->sessionKey);
                         $data->setExists(null);
                         $data->setStocks(null);
+                        $data->setSale(null);
                         return;
                     }
 
@@ -115,6 +118,7 @@ final class AvitoProductsFilterForm extends AbstractType
 
                     $data->setExists($sessionArray['exists'] ?? null);
                     $data->setStocks($sessionArray['stocks'] ?? null);
+                    $data->setSale($sessionArray['sale'] ?? null);
                     $data->setToken($sessionArray['token'] ?? null);
 
                 }
@@ -139,6 +143,7 @@ final class AvitoProductsFilterForm extends AbstractType
 
                     $data->getExists() !== null ? $sessionArray['exists'] = $data->getExists() : null;
                     $data->getStocks() !== null ? $sessionArray['stocks'] = $data->getStocks() : null;
+                    $data->getSale() !== null ? $sessionArray['sale'] = $data->getSale() : null;
                     $data->getToken() instanceof AvitoTokenUid ? $sessionArray['token'] = (string) $data->getToken() : null;
 
 
