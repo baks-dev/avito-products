@@ -1,19 +1,35 @@
 {% trans_default_domain 'products-stocks.admin' %}
 
-<div class="modal-dialog modal-dialog-centered " style="max-width: 700px;">
+<div class="modal-dialog modal-dialog-centered " style="max-width: 800px;">
     {{ form_start(form) }}
 
-    <div class="modal-content p-3 border-bottom border-5 border-primary">
+    <div id="{{ form.vars.id }}_modal_content" class="modal-content p-3 border-bottom border-5 border-primary">
 
-        <div class="modal-header border-0">
+        <div class="modal-header">
             <h5 class="modal-title" style="font-size:1.1rem;">
-                {{ 'Публикация объявлений'|trans }}
+                {{ 'Публикация выделенных объявлений'|trans }}
             </h5>
         </div>
 
-        {% for collection in form.collection %}
-            {{ form_widget(collection) }}
-        {% endfor %}
+        <div class="modal-body">
+            <h4>
+                {# Вы уверены, что желаете удалить #}
+                Вы уверены, что желаете <span id="{{ form.vars.id }}_text">опубликовать</span> объявления?
+            </h4>
+
+            <br>
+
+            <p>
+                Убедитесь, что выбран именно тот объект, который нужно обновить, и нажмите «Обновить». Если Вы не
+                желаете обновлять выбранный объект, нажмите кнопку «Отмена».
+            </p>
+
+            {% for collection in form.collection %}
+                {{ form_widget(collection) }}
+            {% endfor %}
+
+        </div>
+
 
         <div class="modal-footer">
 
@@ -25,7 +41,7 @@
                         </div>
                         <div class='d-flex flex-column'>
                             <div class='text-start'>
-                                Снять с продажи выделенные объявления
+                                Снять с продажи выделенные
                             </div>
                         </div>
                     </div>
@@ -39,6 +55,7 @@
                 <button type="button" class="btn btn-light ms-2" data-bs-dismiss="modal">
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
+
 
                 {{ form_widget(form.sales_multiselect, { label: '
                     <span>Обновить</span>

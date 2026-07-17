@@ -1,1 +1,51 @@
 {{ include(_self|replace({ "content.html.twig": baks_settings.device~"/content.html.twig" })) }}
+
+<script nonce='{{ csp_nonce() }}' class="lazy">
+
+    executeFunc(function()
+    {
+        if(document.getElementById("{{ form.sales_multiselect.vars.id }}"))
+        {
+            salesMultiselect();
+            return true;
+        }
+
+        return false;
+
+    });
+
+    function salesMultiselect()
+    {
+        const sales_multiselect_form_modal_content = document.getElementById("{{ form.vars.id }}_modal_content");
+        const sales_multiselect_form_sales_multiselect = document.getElementById("{{ form.sales_multiselect.vars.id }}");
+
+        const sales_multiselect_form_sale = document.getElementById("{{ form.sale.vars.id }}");
+        const sales_multiselect_form_sale_text = document.getElementById("{{ form.vars.id }}_text");
+
+        sales_multiselect_form_sale.addEventListener("click", function(event)
+        {
+            if(this.checked)
+            {
+                sales_multiselect_form_sales_multiselect.classList.remove("btn-primary");
+                sales_multiselect_form_sales_multiselect.classList.add("btn-danger");
+
+                sales_multiselect_form_modal_content.classList.remove("border-primary");
+                sales_multiselect_form_modal_content.classList.add("border-danger");
+
+                sales_multiselect_form_sale_text.textContent = "снять с публикации";
+            }
+            else
+            {
+                sales_multiselect_form_sales_multiselect.classList.remove("btn-danger");
+                sales_multiselect_form_sales_multiselect.classList.add("btn-primary");
+
+                sales_multiselect_form_modal_content.classList.remove("border-danger");
+                sales_multiselect_form_modal_content.classList.add("border-primary");
+
+                sales_multiselect_form_sale_text.textContent = "опубликовать";
+            }
+
+        });
+    }
+
+</script>
