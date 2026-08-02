@@ -87,6 +87,7 @@ final class AvitoProductsFilterForm extends AbstractType
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function(FormEvent $event): void {
+
                 /** @var AvitoProductsFilterDTO $data */
                 $data = $event->getData();
 
